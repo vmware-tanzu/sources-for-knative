@@ -42,6 +42,14 @@
   revision = "59d068f8d8ff5b653916aa30cdc4e13c7f15d56e"
 
 [[projects]]
+  digest = "1:7b5f423f5b0dd3dfa32a19a6183b0ab9129bff371ebf3f9efae32f87e4986d8f"
+  name = "contrib.go.opencensus.io/exporter/zipkin"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "30f9fad5db2c8944c21d223496e2543aeb445d4c"
+  version = "v0.1.1"
+
+[[projects]]
   digest = "1:f8ca43cb442c30681fa977ee8c6f2b43aa0b3ab5d8b831cc44ce2cdf7b9a000c"
   name = "github.com/aws/aws-sdk-go"
   packages = [
@@ -94,6 +102,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:45c41cd27a8d986998680bfc86da0bbff5fa4f90d0f446c00636c8b099028ffe"
+  name = "github.com/blang/semver"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ba2c2ddd89069b46a7011d4106f6868f17ee1705"
+  version = "v3.6.1"
+
+[[projects]]
   digest = "1:8f5acd4d4462b5136af644d25101f0968a7a94ee90fcb2059cec5b7cc42e0b20"
   name = "github.com/census-instrumentation/opencensus-proto"
   packages = [
@@ -107,6 +123,32 @@
   pruneopts = "NUT"
   revision = "d89fa54de508111353cb0b06403c00569be780d8"
   version = "v0.2.1"
+
+[[projects]]
+  digest = "1:78344d6e3da79644c708beae0ced080ba5a2302d2d375997c9125e216b49420b"
+  name = "github.com/cloudevents/sdk-go"
+  packages = [
+    "v2",
+    "v2/binding",
+    "v2/binding/format",
+    "v2/binding/spec",
+    "v2/binding/transformer",
+    "v2/client",
+    "v2/context",
+    "v2/event",
+    "v2/event/datacodec",
+    "v2/event/datacodec/json",
+    "v2/event/datacodec/text",
+    "v2/event/datacodec/xml",
+    "v2/extensions",
+    "v2/observability",
+    "v2/protocol",
+    "v2/protocol/http",
+    "v2/types",
+  ]
+  pruneopts = "NUT"
+  revision = "6dc020a8df7f3ee38d729e53cde2193ea7edf12a"
+  version = "v2.0.0-preview8"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -301,6 +343,17 @@
   version = "v0.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:a12508addb76a16593d8a3cee41d782fdf738f727d421f0bcc2dd2ee76821c01"
+  name = "github.com/lightstep/tracecontext.go"
+  packages = [
+    "traceparent",
+    "tracestate",
+  ]
+  pruneopts = "NUT"
+  revision = "1757c391b1acf4147823503f13e003115ea4e5df"
+
+[[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
   name = "github.com/matttproud/golang_protobuf_extensions"
   packages = ["pbutil"]
@@ -325,9 +378,16 @@
   version = "1.0.1"
 
 [[projects]]
-  digest = "1:c01e66557785d9d75328704d11c44c26582980cd78209475cb141b3eedd11e9f"
+  digest = "1:1a0de55901552615e2b2f24bdb51431634165e74745b042a3ec11c3e97ce5843"
   name = "github.com/openzipkin/zipkin-go"
-  packages = ["model"]
+  packages = [
+    ".",
+    "idgenerator",
+    "model",
+    "propagation",
+    "reporter",
+    "reporter/http",
+  ]
   pruneopts = "NUT"
   revision = "c29478e51bfb2e9c93e0e9f5e015e5993a490399"
   version = "v0.2.2"
@@ -543,7 +603,7 @@
   version = "v0.22.2"
 
 [[projects]]
-  digest = "1:16fcee0bb7bbca06660ad6af81d15580550a8aebc2e815d41bdc12925a2ac03f"
+  digest = "1:84c8e620608a8fa02e462f6bff9d91a0754c264469a9f74c6f27c48af7d32a42"
   name = "go.opencensus.io"
   packages = [
     ".",
@@ -555,6 +615,7 @@
     "plugin/ocgrpc",
     "plugin/ochttp",
     "plugin/ochttp/propagation/b3",
+    "plugin/ochttp/propagation/tracecontext",
     "resource",
     "resource/resourcekeys",
     "stats",
@@ -653,9 +714,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4692f916cb72b2c295f04841036d85a3f13e96d1cc9e8e4c2c30edebac518053"
+  digest = "1:ec98ab215ad6fe290c86fe0c15b73684dd44680fc7b131fc1e0398b8dd5738f1"
   name = "golang.org/x/sync"
-  packages = ["semaphore"]
+  packages = [
+    "errgroup",
+    "semaphore",
+  ]
   pruneopts = "NUT"
   revision = "43a5402ce75a95522677f77c619865d66b8c57ab"
 
@@ -872,9 +936,10 @@
   version = "v2.2.8"
 
 [[projects]]
-  digest = "1:061024a203efbf02654d4aa55d69cd10d1f8985dada4cbafe5d6ce1b6914d22a"
+  digest = "1:d77b48cc0ea74f3edbc8e0515a0ce2fa2154eb414137dd4fb5a642a73296d403"
   name = "k8s.io/api"
   packages = [
+    "admission/v1beta1",
     "admissionregistration/v1",
     "admissionregistration/v1beta1",
     "apps/v1",
@@ -919,7 +984,18 @@
   version = "kubernetes-1.16.4"
 
 [[projects]]
-  digest = "1:814703684a5e0baf4a4dc15fe892bfb266c57d66db5d6d89996cdec36efb2fc1"
+  digest = "1:272526736c2515c5d83dd917a0356619403ff844c422cdcd1ce9aa978c9838e5"
+  name = "k8s.io/apiextensions-apiserver"
+  packages = [
+    "pkg/apis/apiextensions",
+    "pkg/apis/apiextensions/v1beta1",
+  ]
+  pruneopts = "NUT"
+  revision = "fe72b0923eadc9cce39886c075d2771eababde69"
+  version = "v0.18.0"
+
+[[projects]]
+  digest = "1:90bae9a26d98f85900a8fd7ce76ea9bc429e90b279efbcdfd8814d92b39ccfe0"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/equality",
@@ -959,6 +1035,7 @@
     "pkg/util/runtime",
     "pkg/util/sets",
     "pkg/util/strategicpatch",
+    "pkg/util/uuid",
     "pkg/util/validation",
     "pkg/util/validation/field",
     "pkg/util/wait",
@@ -973,7 +1050,7 @@
   version = "kubernetes-1.16.4"
 
 [[projects]]
-  digest = "1:d5b26b8dfb8f6a0c8486b8d5957ae31b7605c3168e2e13b8ae5531c62eb3e98d"
+  digest = "1:bc47f1dc5e4413e331a87d5412955654148df35bbf83d7057d0c45c35a3a2e09"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -1121,6 +1198,8 @@
     "tools/clientcmd/api",
     "tools/clientcmd/api/latest",
     "tools/clientcmd/api/v1",
+    "tools/leaderelection",
+    "tools/leaderelection/resourcelock",
     "tools/metrics",
     "tools/pager",
     "tools/record",
@@ -1202,11 +1281,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2d3f59daa4b479ff4e100a2e1d8fea6780040fdadc177869531fe4cc29407f55"
+  digest = "1:99dbf7ef753ca02399778c93a4ed4b689b28668317134ecd1fabeb07be70f354"
   name = "k8s.io/utils"
   packages = [
     "buffer",
     "integer",
+    "pointer",
     "trace",
   ]
   pruneopts = "NUT"
@@ -1250,8 +1330,12 @@
     "configmap",
     "controller",
     "injection",
+    "injection/clients/namespacedkube/informers/factory",
+    "injection/sharedmain",
     "kmeta",
     "kmp",
+    "kvstore",
+    "leaderelection",
     "logging",
     "logging/logkey",
     "metrics",
@@ -1259,13 +1343,21 @@
     "profiling",
     "ptr",
     "reconciler",
+    "signals",
+    "source",
+    "system",
     "test",
     "test/ingress",
     "test/logging",
     "test/monitoring",
     "test/spoof",
     "test/zipkin",
+    "tracing",
+    "tracing/config",
     "tracker",
+    "version",
+    "webhook",
+    "webhook/certificates/resources",
   ]
   pruneopts = "T"
   revision = "0cf29f826c4009526c7357e84e7a99003d6eb3f8"
@@ -1290,13 +1382,16 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/cloudevents/sdk-go/v2",
     "github.com/google/go-cmp/cmp",
     "github.com/kelseyhightower/envconfig",
     "github.com/vmware/govmomi",
+    "github.com/vmware/govmomi/event",
     "github.com/vmware/govmomi/govc",
     "github.com/vmware/govmomi/vapi/rest",
     "github.com/vmware/govmomi/vcsim",
     "github.com/vmware/govmomi/vim25/soap",
+    "github.com/vmware/govmomi/vim25/types",
     "go.uber.org/zap",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
@@ -1314,6 +1409,7 @@
     "k8s.io/apimachinery/pkg/watch",
     "k8s.io/client-go/discovery",
     "k8s.io/client-go/discovery/fake",
+    "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/kubernetes/typed/core/v1",
     "k8s.io/client-go/rest",
@@ -1326,6 +1422,7 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
+    "knative.dev/eventing/pkg/adapter/v2",
     "knative.dev/eventing/pkg/apis/sources/v1alpha1",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck",
@@ -1337,10 +1434,13 @@
     "knative.dev/pkg/configmap",
     "knative.dev/pkg/controller",
     "knative.dev/pkg/injection",
+    "knative.dev/pkg/injection/sharedmain",
     "knative.dev/pkg/kmeta",
+    "knative.dev/pkg/kvstore",
     "knative.dev/pkg/logging",
     "knative.dev/pkg/ptr",
     "knative.dev/pkg/reconciler",
+    "knative.dev/pkg/signals",
     "knative.dev/pkg/tracker",
     "knative.dev/test-infra/scripts",
   ]
