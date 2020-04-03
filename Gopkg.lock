@@ -183,6 +183,14 @@
   version = "v0.1.0"
 
 [[projects]]
+  digest = "1:416b666cb79f02526f115d16aba8b318b854f3c964107081311e9df6a08b39a9"
+  name = "github.com/gobuffalo/envy"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "3dbe4c98c1c77e4a8fac053251c262a85e048f21"
+  version = "v1.9.0"
+
+[[projects]]
   digest = "1:2b0e6c0bea11257c646616ebd6a62be0ef2b6a0fd8210ac3caeaf57ee136123b"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -222,10 +230,11 @@
   version = "v1.3.5"
 
 [[projects]]
-  digest = "1:0aeda02073125667ac6c9df50c7921cb22c08a4accdc54589c697a7e76be65c2"
+  digest = "1:f0ae868d945753df81e797524bb7f3c577bcf751ce515c18162d259ca3ff8de7"
   name = "github.com/google/go-cmp"
   packages = [
     "cmp",
+    "cmp/cmpopts",
     "cmp/internal/diff",
     "cmp/internal/flags",
     "cmp/internal/function",
@@ -310,6 +319,14 @@
   revision = "c2b33e84"
 
 [[projects]]
+  digest = "1:da62aa6632d04e080b8a8b85a59ed9ed1550842a0099a55f3ae3a20d02a3745a"
+  name = "github.com/joho/godotenv"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "23d116af351c84513e1946b527c88823e476be13"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:88116f979a2f3ff8e6748a942ec37efd668ba2db062fc9a5e47f4dd2de339a38"
   name = "github.com/json-iterator/go"
   packages = ["."]
@@ -352,6 +369,14 @@
   ]
   pruneopts = "NUT"
   revision = "1757c391b1acf4147823503f13e003115ea4e5df"
+
+[[projects]]
+  digest = "1:56dbf15e091bf7926cb33a57cb6bdfc658fc6d3498d2f76f10a97ce7856f1fde"
+  name = "github.com/markbates/inflect"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "24b83195037b3bc61fcda2d28b7b0518bce293b6"
+  version = "v1.0.4"
 
 [[projects]]
   digest = "1:5985ef4caf91ece5d54817c11ea25f182697534f8ae6521eadcd628c142ac4b6"
@@ -451,6 +476,18 @@
   pruneopts = "NUT"
   revision = "ccba498c397bb90a9c84945bbb0f7af2d72b6309"
   version = "v3.0.1"
+
+[[projects]]
+  digest = "1:e09ada96a5a41deda4748b1659cc8953961799e798aea557257b56baee4ecaf3"
+  name = "github.com/rogpeppe/go-internal"
+  packages = [
+    "modfile",
+    "module",
+    "semver",
+  ]
+  pruneopts = "NUT"
+  revision = "bc89b17ba21ce5b8a495fa55a94e3fe32ecf4ed8"
+  version = "v1.5.2"
 
 [[projects]]
   digest = "1:d115708a27806831d1babbc6f28a7478ddf8e32a7095507c816e2515fb03a810"
@@ -1299,11 +1336,63 @@
   packages = [
     "pkg/adapter/v2",
     "pkg/apis/config",
+    "pkg/apis/configs",
+    "pkg/apis/configs/v1alpha1",
     "pkg/apis/duck",
+    "pkg/apis/duck/v1alpha1",
+    "pkg/apis/duck/v1beta1",
     "pkg/apis/eventing",
+    "pkg/apis/eventing/v1alpha1",
+    "pkg/apis/eventing/v1beta1",
+    "pkg/apis/flows",
+    "pkg/apis/flows/v1alpha1",
+    "pkg/apis/flows/v1beta1",
+    "pkg/apis/messaging",
+    "pkg/apis/messaging/config",
+    "pkg/apis/messaging/v1alpha1",
+    "pkg/apis/messaging/v1beta1",
     "pkg/apis/sources",
     "pkg/apis/sources/v1alpha1",
     "pkg/apis/sources/v1alpha2",
+    "pkg/client/clientset/versioned",
+    "pkg/client/clientset/versioned/scheme",
+    "pkg/client/clientset/versioned/typed/configs/v1alpha1",
+    "pkg/client/clientset/versioned/typed/eventing/v1alpha1",
+    "pkg/client/clientset/versioned/typed/eventing/v1beta1",
+    "pkg/client/clientset/versioned/typed/flows/v1alpha1",
+    "pkg/client/clientset/versioned/typed/flows/v1beta1",
+    "pkg/client/clientset/versioned/typed/messaging/v1alpha1",
+    "pkg/client/clientset/versioned/typed/messaging/v1beta1",
+    "pkg/client/clientset/versioned/typed/sources/v1alpha1",
+    "pkg/client/clientset/versioned/typed/sources/v1alpha2",
+    "pkg/client/informers/externalversions",
+    "pkg/client/informers/externalversions/configs",
+    "pkg/client/informers/externalversions/configs/v1alpha1",
+    "pkg/client/informers/externalversions/eventing",
+    "pkg/client/informers/externalversions/eventing/v1alpha1",
+    "pkg/client/informers/externalversions/eventing/v1beta1",
+    "pkg/client/informers/externalversions/flows",
+    "pkg/client/informers/externalversions/flows/v1alpha1",
+    "pkg/client/informers/externalversions/flows/v1beta1",
+    "pkg/client/informers/externalversions/internalinterfaces",
+    "pkg/client/informers/externalversions/messaging",
+    "pkg/client/informers/externalversions/messaging/v1alpha1",
+    "pkg/client/informers/externalversions/messaging/v1beta1",
+    "pkg/client/informers/externalversions/sources",
+    "pkg/client/informers/externalversions/sources/v1alpha1",
+    "pkg/client/informers/externalversions/sources/v1alpha2",
+    "pkg/client/injection/client",
+    "pkg/client/injection/informers/factory",
+    "pkg/client/injection/informers/sources/v1alpha1/sinkbinding",
+    "pkg/client/listers/configs/v1alpha1",
+    "pkg/client/listers/eventing/v1alpha1",
+    "pkg/client/listers/eventing/v1beta1",
+    "pkg/client/listers/flows/v1alpha1",
+    "pkg/client/listers/flows/v1beta1",
+    "pkg/client/listers/messaging/v1alpha1",
+    "pkg/client/listers/messaging/v1beta1",
+    "pkg/client/listers/sources/v1alpha1",
+    "pkg/client/listers/sources/v1alpha2",
     "pkg/configmap",
     "pkg/logging",
     "pkg/tracing",
@@ -1323,13 +1412,22 @@
     "apis/duck/v1beta1",
     "apis/testing",
     "changeset",
+    "client/injection/ducks/duck/v1/podspecable",
     "client/injection/kube/client",
+    "client/injection/kube/informers/admissionregistration/v1beta1/mutatingwebhookconfiguration",
+    "client/injection/kube/informers/apps/v1/deployment",
+    "client/injection/kube/informers/core/v1/configmap",
+    "client/injection/kube/informers/core/v1/serviceaccount",
+    "client/injection/kube/informers/factory",
+    "client/injection/kube/informers/rbac/v1/rolebinding",
     "codegen/cmd/injection-gen",
     "codegen/cmd/injection-gen/args",
     "codegen/cmd/injection-gen/generators",
     "configmap",
     "controller",
     "injection",
+    "injection/clients/dynamicclient",
+    "injection/clients/namespacedkube/informers/core/v1/secret",
     "injection/clients/namespacedkube/informers/factory",
     "injection/sharedmain",
     "kmeta",
@@ -1358,6 +1456,7 @@
     "version",
     "webhook",
     "webhook/certificates/resources",
+    "webhook/psbinding",
   ]
   pruneopts = "T"
   revision = "0cf29f826c4009526c7357e84e7a99003d6eb3f8"
@@ -1412,6 +1511,9 @@
     "k8s.io/client-go/kubernetes",
     "k8s.io/client-go/kubernetes/scheme",
     "k8s.io/client-go/kubernetes/typed/core/v1",
+    "k8s.io/client-go/listers/apps/v1",
+    "k8s.io/client-go/listers/core/v1",
+    "k8s.io/client-go/listers/rbac/v1",
     "k8s.io/client-go/rest",
     "k8s.io/client-go/testing",
     "k8s.io/client-go/tools/cache",
@@ -1424,16 +1526,26 @@
     "k8s.io/code-generator/cmd/lister-gen",
     "knative.dev/eventing/pkg/adapter/v2",
     "knative.dev/eventing/pkg/apis/sources/v1alpha1",
+    "knative.dev/eventing/pkg/client/clientset/versioned",
+    "knative.dev/eventing/pkg/client/injection/client",
+    "knative.dev/eventing/pkg/client/injection/informers/sources/v1alpha1/sinkbinding",
+    "knative.dev/eventing/pkg/client/listers/sources/v1alpha1",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck",
     "knative.dev/pkg/apis/duck/v1",
     "knative.dev/pkg/apis/duck/v1alpha1",
     "knative.dev/pkg/apis/testing",
+    "knative.dev/pkg/client/injection/ducks/duck/v1/podspecable",
     "knative.dev/pkg/client/injection/kube/client",
+    "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment",
+    "knative.dev/pkg/client/injection/kube/informers/core/v1/configmap",
+    "knative.dev/pkg/client/injection/kube/informers/core/v1/serviceaccount",
+    "knative.dev/pkg/client/injection/kube/informers/rbac/v1/rolebinding",
     "knative.dev/pkg/codegen/cmd/injection-gen",
     "knative.dev/pkg/configmap",
     "knative.dev/pkg/controller",
     "knative.dev/pkg/injection",
+    "knative.dev/pkg/injection/clients/dynamicclient",
     "knative.dev/pkg/injection/sharedmain",
     "knative.dev/pkg/kmeta",
     "knative.dev/pkg/kvstore",
@@ -1442,6 +1554,7 @@
     "knative.dev/pkg/reconciler",
     "knative.dev/pkg/signals",
     "knative.dev/pkg/tracker",
+    "knative.dev/pkg/webhook/psbinding",
     "knative.dev/test-infra/scripts",
   ]
   solver-name = "gps-cdcl"
