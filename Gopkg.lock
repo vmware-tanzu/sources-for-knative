@@ -125,6 +125,14 @@
   version = "v5.0.0"
 
 [[projects]]
+  digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
+  name = "github.com/ghodss/yaml"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:53becd66889185091b58ea3fc49294996f2179fb05a89702f4de7d15e581b509"
   name = "github.com/go-logr/logr"
   packages = ["."]
@@ -375,6 +383,14 @@
   pruneopts = "NUT"
   revision = "46159f73e74d1cb8dc223deef9b2d049286f46b1"
   version = "v0.0.11"
+
+[[projects]]
+  digest = "1:848d23083e5cd9077383e35850ba4c5bcc47bb42b87d5a53a83b758c977b46c8"
+  name = "github.com/robfig/cron"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ccba498c397bb90a9c84945bbb0f7af2d72b6309"
+  version = "v3.0.1"
 
 [[projects]]
   digest = "1:d115708a27806831d1babbc6f28a7478ddf8e32a7095507c816e2515fb03a810"
@@ -1198,6 +1214,25 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:bd019607cc02917f2e6b52454a6f9a4f263ab662c0accc6672ad6397781cb77b"
+  name = "knative.dev/eventing"
+  packages = [
+    "pkg/adapter/v2",
+    "pkg/apis/config",
+    "pkg/apis/duck",
+    "pkg/apis/eventing",
+    "pkg/apis/sources",
+    "pkg/apis/sources/v1alpha1",
+    "pkg/apis/sources/v1alpha2",
+    "pkg/configmap",
+    "pkg/logging",
+    "pkg/tracing",
+  ]
+  pruneopts = "T"
+  revision = "448b4e91c132e1e435667223bbf650f29f769ef5"
+
+[[projects]]
+  branch = "master"
   digest = "1:f4759efced984bad055c6e7f87d3ea0efc5f96dd6f466346d93d6fc0f09b2970"
   name = "knative.dev/pkg"
   packages = [
@@ -1221,6 +1256,8 @@
     "logging/logkey",
     "metrics",
     "metrics/metricskey",
+    "profiling",
+    "ptr",
     "reconciler",
     "test",
     "test/ingress",
@@ -1263,6 +1300,7 @@
     "go.uber.org/zap",
     "k8s.io/api/apps/v1",
     "k8s.io/api/core/v1",
+    "k8s.io/api/rbac/v1",
     "k8s.io/apimachinery/pkg/api/equality",
     "k8s.io/apimachinery/pkg/api/errors",
     "k8s.io/apimachinery/pkg/apis/meta/v1",
@@ -1288,6 +1326,7 @@
     "k8s.io/code-generator/cmd/defaulter-gen",
     "k8s.io/code-generator/cmd/informer-gen",
     "k8s.io/code-generator/cmd/lister-gen",
+    "knative.dev/eventing/pkg/apis/sources/v1alpha1",
     "knative.dev/pkg/apis",
     "knative.dev/pkg/apis/duck",
     "knative.dev/pkg/apis/duck/v1",
@@ -1300,6 +1339,7 @@
     "knative.dev/pkg/injection",
     "knative.dev/pkg/kmeta",
     "knative.dev/pkg/logging",
+    "knative.dev/pkg/ptr",
     "knative.dev/pkg/reconciler",
     "knative.dev/pkg/tracker",
     "knative.dev/test-infra/scripts",
