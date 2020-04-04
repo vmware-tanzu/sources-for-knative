@@ -59,8 +59,8 @@ To check out this repository:
 1. Clone it to your machine:
 
 ```shell
-mkdir -p ${GOPATH}/src/github.com/vmware-sources
-cd ${GOPATH}/src/knative.dev
+mkdir -p ${GOPATH}/src/github.com/vmware-tanzu
+cd ${GOPATH}/src/github.com/vmware-tanzu
 git clone git@github.com:${USER}/sources-for-knative.git
 cd sources-for-knative
 git remote add upstream https://github.com/vmware-tanzu/sources-for-knative.git
@@ -91,7 +91,8 @@ This will build all of the Go binaries into containers, publish them to your
 Sometimes you might want to develop against a VSphere server that is
 not accessible from your development cluster. So you can run the receive adapter
 (the data plane for the events) locally like so.  Note that you will
-still need a kubernetes cluster to use for the ConfigMap-based bookmarking.
+still need a kubernetes cluster to use for the ConfigMap-based bookmarking
+([issue](https://github.com/vmware-tanzu-private/sources-for-knative/issues/16)).
 
 Store the credentials on the filesystem:
 
