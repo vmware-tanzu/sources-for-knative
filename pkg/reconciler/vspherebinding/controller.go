@@ -11,12 +11,12 @@ import (
 	vsbinformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding"
 	"knative.dev/pkg/client/injection/ducks/duck/v1/podspecable"
 
+	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/record"
-	"knative.dev/eventing/pkg/apis/sources/v1alpha1"
 	"knative.dev/pkg/apis/duck"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
