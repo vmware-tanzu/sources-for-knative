@@ -56,7 +56,7 @@ We are going to run the following Job to script some automation using `govc`:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: vsphere-script-
+  name: vsphere-script
   labels:
     # Make this Job match the binding!
     role: vsphere-job
@@ -82,8 +82,7 @@ spec:
 This Job creates a tag category called `testing` and a tag named `shrug`.  Run it with:
 
 ```shell
-# Note that because we use generateName, this must be create!
-ko create -f job.yaml
+ko apply -f job.yaml
 ```
 
 When the job completes, check its logs with:

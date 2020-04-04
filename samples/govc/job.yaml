@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  generateName: vsphere-script-
+  name: vsphere-script
   labels:
     # Make this Job match the binding!
     role: vsphere-job
