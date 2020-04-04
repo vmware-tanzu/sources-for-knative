@@ -129,7 +129,7 @@ If you are using GKE for your bookmarking configmap, uncomment the following
 line in `cmd/adapter/main.go`:
 
 ```go
-	// Uncomment if you want to run locally against remote cluster.
+	// Uncomment if you want to run locally against remote GKE cluster.
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 ```
 
