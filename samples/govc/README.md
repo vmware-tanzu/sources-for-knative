@@ -70,7 +70,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: create-tag
-        image: ko://github.com/mattmoor/vmware-sources/vendor/github.com/vmware/govmomi/govc
+        image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/vmware/govmomi/govc
         command: ["/bin/bash", "-c"]
         args:
         - |
