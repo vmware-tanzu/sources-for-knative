@@ -37,6 +37,8 @@ spec:
             cpu: 200m
             memory: 200Mi
         env:
+        - name: VSPHERE_ADAPTER
+          value: ko://github.com/vmware-tanzu/sources-for-knative/cmd/adapter
         - name: SYSTEM_NAMESPACE
           valueFrom:
             fieldRef:
