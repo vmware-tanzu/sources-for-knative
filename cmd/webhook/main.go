@@ -27,6 +27,7 @@ import (
 
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspherebinding"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource"
 )
 
 var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{
@@ -143,5 +144,8 @@ func main() {
 
 		// For each binding we have a controller and a binding webhook.
 		vspherebinding.NewController, NewVSphereBindingWebhook(vsbSelector),
+
+		// Also run our source controller here.
+		vspheresource.NewController,
 	)
 }
