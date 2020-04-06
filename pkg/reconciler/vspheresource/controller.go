@@ -7,13 +7,13 @@ package vspheresource
 
 import (
 	"context"
-	"os"
 
 	"k8s.io/client-go/tools/cache"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client"
 	vspherebindinginformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding"
@@ -27,6 +27,10 @@ import (
 	sainformer "knative.dev/pkg/client/injection/kube/informers/core/v1/serviceaccount"
 	rbacinformer "knative.dev/pkg/client/injection/kube/informers/rbac/v1/rolebinding"
 )
+
+type envConfig struct {
+	VSphereAdapter string `envconfig:"VSPHERE_ADAPTER" required:"true"`
+}
 
 // NewController creates a Reconciler and returns the result of NewImpl.
 func NewController(
@@ -43,8 +47,13 @@ func NewController(
 	vspherebindingInformer := vspherebindinginformer.Get(ctx)
 	saInformer := sainformer.Get(ctx)
 
+	var env envConfig
+	if err := envconfig.Process("", &env); err != nil {
+		logger.Fatalf("Unable to read environment config: %v", err)
+	}
+
 	r := &Reconciler{
-		adapterImage:         os.Getenv("VSPHERE_ADAPTER"),
+		adapterImage:         env.VSphereAdapter,
 		kubeclient:           kubeclient.Get(ctx),
 		eventingclient:       eventingclient.Get(ctx),
 		client:               client.Get(ctx),
