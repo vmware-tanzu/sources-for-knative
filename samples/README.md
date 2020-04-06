@@ -2,6 +2,4 @@
 
  * [Using `VSphereSource` with `vcsim`](./vcsim/README.md)
  * [Using `VSphereBinding` with `govc`](./govc/README.md)
-
-TODO:
- * Tagging VMs as they are created
+ * [Using `VSphereSource` and `VSphereBinding` to tag new VMs](./tag-new-vms/README.md)
