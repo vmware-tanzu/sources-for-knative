@@ -5,6 +5,7 @@ the [Knative](https://knative.dev) project.
 
 [![GoDoc](https://godoc.org/github.com/vmware-tanzu/sources-for-knative?status.svg)](https://godoc.org/github.com/vmware-tanzu/sources-for-knative)
 [![Go Report Card](https://goreportcard.com/badge/vmware-tanzu/sources-for-knative)](https://goreportcard.com/report/vmware-tanzu/sources-for-knative)
+[![Slack Status](https://img.shields.io/badge/slack-join_chat-white.svg?logo=slack&style=social)](https://knative.slack.com)
 
 This repo is under active development to get a Knative compatible Event Source
 for VSphere events, and a Binding to easily access the VSphere API.
