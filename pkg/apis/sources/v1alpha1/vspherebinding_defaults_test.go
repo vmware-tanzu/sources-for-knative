@@ -80,6 +80,8 @@ func TestVSphereBindingDefaulting(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got := test.c.DeepCopy()
+			// force a failure
+			t.Fail()
 			got.SetDefaults(context.Background())
 			if !cmp.Equal(test.want, got) {
 				t.Errorf("SetDefaults (-want, +got) = %v", cmp.Diff(test.want, got))
