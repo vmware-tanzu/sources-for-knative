@@ -56,7 +56,15 @@ jobs:
         popd
 
     - name: Diff
+      shell: bash
       run: |
         pushd ./src/github.com/${{ github.repository }}
-        git diff HEAD
+
+        if [[ $(git diff-index --name-only HEAD --) ]]; then
+            echo "Found diffs in:"
+            git diff-index --name-only HEAD --
+            echo "${{ github.repository }} is out of date. Please run hack/update-codegen.sh"
+            exit 1
+        fi
+
         popd
