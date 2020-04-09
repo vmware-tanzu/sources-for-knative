@@ -35,8 +35,8 @@ jobs:
         fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
-    - name: Build
-      run: go build -v github.com/${{ github.repository }}/...
-
     - name: Vet
       run: go vet github.com/${{ github.repository }}/...
+
+    - name: Build
+      run: go build -v github.com/${{ github.repository }}/...
