@@ -23,9 +23,9 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
-        path: /home/runner/work/sources-for-knative/sources-for-knative/go/src/github.com/vmware-tanzu/sources-for-knative
+        path: /home/runner/work/sources-for-knative/go/src/github.com/vmware-tanzu/sources-for-knative
 
     - name: Build
       env:
-        GOPATH: /home/runner/work/sources-for-knative/sources-for-knative/go
+        GOPATH: /home/runner/work/sources-for-knative/go
       run: go build -v ./...
