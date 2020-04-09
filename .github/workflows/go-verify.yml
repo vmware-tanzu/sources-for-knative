@@ -62,12 +62,12 @@ jobs:
       shell: bash
       run: |
         pushd ./src/github.com/${{ github.repository }}
-        repoDiff=$(git diff-index --name-only HEAD --)
-        if [[ $repoDiff ]]; then
+        if [[ -z "$(git status --porcelain)" ]]; then
+            echo "${{ github.repository }} up to date."
+        else
+            repoDiff=$(git diff-index --name-only HEAD --)
             echo "Found diffs in: $repoDiff"
-            git diff HEAD
             echo "${{ github.repository }} is out of date. Please run hack/update-codegen.sh"
             exit 1
         fi
-        echo "${{ github.repository }} up to date."
         popd
