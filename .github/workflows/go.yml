@@ -43,7 +43,3 @@ jobs:
 
     - name: Test
       run: go test github.com/${{ github.repository }}/...
-
-    - uses: actions/labeler@v2
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
