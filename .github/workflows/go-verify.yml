@@ -45,7 +45,7 @@ jobs:
       run: ./github.com/${{ github.repository }}/hack/update-codegen.sh
 
     - name: Diff HEAD
-     run: |
-       pushd ./github.com/${{ github.repository }}
-       git diff HEAD^ HEAD
-       popd
+      run: |
+        pushd ./github.com/${{ github.repository }}
+        git diff HEAD^ HEAD
+        popd
