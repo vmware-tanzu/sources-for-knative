@@ -1,5 +1,3 @@
-name: Go
-
 on:
   push:
     branches: [ master ]
@@ -40,6 +38,3 @@ jobs:
 
     - name: Vet
       run: go vet github.com/${{ github.repository }}/...
-
-    - name: Test
-      run: go test github.com/${{ github.repository }}/...
