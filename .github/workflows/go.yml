@@ -19,7 +19,7 @@ jobs:
         go-version: 1.13
       id: go
 
-    - name: Check out code into the Go module directory
+    - name: Check out code onto GOPATH
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
@@ -28,4 +28,4 @@ jobs:
     - name: Build
       env:
         GOPATH: /home/runner/work/sources-for-knative/go
-      run: go build -v .
+      run: go build -v ./...
