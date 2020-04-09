@@ -46,7 +46,7 @@ jobs:
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
       with:
-        fetch-depth: 2
+        fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
     - name: Update Codegen
@@ -55,8 +55,8 @@ jobs:
         ./hack/update-codegen.sh
         popd
 
-    - name: Diff HEAD
+    - name: Diff
       run: |
         pushd ./src/github.com/${{ github.repository }}
-        git diff HEAD^ HEAD
+        git diff HEAD
         popd
