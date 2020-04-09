@@ -48,7 +48,7 @@ jobs:
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
       with:
-        fetch-depth: 1
+        fetch-depth: 2
         path: ./src/github.com/${{ github.repository }}
 
     - name: Update Codegen
