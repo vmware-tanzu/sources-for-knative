@@ -1,3 +1,5 @@
+name: Verify
+
 on:
   push:
     branches: [ master ]
@@ -43,12 +45,12 @@ jobs:
 
     - name: Update Codegen
       run: |
-        pushd ./github.com/${{ github.repository }}
+        pushd ./src/github.com/${{ github.repository }}
         ./hack/update-codegen.sh
         popd
 
     - name: Diff HEAD
       run: |
-        pushd ./github.com/${{ github.repository }}
+        pushd ./src/github.com/${{ github.repository }}
         git diff HEAD^ HEAD
         popd
