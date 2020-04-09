@@ -42,7 +42,10 @@ jobs:
         path: ./src/github.com/${{ github.repository }}
 
     - name: Update Codegen
-      run: ./src/github.com/${{ github.repository }}/hack/update-codegen.sh
+      run: |
+        pushd ./github.com/${{ github.repository }}
+        ./hack/update-codegen.sh
+        popd
 
     - name: Diff HEAD
       run: |
