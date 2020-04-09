@@ -27,6 +27,7 @@ type Key struct{}
 func withInformer(ctx context.Context) (context.Context, controller.Informer) {
 	f := factory.Get(ctx)
 	inf := f.Sources().V1alpha1().VSphereBindings()
+	// oops this is a change that should fail the PR.
 	return context.WithValue(ctx, Key{}, inf), inf.Informer()
 }
 
