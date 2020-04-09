@@ -66,7 +66,7 @@ jobs:
         if [[ $repoDiff ]]; then
             echo "Found diffs in: $repoDiff"
             git diff HEAD
-#            echo "${{ github.repository }} is out of date. Please run hack/update-codegen.sh"
+            echo "${{ github.repository }} is out of date. Please run hack/update-codegen.sh"
             exit 1
         fi
         echo "${{ github.repository }} up to date."
