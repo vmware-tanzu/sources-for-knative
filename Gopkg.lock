@@ -497,39 +497,6 @@
   version = "v1.0.5"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4faed1b9eeddc813b680c953b629bb64866f0204f25b2ccf72146fc13133fde8"
-  name = "github.com/vmware-tanzu/sources-for-knative"
-  packages = [
-    "pkg/apis/sources",
-    "pkg/apis/sources/v1alpha1",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/fake",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/sources/v1alpha1",
-    "pkg/client/clientset/versioned/typed/sources/v1alpha1/fake",
-    "pkg/client/informers/externalversions",
-    "pkg/client/informers/externalversions/internalinterfaces",
-    "pkg/client/informers/externalversions/sources",
-    "pkg/client/informers/externalversions/sources/v1alpha1",
-    "pkg/client/injection/client",
-    "pkg/client/injection/client/fake",
-    "pkg/client/injection/informers/factory",
-    "pkg/client/injection/informers/factory/fake",
-    "pkg/client/injection/informers/sources/v1alpha1/vspherebinding",
-    "pkg/client/injection/informers/sources/v1alpha1/vspheresource",
-    "pkg/client/injection/reconciler/sources/v1alpha1/vspheresource",
-    "pkg/client/listers/sources/v1alpha1",
-    "pkg/reconciler/vspherebinding",
-    "pkg/reconciler/vspheresource",
-    "pkg/reconciler/vspheresource/resources",
-    "pkg/reconciler/vspheresource/resources/names",
-    "pkg/vsphere",
-  ]
-  pruneopts = "NUT"
-  revision = "5b633606375d1af725cf94af0c6d8171cdc80d97"
-
-[[projects]]
   digest = "1:fc07dbc731c0cc53d669fe56f09819b8f342f90f8a2e3a8638817f21ddcb26ae"
   name = "github.com/vmware/govmomi"
   packages = [
@@ -1522,30 +1489,6 @@
     "github.com/cloudevents/sdk-go/v2",
     "github.com/google/go-cmp/cmp",
     "github.com/kelseyhightower/envconfig",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/fake",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/scheme",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1/fake",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/internalinterfaces",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/sources",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/sources/v1alpha1",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client/fake",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/factory",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/factory/fake",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspheresource",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspherebinding",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names",
-    "github.com/vmware-tanzu/sources-for-knative/pkg/vsphere",
     "github.com/vmware/govmomi",
     "github.com/vmware/govmomi/event",
     "github.com/vmware/govmomi/govc",
