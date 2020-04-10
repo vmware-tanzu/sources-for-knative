@@ -15,14 +15,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: config-br-defaults
+  name: config-br-default-channel
   namespace: knative-eventing
+  labels:
+    eventing.knative.dev/release: devel
 data:
-  # Configuration for defaulting channels that do not specify CRD implementations.
-  default-br-config: |
-    clusterDefault:
-      brokerClass: ChannelBasedBroker
-      apiVersion: v1
-      kind: ConfigMap
-      name: config-br-default-channel
-      namespace: knative-eventing
+  channelTemplateSpec: |
+    apiVersion: messaging.knative.dev/v1alpha1
+    kind: InMemoryChannel
