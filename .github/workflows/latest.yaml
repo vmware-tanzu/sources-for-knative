@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [ master ]
+    branches: [ master nightly-upload ]
 
 name: Create Latest
 
@@ -19,6 +19,11 @@ jobs:
       uses: actions/setup-go@v1
       with:
         go-version: 1.13.x
+
+    # Setup gcloud CLI
+    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      with:
+        service_account_key: ${{ secrets.GOOGLE_JSON_KEY }}
 
     - name: Add GOPATH/bin to PATH
       shell: bash
@@ -42,4 +47,5 @@ jobs:
       run: |
         ko resolve --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
 
-        # TODO(mattmoor): Find a way to surface this latest build yaml...
+        # This is the layout that the knative/website shortcode expects.
+        gsutil cp release.yaml gs://vmware-tanzu-nightly/sources-for-knative/latest/release.yaml
