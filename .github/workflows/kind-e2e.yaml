@@ -38,7 +38,7 @@ jobs:
         fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
-    - name: Setup KinD Cluster with Eventing and VMware sources.
+    - name: Setup KinD Cluster with VMware sources.
       working-directory: ./src/github.com/${{ github.repository }}
       env:
         KIND_VERSION: v0.7.0
@@ -60,34 +60,6 @@ jobs:
 
         # Create a cluster!
         kind create cluster --config kind.yaml
-
-        # Install Eventing Core.
-        kubectl apply --filename https://storage.googleapis.com/knative-nightly/eventing/latest/eventing-crds.yaml
-        sleep 5
-
-        kubectl apply --filename https://storage.googleapis.com/knative-nightly/eventing/latest/eventing-core.yaml \
-           --filename https://storage.googleapis.com/knative-nightly/eventing/latest/in-memory-channel.yaml \
-           --filename https://storage.googleapis.com/knative-nightly/eventing/latest/mt-channel-broker.yaml
-
-        kubectl apply -f - <<EOF
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: config-br-defaults
-          namespace: knative-eventing
-        data:
-          default-br-config: |
-            # This is the cluster-wide default broker channel.
-            clusterDefault:
-              brokerClass: MTChannelBasedBroker
-              apiVersion: v1
-              kind: ConfigMap
-              name: imc-channel
-              namespace: knative-eventing
-        EOF
-
-        # Create the Broker in the default namespace.
-        kubectl label namespace default knative-eventing-injection=enabled
 
         # Build and Publish our test images to the docker daemon.
         ./test/upload-test-images.sh

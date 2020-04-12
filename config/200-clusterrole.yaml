@@ -41,9 +41,6 @@ rules:
   - apiGroups: ["sources.tanzu.vmware.com"]
     resources: ["*"]
     verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
-  - apiGroups: ["sources.knative.dev"]
-    resources: ["sinkbindings"]
-    verbs: ["get", "list", "create", "update", "delete", "deletecollection", "patch", "watch"]
 
 # TODO(https://github.com/knative/eventing/pull/2964): Until this PR lands in a nightly, we need this.
 ---
