@@ -47,6 +47,7 @@ rules:
 
 # TODO(https://github.com/knative/eventing/pull/2964): Until this PR lands in a nightly, we need this.
 ---
+# These capabilities are to allow us to bind credentials into the Kubernetes application resources.
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
