@@ -134,7 +134,7 @@ func RunJobScript(t *testing.T, clients *test.Clients, image, script string, sel
 		}
 	}()
 
-	// Wait for the Pod to show up in the Endpoints resource.
+	// Wait for the Job to report a successful execution.
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
 		js, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Get(job.Name, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
@@ -212,7 +212,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 		}
 	}
 	waiter := func() {
-		// Wait for the Pod to show up in the Endpoints resource.
+		// Wait for the Job to report a successful execution.
 		waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
 			js, err := clients.KubeClient.Kube.BatchV1().Jobs(test.Namespace).Get(name, metav1.GetOptions{})
 			if apierrs.IsNotFound(err) {
