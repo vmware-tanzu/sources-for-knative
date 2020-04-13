@@ -47,33 +47,6 @@ func TestNames(t *testing.T) {
 		f:    Deployment,
 		want: "foo-deployment",
 	}, {
-		name: "SinkBinding, barely fits",
-		vss: &v1alpha1.VSphereSource{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: strings.Repeat("u", 50),
-			},
-		},
-		f:    SinkBinding,
-		want: strings.Repeat("u", 50) + "-sinkbinding",
-	}, {
-		name: "SinkBinding, already too long",
-		vss: &v1alpha1.VSphereSource{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: strings.Repeat("u", 63),
-			},
-		},
-		f:    SinkBinding,
-		want: "uuuuuuuuuuuuuuuuuuuca47ad1ce8479df271ec0d23653ce256-sinkbinding",
-	}, {
-		name: "SinkBinding",
-		vss: &v1alpha1.VSphereSource{
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "foo",
-			},
-		},
-		f:    SinkBinding,
-		want: "foo-sinkbinding",
-	}, {
 		name: "vspherebinding",
 		vss: &v1alpha1.VSphereSource{
 			ObjectMeta: metav1.ObjectMeta{

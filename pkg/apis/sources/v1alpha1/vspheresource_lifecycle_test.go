@@ -56,39 +56,6 @@ func TestTypicalSourceFlow(t *testing.T) {
 	r.InitializeConditions()
 	apistest.CheckConditionOngoing(r, VSphereSourceConditionReady, t)
 
-	// Check the progression of the SourceReady condition.
-	r.PropagateSourceStatus(duckv1.SourceStatus{})
-	apistest.CheckConditionOngoing(r, VSphereSourceConditionSourceReady, t)
-	r.PropagateSourceStatus(duckv1.SourceStatus{
-		Status: duckv1.Status{
-			Conditions: []apis.Condition{{
-				Type:   apis.ConditionReady,
-				Status: corev1.ConditionUnknown,
-			}},
-		},
-	})
-	apistest.CheckConditionOngoing(r, VSphereSourceConditionSourceReady, t)
-	r.PropagateSourceStatus(duckv1.SourceStatus{
-		Status: duckv1.Status{
-			Conditions: []apis.Condition{{
-				Type:   apis.ConditionReady,
-				Status: corev1.ConditionFalse,
-			}},
-		},
-	})
-	apistest.CheckConditionFailed(r, VSphereSourceConditionSourceReady, t)
-	apistest.CheckConditionFailed(r, VSphereSourceConditionReady, t)
-	r.PropagateSourceStatus(duckv1.SourceStatus{
-		Status: duckv1.Status{
-			Conditions: []apis.Condition{{
-				Type:   apis.ConditionReady,
-				Status: corev1.ConditionTrue,
-			}},
-		},
-	})
-	apistest.CheckConditionSucceeded(r, VSphereSourceConditionSourceReady, t)
-	apistest.CheckConditionOngoing(r, VSphereSourceConditionReady, t)
-
 	// Check the progression of the AuthReady condition.
 	r.PropagateAuthStatus(duckv1.Status{})
 	apistest.CheckConditionOngoing(r, VSphereSourceConditionAuthReady, t)
