@@ -1,18 +1,17 @@
 ## `VSphereBinding` with `PowerCLI`
 
-This sample builds on our [previous sample](../govc/README.md) to show how
-to use `VSphereBinding` to authenticate `PowerCLI` (a more familiar tool
-to most admins).
+This sample builds on our [previous sample](../govc/README.md) to show how to
+use `VSphereBinding` to authenticate `PowerCLI` (a more familiar tool to most
+admins).
 
-We are going to make use of the `vmware/powerclicore` container image in
-this sample.
+We are going to make use of the `vmware/powerclicore` container image in this
+sample.
 
 ### Pre-requisites
 
 **Unlike the previous examples**, this example does not work with `vcsim`, so
 you will need a real vSphere environment set up, with credentials in a Secret
 named `vsphere-credentials`.
-
 
 ### Create the Binding
 
@@ -47,7 +46,8 @@ kubectl apply -f binding.yaml
 
 ### Script against vSphere with `PowerCLI`
 
-We are going to run the following Job to script some automation using `PowerCLI`:
+We are going to run the following Job to script some automation using
+`PowerCLI`:
 
 ```yaml
 apiVersion: batch/v1
@@ -66,20 +66,21 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name: dump-events
-        image: docker.io/vmware/powerclicore
-        command: ["pwsh", "-Command"]
-        args:
-        - |
-          # Log into the VI Server
-          Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
-          Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD
+        - name: dump-events
+          image: docker.io/vmware/powerclicore
+          command: ["pwsh", "-Command"]
+          args:
+            - |
+              # Log into the VI Server
+              Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
+              Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD
 
-          # Get Events and write them out.
-          Get-VIEvent | Write-Host
+              # Get Events and write them out.
+              Get-VIEvent | Write-Host
 ```
 
-This Job authenticates `PowerCLI` using our injected credentials, and dumps the event logs.  You can run it with:
+This Job authenticates `PowerCLI` using our injected credentials, and dumps the
+event logs. You can run it with:
 
 ```shell
 kubectl apply -f job.yaml
