@@ -17,8 +17,9 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/test"
 )
 
-// TestBinding creates a Binding and a Job that should be bound with credentials and run to completion successfully.
-func TestBinding(t *testing.T) {
+// TestBindingGOVC creates a Binding and a Job that should be bound with credentials and
+// run to completion successfully.
+func TestBindingGOVC(t *testing.T) {
 	// t.Parallel()
 	defer logstream.Start(t)()
 
@@ -33,5 +34,29 @@ func TestBinding(t *testing.T) {
 	}, "\n")
 
 	// Run a simple script as a Job on the cluster.
-	RunJobScript(t, clients, pkgtest.ImagePath("govc"), script, selector)
+	RunBashJob(t, clients, pkgtest.ImagePath("govc"), script, selector)
+}
+
+// TestBindingPowerCLICore creates a Binding and a Job that should be bound with credentials
+// and run to completion successfully.
+func TestBindingPowerCLICore(t *testing.T) {
+	// t.Parallel()
+	defer logstream.Start(t)()
+
+	clients := test.Setup(t)
+
+	selector, cancel := CreateJobBinding(t, clients)
+	defer cancel()
+
+	script := strings.Join([]string{
+		// Log into the VI Server
+		"Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null",
+		"Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD",
+
+		// Get Events and write them out.
+		"Get-VIEvent | Write-Host",
+	}, "\n")
+
+	// Run a simple script as a Job on the cluster.
+	RunPowershellJob(t, clients, "docker.io/vmware/powerclicore", script, selector)
 }

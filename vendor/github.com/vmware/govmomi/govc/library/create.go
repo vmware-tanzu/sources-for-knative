@@ -25,13 +25,13 @@ import (
 	"github.com/vmware/govmomi/govc/cli"
 	"github.com/vmware/govmomi/govc/flags"
 	"github.com/vmware/govmomi/vapi/library"
-	"github.com/vmware/govmomi/vapi/rest"
 )
 
 type create struct {
 	*flags.DatastoreFlag
 	library library.Library
 	sub     library.Subscription
+	pub     library.Publication
 }
 
 func init() {
@@ -52,6 +52,9 @@ func (cmd *create) Register(ctx context.Context, f *flag.FlagSet) {
 	f.StringVar(&cmd.sub.SslThumbprint, "thumbprint", "", "SHA-1 thumbprint of the host's SSL certificate")
 	f.BoolVar(cmd.sub.AutomaticSyncEnabled, "sub-autosync", true, "Automatic synchronization")
 	f.BoolVar(cmd.sub.OnDemand, "sub-ondemand", false, "Download content on demand")
+	f.Var(flags.NewOptionalBool(&cmd.pub.Published), "pub", "Publish library")
+	f.StringVar(&cmd.pub.UserName, "pub-username", "", "Publication username")
+	f.StringVar(&cmd.pub.Password, "pub-password", "", "Publication password")
 }
 
 func (cmd *create) Usage() string {
@@ -64,8 +67,7 @@ func (cmd *create) Description() string {
 Examples:
   govc library.create library_name
   govc library.create -sub http://server/path/lib.json library_name
-  govc library.create -json | jq .
-  govc library.create library_name -json | jq .`
+  govc library.create -pub library_name`
 }
 
 type createResult []library.Library
@@ -105,13 +107,24 @@ func (cmd *create) Run(ctx context.Context, f *flag.FlagSet) error {
 		}
 	}
 
-	return cmd.WithRestClient(ctx, func(c *rest.Client) error {
-		id, err := library.NewManager(c).CreateLibrary(ctx, cmd.library)
-		if err != nil {
-			return err
+	if cmd.pub.Published != nil && *cmd.pub.Published {
+		cmd.library.Publication = &cmd.pub
+		cmd.pub.AuthenticationMethod = "NONE"
+		if cmd.pub.Password != "" {
+			cmd.sub.AuthenticationMethod = "BASIC"
 		}
+	}
 
-		fmt.Println(id)
-		return nil
-	})
+	c, err := cmd.RestClient()
+	if err != nil {
+		return err
+	}
+
+	id, err := library.NewManager(c).CreateLibrary(ctx, cmd.library)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(id)
+	return nil
 }
