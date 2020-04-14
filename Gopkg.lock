@@ -498,6 +498,40 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5ca2a94e5316c6a5d01a6ee23ab343cb07dfc85dc3a7b101361e44675913e76f"
+  name = "github.com/vmware-tanzu/sources-for-knative"
+  packages = [
+    "pkg/apis/sources",
+    "pkg/apis/sources/v1alpha1",
+    "pkg/client/clientset/versioned",
+    "pkg/client/clientset/versioned/fake",
+    "pkg/client/clientset/versioned/scheme",
+    "pkg/client/clientset/versioned/typed/sources/v1alpha1",
+    "pkg/client/clientset/versioned/typed/sources/v1alpha1/fake",
+    "pkg/client/informers/externalversions",
+    "pkg/client/informers/externalversions/internalinterfaces",
+    "pkg/client/informers/externalversions/sources",
+    "pkg/client/informers/externalversions/sources/v1alpha1",
+    "pkg/client/injection/client",
+    "pkg/client/injection/client/fake",
+    "pkg/client/injection/informers/factory",
+    "pkg/client/injection/informers/factory/fake",
+    "pkg/client/injection/informers/sources/v1alpha1/vspherebinding",
+    "pkg/client/injection/informers/sources/v1alpha1/vspheresource",
+    "pkg/client/injection/reconciler/sources/v1alpha1/vspheresource",
+    "pkg/client/listers/sources/v1alpha1",
+    "pkg/reconciler/vspherebinding",
+    "pkg/reconciler/vspheresource",
+    "pkg/reconciler/vspheresource/resources",
+    "pkg/reconciler/vspheresource/resources/names",
+    "pkg/vsphere",
+    "test",
+  ]
+  pruneopts = "NUT"
+  revision = "48193c6a6253ebfba6db3f82771e2117ef2b212f"
+
+[[projects]]
+  branch = "master"
   digest = "1:5bbfb9cc6786725243bf24fd7c25782edbb3780b2664fd856c645bd06992831e"
   name = "github.com/vmware/govmomi"
   packages = [
@@ -1335,7 +1369,7 @@
   revision = "6496210b90e852b26b227eaedea39b286063fae6"
 
 [[projects]]
-  branch = "master"
+  branch = "release-0.14"
   digest = "1:7528d5965c8635d9ff5c359b5b87cdb7d04142f45037ef5953041725f2cdecff"
   name = "knative.dev/eventing"
   packages = [
@@ -1474,6 +1508,31 @@
     "github.com/davecgh/go-spew/spew",
     "github.com/google/go-cmp/cmp",
     "github.com/kelseyhightower/envconfig",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/fake",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/scheme",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1/fake",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/internalinterfaces",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/sources",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/informers/externalversions/sources/v1alpha1",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client/fake",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/factory",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/factory/fake",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspheresource",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspherebinding",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names",
+    "github.com/vmware-tanzu/sources-for-knative/pkg/vsphere",
+    "github.com/vmware-tanzu/sources-for-knative/test",
     "github.com/vmware/govmomi",
     "github.com/vmware/govmomi/event",
     "github.com/vmware/govmomi/govc",

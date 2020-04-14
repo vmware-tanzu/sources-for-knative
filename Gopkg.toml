@@ -21,7 +21,7 @@ required = [
 
 [[override]]
   name = "knative.dev/eventing"
-  branch = "master"
+  branch = "release-0.14"
 
 [[override]]
   name = "github.com/vmware/govmomi"
