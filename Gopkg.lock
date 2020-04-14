@@ -1336,7 +1336,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:ad556429e62ecbfb76a5ca712f270fabf9ec3b7560c78e00ba5b736f04376e19"
+  digest = "1:7528d5965c8635d9ff5c359b5b87cdb7d04142f45037ef5953041725f2cdecff"
   name = "knative.dev/eventing"
   packages = [
     "pkg/adapter/v2",
@@ -1376,7 +1376,7 @@
     "pkg/tracing",
   ]
   pruneopts = "T"
-  revision = "955aa36a5e926aa68846391300aaf875752af730"
+  revision = "02bc51668a0c7d2d8cbb56823c5aecbeec46253d"
 
 [[projects]]
   branch = "release-0.14"
@@ -1456,7 +1456,7 @@
   name = "knative.dev/test-infra"
   packages = ["scripts"]
   pruneopts = "UT"
-  revision = "74b24ca44778c3a69ecc193250cdddb5d0e64b88"
+  revision = "9cf64fb1b912898b2934e0e963bf3c61b96d7a2c"
 
 [[projects]]
   digest = "1:5fdf0517a870044f13def5f9f2dc75eb8cfb88baf7862eaf9884a06152f9391b"
