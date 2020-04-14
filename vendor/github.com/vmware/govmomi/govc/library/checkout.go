@@ -23,9 +23,6 @@ import (
 
 	"github.com/vmware/govmomi/govc/cli"
 	"github.com/vmware/govmomi/govc/flags"
-	"github.com/vmware/govmomi/vapi/library"
-	"github.com/vmware/govmomi/vapi/library/finder"
-	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/vcenter"
 )
 
@@ -37,7 +34,7 @@ type checkout struct {
 }
 
 func init() {
-	cli.Register("library.checkout", &checkout{}, true)
+	cli.Register("library.checkout", &checkout{})
 }
 
 func (cmd *checkout) Register(ctx context.Context, f *flag.FlagSet) {
@@ -99,43 +96,38 @@ func (cmd *checkout) Run(ctx context.Context, f *flag.FlagSet) error {
 		return err
 	}
 
-	return cmd.FolderFlag.WithRestClient(ctx, func(c *rest.Client) error {
-		m := library.NewManager(c)
-		res, err := finder.NewFinder(m).Find(ctx, path)
-		if err != nil {
-			return err
-		}
-		if len(res) != 1 {
-			return ErrMultiMatch{Type: "library", Key: "name", Val: path, Count: len(res)}
-		}
-		l, ok := res[0].GetResult().(library.Item)
-		if !ok {
-			return fmt.Errorf("%q is a %T", path, res[0].GetResult())
-		}
+	c, err := cmd.RestClient()
+	if err != nil {
+		return err
+	}
 
-		spec := vcenter.CheckOut{
-			Name: name,
-			Placement: &vcenter.Placement{
-				Folder: folder.Reference().Value,
-			},
-		}
-		if pool != nil {
-			spec.Placement.ResourcePool = pool.Reference().Value
-		}
-		if host != nil {
-			spec.Placement.Host = host.Reference().Value
-		}
-		if cluster != nil {
-			spec.Placement.Cluster = cluster.Reference().Value
-		}
+	l, err := flags.ContentLibraryItem(ctx, c, path)
+	if err != nil {
+		return err
+	}
 
-		id, err := vcenter.NewManager(c).CheckOut(ctx, l.ID, &spec)
-		if err != nil {
-			return err
-		}
+	spec := vcenter.CheckOut{
+		Name: name,
+		Placement: &vcenter.Placement{
+			Folder: folder.Reference().Value,
+		},
+	}
+	if pool != nil {
+		spec.Placement.ResourcePool = pool.Reference().Value
+	}
+	if host != nil {
+		spec.Placement.Host = host.Reference().Value
+	}
+	if cluster != nil {
+		spec.Placement.Cluster = cluster.Reference().Value
+	}
 
-		fmt.Println(id)
+	id, err := vcenter.NewManager(c).CheckOut(ctx, l.ID, &spec)
+	if err != nil {
+		return err
+	}
 
-		return nil
-	})
+	fmt.Println(id)
+
+	return nil
 }

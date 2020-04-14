@@ -117,6 +117,7 @@ func (cmd *change) Register(ctx context.Context, f *flag.FlagSet) {
 	f.StringVar(&cmd.Name, "name", "", "Display name")
 	f.StringVar(&cmd.Latency, "latency", "", fmt.Sprintf("Latency sensitivity (%s)", strings.Join(latencyLevels, "|")))
 	f.StringVar(&cmd.Annotation, "annotation", "", "VM description")
+	f.StringVar(&cmd.Uuid, "uuid", "", "BIOS UUID")
 	f.Var(&cmd.extraConfig, "e", "ExtraConfig. <key>=<value>")
 
 	f.Var(flags.NewOptionalBool(&cmd.NestedHVEnabled), "nested-hv-enabled", "Enable nested hardware-assisted virtualization")
@@ -124,6 +125,7 @@ func (cmd *change) Register(ctx context.Context, f *flag.FlagSet) {
 	f.Var(flags.NewOptionalBool(&cmd.Tools.SyncTimeWithHost), "sync-time-with-host", "Enable SyncTimeWithHost")
 	f.Var(flags.NewOptionalBool(&cmd.VPMCEnabled), "vpmc-enabled", "Enable CPU performance counters")
 	f.Var(flags.NewOptionalBool(&cmd.MemoryHotAddEnabled), "memory-hot-add-enabled", "Enable memory hot add")
+	f.Var(flags.NewOptionalBool(&cmd.MemoryReservationLockedToMax), "memory-pin", "Reserve all guest memory")
 	f.Var(flags.NewOptionalBool(&cmd.CpuHotAddEnabled), "cpu-hot-add-enabled", "Enable CPU hot add")
 }
 
@@ -142,7 +144,7 @@ Examples:
   vmware-rpctool "info-get guestinfo.vmname"
   govc vm.change -vm $vm -latency high
   govc vm.change -vm $vm -latency normal
-  `
+  govc vm.change -vm $vm -uuid 4139c345-7186-4924-a842-36b69a24159b`
 }
 
 func (cmd *change) Process(ctx context.Context) error {
