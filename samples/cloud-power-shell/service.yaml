@@ -1,0 +1,22 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: cloud-power-shell
+  labels:
+    role: cloud-power-shell
+spec:
+  template:
+    spec:
+      containers:
+      # The binary is gotty (based on vmware/powerclicore)
+      - image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty
+        args:
+        # Tell gotty to enable interacting with the session.
+        - -w
+        # Launch Powershell and run our setup commands without exiting.
+        - pwsh
+        - -NoExit
+        - -Command
+        - |
+          Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
+          Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD

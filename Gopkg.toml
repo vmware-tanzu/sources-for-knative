@@ -9,9 +9,10 @@ required = [
   "k8s.io/code-generator/cmd/informer-gen",
   "knative.dev/pkg/codegen/cmd/injection-gen",
   "knative.dev/test-infra/scripts",
-  # For testing.
+  # For testing / samples
   "github.com/vmware/govmomi/vcsim",
   "github.com/vmware/govmomi/govc",
+  "github.com/yudai/gotty",
 ]
 
 
@@ -54,6 +55,12 @@ required = [
 [[override]]
   name = "k8s.io/client-go"
   version = "kubernetes-1.16.4"
+
+# This is needed by yudai/gotty
+[[override]]
+  name = "github.com/codegangsta/cli"
+  source = "github.com/urfave/cli"
+  version = "=v1.19.1"
 
 # This is needed for certain things to build.
 [[override]]

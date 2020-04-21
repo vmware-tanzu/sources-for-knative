@@ -1,0 +1,20 @@
+apiVersion: sources.tanzu.vmware.com/v1alpha1
+kind: VSphereBinding
+metadata:
+  name: cloud-shell-binding
+spec:
+  # Apply to every Service labeled "role: cloud-power-shell" in
+  # this namespace.
+  subject:
+    apiVersion: serving.knative.dev/v1
+    kind: Service
+    selector:
+      matchLabels:
+        role: cloud-power-shell
+
+  # The address and credentials for vSphere.
+  # If you aren't using the simulator, change this!
+  address: https://vcsim.default.svc.cluster.local
+  skipTLSVerify: true
+  secretRef:
+    name: vsphere-credentials
