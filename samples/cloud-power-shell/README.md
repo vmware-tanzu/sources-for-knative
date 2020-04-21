@@ -4,7 +4,6 @@ This sample builds on our [previous sample](../powercli/README.md) to show how
 to use `VSphereBinding` to create a `PowerCLI` "Cloud Shell" by running the
 `vmware/powerclicore` container image as a Knative Service.
 
-
 ### Pre-requisites
 
 This sample assumes that you have a vSphere environment set up already with
@@ -12,11 +11,10 @@ credentials in a Secret named `vsphere-credentials`. For the remainder of the
 sample we will assume you are within the environment setup for the
 [`vcsim` sample](../vcsim/README.md).
 
-
 ### Create the Binding
 
-We are going to use the following binding to authenticate our `PowerCLI`
-"Cloud Shell":
+We are going to use the following binding to authenticate our `PowerCLI` "Cloud
+Shell":
 
 ```yaml
 apiVersion: sources.tanzu.vmware.com/v1alpha1
@@ -50,9 +48,8 @@ kubectl apply -f binding.yaml
 ### Building our "Cloud Shell" service.
 
 For the "shell" part of our demo, we are going to make use of
-[yudai/gotty](https://github.com/yudai/gotty).  We are going to use the
-following `ko` configuration (in `.ko.yaml`) to base `gotty` on
-`vmware/powerclicore`:
+[yudai/gotty](https://github.com/yudai/gotty). We are going to use the following
+`ko` configuration (in `.ko.yaml`) to base `gotty` on `vmware/powerclicore`:
 
 ```yaml
 ...
@@ -75,23 +72,23 @@ spec:
   template:
     spec:
       containers:
-      # The binary is gotty (based on vmware/powerclicore)
-      - image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty
-        args:
-        # Tell gotty to enable interacting with the session.
-        - -w
-        # Launch Powershell and run our setup commands without exiting.
-        - pwsh
-        - -NoExit
-        - -Command
-        - |
-          Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
-          Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD
+        # The binary is gotty (based on vmware/powerclicore)
+        - image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty
+          args:
+            # Tell gotty to enable interacting with the session.
+            - -w
+            # Launch Powershell and run our setup commands without exiting.
+            - pwsh
+            - -NoExit
+            - -Command
+            - |
+              Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
+              Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD
 ```
 
 This Service authenticates `PowerCLI` using our injected credentials, and then
-creates a session over a websocket that allows the user to interact with `PowerCLI`
-over a websocket.  You can deploy this service via:
+creates a session over a websocket that allows the user to interact with
+`PowerCLI` over a websocket. You can deploy this service via:
 
 ```shell
 ko apply -f service.yaml
