@@ -110,6 +110,14 @@
   version = "v3.6.1"
 
 [[projects]]
+  digest = "1:df71651696508b3b5c952333b06559982dd2d41a28e7c1bc31e1c39c6047d275"
+  name = "github.com/braintree/manners"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0b5e6b2c2843f4c83c2a40f96980b09cf4af733c"
+  version = "0.4.0"
+
+[[projects]]
   digest = "1:8f5acd4d4462b5136af644d25101f0968a7a94ee90fcb2059cec5b7cc42e0b20"
   name = "github.com/census-instrumentation/opencensus-proto"
   packages = [
@@ -150,6 +158,23 @@
   version = "v2.0.0-RC1"
 
 [[projects]]
+  digest = "1:23685560bde588ef28f1d29c4f56a0eda36e927c6246e4bb8926be9d4bf2819c"
+  name = "github.com/codegangsta/cli"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0bdeddeeb0f650497d603c4ad7b20cfe685682f6"
+  source = "github.com/urfave/cli"
+  version = "v1.19.1"
+
+[[projects]]
+  digest = "1:5b9ec589d739f9dc806a72739960d6e73ef18cf539841c85220f2fe32502a53a"
+  name = "github.com/creack/pty"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "3a6a957789163cacdfe0e291617a1c8e80612c11"
+  version = "v1.1.9"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -158,12 +183,28 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:d612f023556888f38ccbaf22cde164f88a23619d5877fcd34a707c6b021ae6da"
+  name = "github.com/elazarl/go-bindata-assetfs"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "30f82fa23fd844bd5bb1e5f216db87fd77b5eb43"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:8662e3bc0e98681414646b71dfc7996c5451737fe98f7cea1bbb3e9b1424c301"
   name = "github.com/evanphx/json-patch"
   packages = ["."]
   pruneopts = "NUT"
   revision = "78cf029964937ffcb67feaeac1fe23d9cef0d26a"
   version = "v5.0.0"
+
+[[projects]]
+  digest = "1:aa3ed0a71c4e66e4ae6486bf97a3f4cab28edc78df2e50c5ad01dc7d91604b88"
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "4966fc68f5b7593aafa6cbbba2d65ec6e1416047"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:81466b4218bf6adddac2572a30ac733a9255919bc2f470b4827a317bd4ee1756"
@@ -280,6 +321,14 @@
   version = "v0.4.0"
 
 [[projects]]
+  digest = "1:c9c619da0235710875bae079870a396912a475402f9ccd50667f6ad309476259"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "b65e62901fc1c0d968042419e74789f6af455eb9"
+  version = "v1.4.2"
+
+[[projects]]
   digest = "1:040f67b83ef7a511931be0915e66c949f799de6e3fe364fb71a86634ebe669a9"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
@@ -290,6 +339,22 @@
   pruneopts = "NUT"
   revision = "5ec11588db26960526dccc39cf40367a54d76e16"
   version = "v1.14.3"
+
+[[projects]]
+  digest = "1:f0d9d74edbd40fdeada436d5ac9cb5197407899af3fef85ff0137077ffe8ae19"
+  name = "github.com/hashicorp/errwrap"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "8a6fb523712970c966eefc6b39ed2c5e74880354"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:1e7412788dc5a699a81333203f09fcab7fb7b29d1b2b9f43b8cd8162b64ec7d0"
+  name = "github.com/hashicorp/go-multierror"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2004d9dba6b07a5b8d133209244f376680f9d472"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:9676627451831e0d8e347007d871eac494ce51d55b95a3fe1fac30ad8d717ab9"
@@ -349,6 +414,14 @@
   pruneopts = "NUT"
   revision = "2ee9d7453c02ef7fa518a83ae23644eb8872186a"
   source = "https://github.com/dougm/pretty"
+
+[[projects]]
+  digest = "1:797f9322a4864f6a4781ab80433dcf248581ed2f31bd5e152f50bd3a3a8c5ad8"
+  name = "github.com/kr/pty"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "24b51915630e1d9d3c6adf15a3a96796bbc3cd43"
+  version = "v1.1.8"
 
 [[projects]]
   digest = "1:c3a7836b5904db0f8b609595b619916a6831cb35b8b714aec39f96d00c6155d8"
@@ -639,6 +712,37 @@
   ]
   pruneopts = "NUT"
   revision = "f5e6290bb16c3bd41a546a427d2f2bdacc3e205c"
+
+[[projects]]
+  digest = "1:5d142ceb02fe6254fd6626812f11a3cd80ddc877822f517d3b76b21e750d2eca"
+  name = "github.com/yudai/gotty"
+  packages = [
+    ".",
+    "app",
+  ]
+  pruneopts = "NUT"
+  revision = "344b60b94b46eec5a44ab3b8a8e6c921450d9f6b"
+  version = "v1.0.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:66c1330e9f4277ebc7302c77ec7b2f290f86bf24fd4e7280579f9d21d534e157"
+  name = "github.com/yudai/hcl"
+  packages = [
+    ".",
+    "hcl",
+    "json",
+  ]
+  pruneopts = "NUT"
+  revision = "5fa2393b3552119bf33a69adb1402a1160cba23d"
+
+[[projects]]
+  branch = "master"
+  digest = "1:b9cc9d6fb13f35ce17d2e24e79f036cdc3b7f3b61ce12d4c6bc30c01cbd93315"
+  name = "github.com/yudai/umutex"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "18216d265c6bc72c3bb0ad9c8103d47d530b7003"
 
 [[projects]]
   digest = "1:84c8e620608a8fa02e462f6bff9d91a0754c264469a9f74c6f27c48af7d32a42"
@@ -1482,6 +1586,7 @@
     "github.com/vmware/govmomi/vcsim",
     "github.com/vmware/govmomi/vim25/soap",
     "github.com/vmware/govmomi/vim25/types",
+    "github.com/yudai/gotty",
     "go.uber.org/zap",
     "k8s.io/api/apps/v1",
     "k8s.io/api/batch/v1",
