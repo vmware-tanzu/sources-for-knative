@@ -93,13 +93,13 @@ github.com/evanphx/json-patch
 github.com/ghodss/yaml
 # github.com/go-logr/logr v0.1.0
 github.com/go-logr/logr
-# github.com/go-openapi/jsonpointer v0.19.2
+# github.com/go-openapi/jsonpointer v0.19.3
 github.com/go-openapi/jsonpointer
-# github.com/go-openapi/jsonreference v0.19.2
+# github.com/go-openapi/jsonreference v0.19.3
 github.com/go-openapi/jsonreference
-# github.com/go-openapi/spec v0.19.2
+# github.com/go-openapi/spec v0.19.3
 github.com/go-openapi/spec
-# github.com/go-openapi/swag v0.19.2
+# github.com/go-openapi/swag v0.19.5
 github.com/go-openapi/swag
 # github.com/gobuffalo/envy v1.9.0
 github.com/gobuffalo/envy
@@ -161,7 +161,7 @@ github.com/kr/text
 # github.com/lightstep/tracecontext.go v0.0.0-20181129014701-1757c391b1ac
 github.com/lightstep/tracecontext.go/traceparent
 github.com/lightstep/tracecontext.go/tracestate
-# github.com/mailru/easyjson v0.0.0-20190614124828-94de47d64c63
+# github.com/mailru/easyjson v0.7.0
 github.com/mailru/easyjson/buffer
 github.com/mailru/easyjson/jlexer
 github.com/mailru/easyjson/jwriter
@@ -202,7 +202,7 @@ github.com/robfig/cron
 github.com/rogpeppe/go-internal/modfile
 github.com/rogpeppe/go-internal/module
 github.com/rogpeppe/go-internal/semver
-# github.com/spf13/pflag v1.0.3
+# github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
 # github.com/vmware/govmomi v0.22.2
 github.com/vmware/govmomi
@@ -817,7 +817,7 @@ k8s.io/gengo/generator
 k8s.io/gengo/namer
 k8s.io/gengo/parser
 k8s.io/gengo/types
-# k8s.io/klog v0.4.0
+# k8s.io/klog v1.0.0
 k8s.io/klog
 # k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
 k8s.io/kube-openapi/cmd/openapi-gen

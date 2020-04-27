@@ -9,28 +9,36 @@ require (
 	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.0.0-preview8
 	github.com/davecgh/go-spew v1.1.1
+	github.com/go-openapi/jsonreference v0.19.3 // indirect
+	github.com/go-openapi/spec v0.19.3 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/google/go-cmp v0.4.0
 	github.com/googleapis/gnostic v0.4.0 // indirect
+	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/text v0.2.0 // indirect
+	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/markbates/inflect v1.0.4 // indirect
+	github.com/onsi/ginkgo v1.10.2 // indirect
+	github.com/onsi/gomega v1.7.0 // indirect
 	github.com/openzipkin/zipkin-go v0.2.2 // indirect
 	github.com/prometheus/client_golang v1.1.0 // indirect
 	github.com/prometheus/common v0.9.1 // indirect
 	github.com/prometheus/procfs v0.0.11 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.2 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vmware/govmomi v0.22.2
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
+	golang.org/x/lint v0.0.0-20200130185559-910be7a94367 // indirect
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a // indirect
@@ -46,6 +54,7 @@ require (
 	k8s.io/apimachinery v0.18.0
 	k8s.io/client-go v0.18.0
 	k8s.io/code-generator v0.18.0
+	k8s.io/klog v1.0.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
 	knative.dev/eventing v0.13.1-0.20200402224818-448b4e91c132
