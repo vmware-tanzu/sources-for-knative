@@ -5,6 +5,8 @@
 
 : ${KO_DOCKER_REPO:?"You must set 'KO_DOCKER_REPO', see DEVELOPMENT.md"}
 
+export GO111MODULE=on
+
 cat | ko resolve --strict -Bf - <<EOF
 images:
 - ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/vmware/govmomi/govc
