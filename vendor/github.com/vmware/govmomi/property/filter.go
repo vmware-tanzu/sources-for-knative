@@ -42,9 +42,6 @@ func (f Filter) Keys() []string {
 
 // MatchProperty returns true if a Filter entry matches the given prop.
 func (f Filter) MatchProperty(prop types.DynamicProperty) bool {
-	if prop.Val == nil {
-		return false
-	}
 	match, ok := f[prop.Name]
 	if !ok {
 		return false

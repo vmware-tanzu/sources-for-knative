@@ -35,7 +35,6 @@ import (
 // Client extends soap.Client to support JSON encoding, while inheriting security features, debug tracing and session persistence.
 type Client struct {
 	*soap.Client
-	SessionID string
 }
 
 // Session information
@@ -60,37 +59,7 @@ func (m *LocalizableMessage) Error() string {
 func NewClient(c *vim25.Client) *Client {
 	sc := c.Client.NewServiceClient(Path, "")
 
-	return &Client{sc, ""}
-}
-
-type marshaledClient struct {
-	SoapClient *soap.Client
-	SessionID  string
-}
-
-func (c *Client) MarshalJSON() ([]byte, error) {
-	m := marshaledClient{
-		SoapClient: c.Client,
-		SessionID:  c.SessionID,
-	}
-
-	return json.Marshal(m)
-}
-
-func (c *Client) UnmarshalJSON(b []byte) error {
-	var m marshaledClient
-
-	err := json.Unmarshal(b, &m)
-	if err != nil {
-		return err
-	}
-
-	*c = Client{
-		Client:    m.SoapClient,
-		SessionID: m.SessionID,
-	}
-
-	return nil
+	return &Client{sc}
 }
 
 // Resource helper for the given path.
@@ -126,10 +95,6 @@ func (c *Client) Do(ctx context.Context, req *http.Request, resBody interface{})
 	}
 
 	req.Header.Set("Accept", "application/json")
-
-	if c.SessionID != "" {
-		req.Header.Set(internal.SessionCookieName, c.SessionID)
-	}
 
 	if s, ok := ctx.Value(signerContext{}).(Signer); ok {
 		if err := s.SignRequest(req); err != nil {
@@ -174,15 +139,13 @@ func (c *Client) Do(ctx context.Context, req *http.Request, resBody interface{})
 func (c *Client) Login(ctx context.Context, user *url.Userinfo) error {
 	req := c.Resource(internal.SessionPath).Request(http.MethodPost)
 
-	req.Header.Set(internal.UseHeaderAuthn, "true")
-
 	if user != nil {
 		if password, ok := user.Password(); ok {
 			req.SetBasicAuth(user.Username(), password)
 		}
 	}
 
-	return c.Do(ctx, req, &c.SessionID)
+	return c.Do(ctx, req, nil)
 }
 
 func (c *Client) LoginByToken(ctx context.Context) error {
@@ -210,23 +173,4 @@ func (c *Client) Session(ctx context.Context) (*Session, error) {
 func (c *Client) Logout(ctx context.Context) error {
 	req := c.Resource(internal.SessionPath).Request(http.MethodDelete)
 	return c.Do(ctx, req, nil)
-}
-
-// Valid returns whether or not the client is valid and ready for use.
-// This should be called after unmarshalling the client.
-func (c *Client) Valid() bool {
-	if c == nil {
-		return false
-	}
-
-	if c.Client == nil {
-		return false
-	}
-
-	return true
-}
-
-// Path returns rest.Path (see cache.Client)
-func (c *Client) Path() string {
-	return Path
 }

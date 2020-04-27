@@ -8,6 +8,7 @@ require (
 	contrib.go.opencensus.io/exporter/zipkin v0.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/cloudevents/sdk-go/v2 v2.0.0-preview8
+	github.com/davecgh/go-spew v1.1.1
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
