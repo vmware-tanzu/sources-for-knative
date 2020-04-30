@@ -24,4 +24,5 @@ import (
 
 	// For testing
 	_ "github.com/vmware/govmomi/govc"
+	_ "github.com/vmware/govmomi/vcsim"
 )
