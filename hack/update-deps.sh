@@ -17,7 +17,6 @@ VERSION="master"
 
 # We need these flags for things to work properly.
 export GO111MODULE=on
-export GOFLAGS=-mod=vendor
 
 # The list of dependencies that we track at HEAD and periodically
 # float forward in this repository.
