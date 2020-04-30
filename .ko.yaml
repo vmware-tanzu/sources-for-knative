@@ -1,4 +1,4 @@
 defaultBaseImage: gcr.io/distroless/static:nonroot
 baseImageOverrides:
-  github.com/vmware-tanzu/sources-for-knative/vendor/github.com/vmware/govmomi/govc: docker.io/ubuntu
+  github.com/vmware/govmomi/govc: docker.io/ubuntu
   github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty: docker.io/vmware/powerclicore
