@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: vcsim
-        image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/vmware/govmomi/vcsim
+        image: ko://github.com/vmware/govmomi/vcsim
         args: [
           "-dc", "1",
           "-folder", "1",
