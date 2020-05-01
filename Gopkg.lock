@@ -1440,7 +1440,7 @@
 
 [[projects]]
   branch = "release-0.14"
-  digest = "1:7528d5965c8635d9ff5c359b5b87cdb7d04142f45037ef5953041725f2cdecff"
+  digest = "1:7713740d53f8778f63310d002d8095010b4d3820fb5e0139022a0b243596fb36"
   name = "knative.dev/eventing"
   packages = [
     "pkg/adapter/v2",
@@ -1480,7 +1480,7 @@
     "pkg/tracing",
   ]
   pruneopts = "T"
-  revision = "02bc51668a0c7d2d8cbb56823c5aecbeec46253d"
+  revision = "f8b42c3b6e13097bc53283076a686f4fdb50ab52"
 
 [[projects]]
   branch = "release-0.14"
