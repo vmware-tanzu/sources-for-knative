@@ -65,6 +65,7 @@ jobs:
         ./test/upload-test-images.sh
 
         # Build and Publish our containers to the docker daemon (including test assets)
+        ls -l ./vendor/github.com/vmware/govmomi/vcsim/
         ko resolve -PRf config/ -f test/config > build.yaml
 
         # Load our docker images into the kind cluster!
