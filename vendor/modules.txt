@@ -61,6 +61,9 @@ github.com/aws/aws-sdk-go/service/sts/stsiface
 github.com/beorn7/perks/quantile
 # github.com/blang/semver v3.5.0+incompatible
 github.com/blang/semver
+# github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd
+## explicit
+github.com/braintree/manners
 # github.com/census-instrumentation/opencensus-proto v0.2.1
 github.com/census-instrumentation/opencensus-proto/gen-go/agent/common/v1
 github.com/census-instrumentation/opencensus-proto/gen-go/agent/metrics/v1
@@ -87,14 +90,23 @@ github.com/cloudevents/sdk-go/v2/observability
 github.com/cloudevents/sdk-go/v2/protocol
 github.com/cloudevents/sdk-go/v2/protocol/http
 github.com/cloudevents/sdk-go/v2/types
+# github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 => github.com/urfave/cli v1.19.1
+## explicit
+github.com/codegangsta/cli
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
+# github.com/elazarl/go-bindata-assetfs v1.0.0
+## explicit
+github.com/elazarl/go-bindata-assetfs
 # github.com/emicklei/go-restful v2.9.5+incompatible
 github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
 # github.com/evanphx/json-patch v4.5.0+incompatible
 github.com/evanphx/json-patch
+# github.com/fatih/structs v1.1.0
+## explicit
+github.com/fatih/structs
 # github.com/ghodss/yaml v1.0.0
 github.com/ghodss/yaml
 # github.com/go-logr/logr v0.1.0
@@ -152,11 +164,18 @@ github.com/googleapis/gnostic/compiler
 github.com/googleapis/gnostic/extensions
 # github.com/gorilla/mux v1.7.3
 ## explicit
+# github.com/gorilla/websocket v1.4.0
+github.com/gorilla/websocket
 # github.com/grpc-ecosystem/grpc-gateway v1.14.3
 ## explicit
 github.com/grpc-ecosystem/grpc-gateway/internal
 github.com/grpc-ecosystem/grpc-gateway/runtime
 github.com/grpc-ecosystem/grpc-gateway/utilities
+# github.com/hashicorp/errwrap v1.0.0
+github.com/hashicorp/errwrap
+# github.com/hashicorp/go-multierror v1.1.0
+## explicit
+github.com/hashicorp/go-multierror
 # github.com/hashicorp/golang-lru v0.5.4
 ## explicit
 github.com/hashicorp/golang-lru
@@ -176,6 +195,8 @@ github.com/json-iterator/go
 github.com/kelseyhightower/envconfig
 # github.com/kr/pretty v0.2.0 => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
 github.com/kr/pretty
+# github.com/kr/pty v1.1.5
+github.com/kr/pty
 # github.com/kr/text v0.2.0
 ## explicit
 github.com/kr/text
@@ -375,6 +396,18 @@ github.com/vmware/govmomi/vmdk
 github.com/vmware/govmomi/vslm
 github.com/vmware/govmomi/vslm/methods
 github.com/vmware/govmomi/vslm/types
+# github.com/yudai/gotty v1.0.1
+## explicit
+github.com/yudai/gotty
+github.com/yudai/gotty/app
+# github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552
+## explicit
+github.com/yudai/hcl
+github.com/yudai/hcl/hcl
+github.com/yudai/hcl/json
+# github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b
+## explicit
+github.com/yudai/umutex
 # go.opencensus.io v0.22.3
 ## explicit
 go.opencensus.io
@@ -1016,6 +1049,7 @@ knative.dev/pkg/webhook/resourcesemantics/validation
 knative.dev/test-infra/scripts
 # sigs.k8s.io/yaml v1.1.0
 sigs.k8s.io/yaml
+# github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 # github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
 # k8s.io/api => k8s.io/api v0.16.4
 # k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.16.4

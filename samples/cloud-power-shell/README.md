@@ -55,7 +55,7 @@ For the "shell" part of our demo, we are going to make use of
 ...
 baseImageOverrides:
   ...
-  github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty: docker.io/vmware/powerclicore
+  github.com/yudai/gotty: docker.io/vmware/powerclicore
 
 ```
 
@@ -73,7 +73,7 @@ spec:
     spec:
       containers:
         # The binary is gotty (based on vmware/powerclicore)
-        - image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/yudai/gotty
+        - image: ko://github.com/yudai/gotty
           args:
             # Tell gotty to enable interacting with the session.
             - -w

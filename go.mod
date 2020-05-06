@@ -7,8 +7,12 @@ require (
 	contrib.go.opencensus.io/exporter/stackdriver v0.12.9-0.20191108183826-59d068f8d8ff // indirect
 	contrib.go.opencensus.io/exporter/zipkin v0.1.1 // indirect
 	github.com/aws/aws-sdk-go v1.30.3 // indirect
+	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
 	github.com/cloudevents/sdk-go/v2 v2.0.0-preview8
+	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
+	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-openapi/jsonreference v0.19.3 // indirect
 	github.com/go-openapi/spec v0.19.3 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
@@ -18,6 +22,7 @@ require (
 	github.com/googleapis/gnostic v0.4.0 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
@@ -35,6 +40,9 @@ require (
 	github.com/rogpeppe/go-internal v1.5.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
+	github.com/yudai/gotty v1.0.1
+	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
+	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
@@ -63,6 +71,7 @@ require (
 )
 
 replace (
+	github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 	github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
 	k8s.io/api => k8s.io/api v0.16.4
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.16.4

@@ -22,6 +22,9 @@ import (
 	_ "k8s.io/kube-openapi/cmd/openapi-gen"
 	_ "knative.dev/pkg/codegen/cmd/injection-gen"
 
+	// For gotty
+	_ "github.com/yudai/gotty"
+
 	// For testing
 	_ "github.com/vmware/govmomi/govc"
 	_ "github.com/vmware/govmomi/vcsim"
