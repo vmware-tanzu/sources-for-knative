@@ -238,7 +238,7 @@ github.com/rogpeppe/go-internal/semver
 # github.com/spf13/pflag v1.0.5
 ## explicit
 github.com/spf13/pflag
-# github.com/vmware/govmomi v0.22.2
+# github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
 ## explicit
 github.com/vmware/govmomi
 github.com/vmware/govmomi/event
@@ -290,6 +290,7 @@ github.com/vmware/govmomi/govc/host/vswitch
 github.com/vmware/govmomi/govc/importx
 github.com/vmware/govmomi/govc/library
 github.com/vmware/govmomi/govc/library/session
+github.com/vmware/govmomi/govc/library/subscriber
 github.com/vmware/govmomi/govc/license
 github.com/vmware/govmomi/govc/logs
 github.com/vmware/govmomi/govc/ls
@@ -337,6 +338,7 @@ github.com/vmware/govmomi/pbm/types
 github.com/vmware/govmomi/performance
 github.com/vmware/govmomi/property
 github.com/vmware/govmomi/session
+github.com/vmware/govmomi/session/cache
 github.com/vmware/govmomi/simulator
 github.com/vmware/govmomi/simulator/esx
 github.com/vmware/govmomi/simulator/internal

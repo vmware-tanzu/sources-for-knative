@@ -23,9 +23,6 @@ import (
 
 	"github.com/vmware/govmomi/govc/cli"
 	"github.com/vmware/govmomi/govc/flags"
-	"github.com/vmware/govmomi/vapi/library"
-	"github.com/vmware/govmomi/vapi/library/finder"
-	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/vcenter"
 )
 
@@ -35,7 +32,7 @@ type checkin struct {
 }
 
 func init() {
-	cli.Register("library.checkin", &checkin{}, true)
+	cli.Register("library.checkin", &checkin{})
 }
 
 func (cmd *checkin) Register(ctx context.Context, f *flag.FlagSet) {
@@ -66,27 +63,22 @@ func (cmd *checkin) Run(ctx context.Context, f *flag.FlagSet) error {
 		return flag.ErrHelp
 	}
 
-	return cmd.WithRestClient(ctx, func(c *rest.Client) error {
-		m := library.NewManager(c)
-		res, err := finder.NewFinder(m).Find(ctx, path)
-		if err != nil {
-			return err
-		}
-		if len(res) != 1 {
-			return ErrMultiMatch{Type: "library", Key: "name", Val: path, Count: len(res)}
-		}
-		l, ok := res[0].GetResult().(library.Item)
-		if !ok {
-			return fmt.Errorf("%q is a %T", path, res[0].GetResult())
-		}
+	c, err := cmd.RestClient()
+	if err != nil {
+		return err
+	}
 
-		version, err := vcenter.NewManager(c).CheckIn(ctx, l.ID, vm, &cmd.CheckIn)
-		if err != nil {
-			return err
-		}
+	l, err := flags.ContentLibraryItem(ctx, c, path)
+	if err != nil {
+		return err
+	}
 
-		fmt.Printf("%s (%s) checked in as content version %s", l.Name, l.ID, version)
+	version, err := vcenter.NewManager(c).CheckIn(ctx, l.ID, vm, &cmd.CheckIn)
+	if err != nil {
+		return err
+	}
 
-		return nil
-	})
+	fmt.Printf("%s (%s) checked in as content version %s", l.Name, l.ID, version)
+
+	return nil
 }

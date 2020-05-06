@@ -23,9 +23,6 @@ import (
 
 	"github.com/vmware/govmomi/govc/cli"
 	"github.com/vmware/govmomi/govc/flags"
-	"github.com/vmware/govmomi/vapi/library"
-	"github.com/vmware/govmomi/vapi/library/finder"
-	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vapi/vcenter"
 )
 
@@ -38,6 +35,7 @@ type clone struct {
 	*flags.VirtualMachineFlag
 
 	profile string
+	ovf     bool
 }
 
 func init() {
@@ -63,6 +61,7 @@ func (cmd *clone) Register(ctx context.Context, f *flag.FlagSet) {
 	cmd.VirtualMachineFlag, ctx = flags.NewVirtualMachineFlag(ctx)
 	cmd.VirtualMachineFlag.Register(ctx, f)
 
+	f.BoolVar(&cmd.ovf, "ovf", false, "Clone as OVF (default is VM Template)")
 	f.StringVar(&cmd.profile, "profile", "", "Storage profile")
 }
 
@@ -92,10 +91,12 @@ func (cmd *clone) Usage() string {
 func (cmd *clone) Description() string {
 	return `Clone VM to Content Library PATH.
 
-The API used by this command requires vCenter version 6.7U1 or higher.
+By default, clone as a VM template (requires vCenter version 6.7U1 or higher).
+Clone as an OVF when the '-ovf' flag is specified.
 
 Examples:
-  govc library.clone -vm template-vm my-content template-vm-item`
+  govc library.clone -vm template-vm my-content template-vm-item
+  govc library.clone -ovf -vm template-vm my-content ovf-item`
 }
 
 func (cmd *clone) Run(ctx context.Context, f *flag.FlagSet) error {
@@ -135,58 +136,73 @@ func (cmd *clone) Run(ctx context.Context, f *flag.FlagSet) error {
 		dsID = ds.Reference().Value
 	}
 
-	return cmd.VirtualMachineFlag.WithRestClient(ctx, func(c *rest.Client) error {
-		m := library.NewManager(c)
-		res, err := finder.NewFinder(m).Find(ctx, path)
+	c, err := cmd.FolderFlag.RestClient()
+	if err != nil {
+		return err
+	}
+
+	l, err := flags.ContentLibrary(ctx, c, path)
+	if err != nil {
+		return err
+	}
+
+	if cmd.ovf {
+		ovf := vcenter.OVF{
+			Spec: vcenter.CreateSpec{
+				Name: name,
+			},
+			Source: vcenter.ResourceID{
+				Value: vm.Reference().Value,
+			},
+			Target: vcenter.LibraryTarget{
+				LibraryID: l.ID,
+			},
+		}
+		id, err := vcenter.NewManager(c).CreateOVF(ctx, ovf)
 		if err != nil {
 			return err
 		}
-		if len(res) != 1 {
-			return ErrMultiMatch{Type: "library", Key: "name", Val: path, Count: len(res)}
-		}
-		l, ok := res[0].GetResult().(library.Library)
-		if !ok {
-			return fmt.Errorf("%q is a %T", path, res[0].GetResult())
-		}
-
-		storage := &vcenter.DiskStorage{
-			Datastore: dsID,
-			StoragePolicy: &vcenter.StoragePolicy{
-				Policy: cmd.profile,
-				Type:   "USE_SOURCE_POLICY",
-			},
-		}
-		if cmd.profile != "" {
-			storage.StoragePolicy.Type = "USE_SPECIFIED_POLICY"
-		}
-
-		spec := vcenter.Template{
-			Name:          name,
-			Library:       l.ID,
-			DiskStorage:   storage,
-			VMHomeStorage: storage,
-			SourceVM:      vm.Reference().Value,
-			Placement: &vcenter.Placement{
-				Folder: folder.Reference().Value,
-			},
-		}
-		if pool != nil {
-			spec.Placement.ResourcePool = pool.Reference().Value
-		}
-		if host != nil {
-			spec.Placement.Host = host.Reference().Value
-		}
-		if cluster != nil {
-			spec.Placement.Cluster = cluster.Reference().Value
-		}
-
-		id, err := vcenter.NewManager(c).CreateTemplate(ctx, spec)
-		if err != nil {
-			return err
-		}
-
 		fmt.Println(id)
-
 		return nil
-	})
+	}
+
+	storage := &vcenter.DiskStorage{
+		Datastore: dsID,
+		StoragePolicy: &vcenter.StoragePolicy{
+			Policy: cmd.profile,
+			Type:   "USE_SOURCE_POLICY",
+		},
+	}
+	if cmd.profile != "" {
+		storage.StoragePolicy.Type = "USE_SPECIFIED_POLICY"
+	}
+
+	spec := vcenter.Template{
+		Name:          name,
+		Library:       l.ID,
+		DiskStorage:   storage,
+		VMHomeStorage: storage,
+		SourceVM:      vm.Reference().Value,
+		Placement: &vcenter.Placement{
+			Folder: folder.Reference().Value,
+		},
+	}
+	if pool != nil {
+		spec.Placement.ResourcePool = pool.Reference().Value
+	}
+	if host != nil {
+		spec.Placement.Host = host.Reference().Value
+	}
+	if cluster != nil {
+		spec.Placement.Cluster = cluster.Reference().Value
+	}
+
+	id, err := vcenter.NewManager(c).CreateTemplate(ctx, spec)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(id)
+
+	return nil
 }

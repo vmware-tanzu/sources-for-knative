@@ -34,7 +34,7 @@ require (
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.5.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/vmware/govmomi v0.22.2
+	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
 	go.opencensus.io v0.22.3 // indirect
 	go.uber.org/zap v1.14.1
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
