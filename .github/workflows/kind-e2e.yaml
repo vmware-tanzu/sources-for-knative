@@ -29,10 +29,8 @@ jobs:
         echo "::add-path::$(go env GOPATH)/bin"
 
     - name: Install Dependencies
-      # Note the @master until the release version supports building images
-      # properly from the vendor directories
       run: |
-        GO111MODULE=on go get github.com/google/ko/cmd/ko@master
+        GO111MODULE=on go get github.com/google/ko/cmd/ko
 
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
