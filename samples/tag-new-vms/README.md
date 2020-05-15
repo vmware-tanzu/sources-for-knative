@@ -84,8 +84,8 @@ kubectl apply -f binding.yaml
 ### Create your Service
 
 Now we are going to write a small service that we'll use to listen to
-`VmBeingCreatedEvent`s and tag the new VMs. Let's start by looking at the code to
-handle the event, and then look at how we wire that up to receive the
+`VmBeingCreatedEvent`s and tag the new VMs. Let's start by looking at the code
+to handle the event, and then look at how we wire that up to receive the
 appropriate events.
 
 With the binding we can create the client to tag VMs with a few lines:
@@ -188,8 +188,8 @@ If you are using a proper vSphere environment, with a tag named `shrug`, then
 you can simply create a new VM and see the new tag applied in the console.
 
 If you are using `vcsim` from the prior sample, then the simplest way to
-retrigger its `VmBeingCreatedEvent` is to create the source _last_. If you already
-created it then run:
+retrigger its `VmBeingCreatedEvent` is to create the source _last_. If you
+already created it then run:
 
 ```shell
 kubectl delete -f source.yaml
