@@ -5,7 +5,7 @@ metadata:
 spec:
   filter:
     attributes:
-      type: com.vmware.vsphere.VmCreatedEvent
+      type: com.vmware.vsphere.VmBeingCreatedEvent
   subscriber:
     ref:
       apiVersion: serving.knative.dev/v1

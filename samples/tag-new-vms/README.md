@@ -3,7 +3,7 @@
 This builds on the prior samples that demonstrate the
 [source](../vcsim/README.md) and [binding](../govc/README.md) in isolation. In
 this sample we will combine these concepts to write a microservice that reacts
-to `VmCreatedEvent` by tagging the new VM.
+to `VmBeingCreatedEvent` by tagging the new VM.
 
 ### Pre-requisites
 
@@ -84,7 +84,7 @@ kubectl apply -f binding.yaml
 ### Create your Service
 
 Now we are going to write a small service that we'll use to listen to
-`VmCreatedEvent`s and tag the new VMs. Let's start by looking at the code to
+`VmBeingCreatedEvent`s and tag the new VMs. Let's start by looking at the code to
 handle the event, and then look at how we wire that up to receive the
 appropriate events.
 
@@ -113,7 +113,7 @@ A few more to tag the VM in the Cloud Event handler:
 ```go
 func (r *receiver) handle(ctx context.Context, event cloudevents.Event) error {
 	// Parse the event we received.
-	req := &types.VmCreatedEvent{}
+	req := &types.VmBeingCreatedEvent{}
 	if err := event.DataAs(&req); err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ We then deploy with:
 ko apply -f service.yaml
 ```
 
-### Receiving `VmCreatedEvent`
+### Receiving `VmBeingCreatedEvent`
 
 At this point our `VSphereSource` is dumping events onto the `Broker`, and we
 have a `Service` bound and ready to handle events, but we haven't connected the
@@ -163,10 +163,10 @@ kind: Trigger
 metadata:
   name: tag-new-vms
 spec:
-  # We only want to respond to VmCreatedEvent
+  # We only want to respond to VmBeingCreatedEvent
   filter:
     attributes:
-      type: com.vmware.vsphere.VmCreatedEvent
+      type: com.vmware.vsphere.VmBeingCreatedEvent
 
   # Send the event to our service.
   subscriber:
@@ -188,7 +188,7 @@ If you are using a proper vSphere environment, with a tag named `shrug`, then
 you can simply create a new VM and see the new tag applied in the console.
 
 If you are using `vcsim` from the prior sample, then the simplest way to
-retrigger its `VmCreatedEvent` is to create the source _last_. If you already
+retrigger its `VmBeingCreatedEvent` is to create the source _last_. If you already
 created it then run:
 
 ```shell

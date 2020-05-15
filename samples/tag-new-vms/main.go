@@ -40,7 +40,7 @@ func main() {
 }
 
 func (r *receiver) handle(ctx context.Context, event cloudevents.Event) error {
-	req := &types.VmCreatedEvent{}
+	req := &types.VmBeingCreatedEvent{}
 	if err := event.DataAs(&req); err != nil {
 		return err
 	}
