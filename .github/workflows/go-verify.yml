@@ -39,7 +39,6 @@ jobs:
       run: |
         go get github.com/golang/dep/cmd/dep
         go get github.com/google/ko/cmd/ko
-        go get github.com/google/licenseclassifier
         go get github.com/google/go-licenses
         go get knative.dev/test-infra/tools/dep-collector
 
