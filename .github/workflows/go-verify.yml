@@ -37,6 +37,7 @@ jobs:
 
     - name: Install Dependencies
       run: |
+        export GO111MODULE=on
         go get github.com/golang/dep/cmd/dep
         go get github.com/google/ko/cmd/ko
         go get github.com/otiai10/copy@v1.2.0
