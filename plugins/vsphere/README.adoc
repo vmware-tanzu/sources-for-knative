@@ -1,0 +1,110 @@
+== kn-vsphere
+
+`kn vsphere` manages VSphere sources and bindings.
+
+=== Description
+
+// A longer description which also describes the use cases that this plugin solves.
+
+With this plugin, you can create Knative compatible Event Sources for VSphere events,
+and Bindings to easily access the VSphere API.
+
+=== Usage
+
+// This is the reference section explaining all options.
+// This should start to contain the help message in a preformatted block
+// and then all commands individually
+
+// Note that the command should print out the format used when called via `kn`, not directly
+// so, it's "kn hello [command]", not "kn-hello [command]"
+----
+Knative plugin to create Knative compatible Event Sources for VSphere events,
+and Bindings to access the VSphere API
+
+Usage:
+  kn-vsphere [command]
+
+Available Commands:
+  help        Help about any command
+  login       Create the required VSphere credentials
+  version     Prints the plugin version
+
+Flags:
+  -h, --help   help for kn vsphere
+
+Use "kn vsphere [command] --help" for more information about a command.
+----
+
+==== `kn vsphere login`
+
+----
+Create the required VSphere credentials
+
+Examples:
+# Log in the default namespace
+kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials
+# Log in the specified namespace
+kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-name vsphere-credentials
+# Log in the specified namespace with the password retrieved via standard input
+kn vsphere login --namespace ns --username john-doe --password-stdin --secret-name vsphere-credentials
+
+Usage:
+  kn vsphere login [flags]
+
+Flags:
+  -h, --help                 help for login
+  -n, --namespace string     namespace of the credentials to create (default namespace if omitted)
+  -p, --password string      password (same as GOVC_PASSWORD)
+  -i, --password-stdin       read password from standard input
+  -s, --secret-name string   name of the Secret created for the credentials
+  -u, --username string      username (same as GOVC_USERNAME)
+----
+
+==== `kn vsphere version`
+
+This command prints out the version of this plugin and all extra information which might help, for example when creating bug reports.
+
+----
+Prints the plugin version
+
+Usage:
+  kn vsphere version [flags]
+
+Flags:
+  -h, --help   help for version
+----
+
+=== Examples
+
+==== Authenticating with vSphere
+
+Often you want to greet your users with a charming message.
+In this case, you can use the `kn hello print` command.
+The only required argument here is the name of the person to greet.
+
+.Example login in the default namespace
+====
+----
+$ kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials
+----
+====
+
+This will create a Secret that can be referred by VSphereSource and VSphereBinding.
+
+==== Print out the version of this plugin
+
+The `kn vsphere version` command helps you to identify the version of this plugin.
+
+.Example version output
+=====
+-----
+$ kn vsphere version
+
+Version:      v20200402-local-a099aaf-dirty
+Build Date:   2020-04-02 18:16:20
+Git Revision: a099aaf
+-----
+=====
+
+As you can see it prints out the version (or a generated timestamp when this plugin is built from a non-released commit),
+the date when the plugin has been built and the actual Git revision.

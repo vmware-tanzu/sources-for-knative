@@ -77,6 +77,10 @@ jobs:
         # Deploy the controllers we published to the cluster.
         kubectl apply -f build.yaml
 
+        # Build Knative plugin and create Secret
+        go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
+        ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
+
         # TODO(mattmoor): Probably don't need this anymore, but keep until we
         # have something that waits for pods to becomes ready.
         sleep 60
