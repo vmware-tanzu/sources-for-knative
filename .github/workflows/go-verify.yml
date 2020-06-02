@@ -39,7 +39,7 @@ jobs:
       run: |
         go get github.com/golang/dep/cmd/dep
         go get github.com/google/ko/cmd/ko
-        GO111MODULE=on go get github.com/otiai10/copy@v1.1.1
+        go get github.com/otiai10/copy
         go get github.com/google/go-licenses
 
     - name: Check out code onto GOPATH
