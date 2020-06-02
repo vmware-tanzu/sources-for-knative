@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.0.0-RC4
+	github.com/cloudevents/sdk-go/v2 v2.0.0
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
@@ -30,11 +30,11 @@ require (
 	k8s.io/apimachinery v0.18.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.0
-	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
+	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/eventing v0.14.1-0.20200515141201-4a46afff07a6
-	knative.dev/pkg v0.0.0-20200515002500-16d7b963416f
-	knative.dev/test-infra v0.0.0-20200514223200-ef4fd3ad398f // indirect
+	knative.dev/eventing v0.15.1-0.20200602132917-9119a2e34905
+	knative.dev/pkg v0.0.0-20200601184204-18c577c87d4f
+	knative.dev/test-infra v0.0.0-20200602024303-e406de9f65c4 // indirect
 )
 
 replace (
