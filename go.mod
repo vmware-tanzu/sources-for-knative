@@ -17,6 +17,7 @@ require (
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rogpeppe/go-internal v1.5.2 // indirect
+	github.com/spf13/cobra v1.0.0
 	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
@@ -25,6 +26,7 @@ require (
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
 	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
 	golang.org/x/tools v0.0.0-20200402223321-bcf690261a44 // indirect
+	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.18.0
 	k8s.io/apiextensions-apiserver v0.18.0 // indirect
 	k8s.io/apimachinery v0.18.0
