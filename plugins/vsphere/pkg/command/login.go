@@ -7,6 +7,9 @@ package command
 
 import (
 	"fmt"
+	"golang.org/x/crypto/ssh/terminal"
+	"io/ioutil"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
@@ -15,10 +18,11 @@ import (
 )
 
 type LoginOptions struct {
-	Namespace  string
-	Username   string
-	Password   string
-	SecretName string
+	Namespace     string
+	Username      string
+	Password      string
+	SecretName    string
+	PasswordStdIn bool
 }
 
 func NewLoginCommand(client *pkg.Client) *cobra.Command {
@@ -34,6 +38,8 @@ Examples:
 kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials
 # Log in the specified namespace
 kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-name vsphere-credentials
+# Log in the specified namespace with the password retrieved via standard input
+kn vsphere login --namespace ns --username john-doe --password-stdin --secret-name vsphere-credentials
 `,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			username := options.Username
@@ -41,8 +47,12 @@ kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-n
 				return fmt.Errorf("'login' requires a nonempty username provided with the --username option")
 			}
 			password := options.Password
-			if len(password) == 0 {
-				return fmt.Errorf("'password' requires a nonempty password provided with the --password option")
+			passwordViaStdIn := options.PasswordStdIn
+			if len(password) == 0 && !passwordViaStdIn {
+				return fmt.Errorf("'password' requires a nonempty password provided with the --password option or prompted later via the --password-std-in option")
+			}
+			if len(password) > 0 && passwordViaStdIn {
+				return fmt.Errorf("either set an explicit password with the --password option or set the --password-stdin option to get prompted for one, do not set both")
 			}
 			secretName := options.SecretName
 			if len(secretName) == 0 {
@@ -55,7 +65,11 @@ kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-n
 			if err != nil {
 				return fmt.Errorf("failed to get namespace: %+v", err)
 			}
-			credentials := newSecret(namespace, options)
+			password, err := readPassword(cmd, options)
+			if err != nil {
+				return fmt.Errorf("failed to get password: %+v", err)
+			}
+			credentials := newSecret(namespace, password, options)
 			if _, err := client.ClientSet.CoreV1().Secrets(namespace).Create(credentials); err != nil {
 				return fmt.Errorf("failed to create Secret: %+v", err)
 			}
@@ -69,13 +83,13 @@ kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-n
 	flags.StringVarP(&options.Username, "username", "u", "", "username (same as GOVC_USERNAME)")
 	_ = result.MarkFlagRequired("username")
 	flags.StringVarP(&options.Password, "password", "p", "", "password (same as GOVC_PASSWORD)")
-	_ = result.MarkFlagRequired("password")
+	flags.BoolVarP(&options.PasswordStdIn, "password-stdin", "i", false, "read password from standard input")
 	flags.StringVarP(&options.SecretName, "secret-name", "s", "", "name of the Secret created for the credentials")
 	_ = result.MarkFlagRequired("secret-name")
 	return result
 }
 
-func newSecret(namespace string, options *LoginOptions) *corev1.Secret {
+func newSecret(namespace string, password string, options *LoginOptions) *corev1.Secret {
 	return &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
@@ -83,8 +97,28 @@ func newSecret(namespace string, options *LoginOptions) *corev1.Secret {
 		},
 		Type: corev1.SecretTypeBasicAuth,
 		StringData: map[string]string{
-			"username": options.Username,
-			"password": options.Password,
+			corev1.BasicAuthUsernameKey: options.Username,
+			corev1.BasicAuthPasswordKey: password,
 		},
 	}
+}
+
+func readPassword(cmd *cobra.Command, options *LoginOptions) (string, error) {
+	if !options.PasswordStdIn {
+		return options.Password, nil
+	}
+	cmd.Println("Password:")
+	if terminal.IsTerminal(syscall.Stdin) {
+		password, err := terminal.ReadPassword(syscall.Stdin)
+		cmd.Println()
+		if err != nil {
+			return "", err
+		}
+		return string(password), nil
+	}
+	password, err := ioutil.ReadAll(cmd.InOrStdin())
+	if err != nil {
+		return "", err
+	}
+	return string(password), nil
 }

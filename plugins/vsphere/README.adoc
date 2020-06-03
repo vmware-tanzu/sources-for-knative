@@ -45,6 +45,8 @@ Examples:
 kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials
 # Log in the specified namespace
 kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-name vsphere-credentials
+# Log in the specified namespace with the password retrieved via standard input
+kn vsphere login --namespace ns --username john-doe --password-stdin --secret-name vsphere-credentials
 
 Usage:
   kn vsphere login [flags]
@@ -53,6 +55,7 @@ Flags:
   -h, --help                 help for login
   -n, --namespace string     namespace of the credentials to create (default namespace if omitted)
   -p, --password string      password (same as GOVC_PASSWORD)
+  -i, --password-stdin       read password from standard input
   -s, --secret-name string   name of the Secret created for the credentials
   -u, --username string      username (same as GOVC_USERNAME)
 ----
