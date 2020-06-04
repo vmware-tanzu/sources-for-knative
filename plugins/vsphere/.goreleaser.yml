@@ -13,9 +13,9 @@ builds:
   flags:
     - -mod=vendor
   ldflags:
-    - -X 'knative.dev/client-contrib/plugins/hello/pkg/command.BuildDate={{.Date}}'
-    - -X 'knative.dev/client-contrib/plugins/hello/pkg/command.Version={{.Version}}'
-    - -X 'knative.dev/client-contrib/plugins/hello/pkg/command.GitRevision={{.Commit}}'
+    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command.BuildDate={{.Date}}'
+    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command.Version={{.Version}}'
+    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command.GitRevision={{.Commit}}'
 archives:
 - replacements:
     darwin: Darwin
