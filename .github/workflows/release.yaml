@@ -65,3 +65,34 @@ jobs:
         asset_path: ./src/github.com/${{ github.repository }}/release.yaml
         asset_name: release.yaml
         asset_content_type: text/plain
+
+  kn-vsphere:
+    name: Release vSphere Knative plugin
+    runs-on: ubuntu-latest
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: off
+
+    steps:
+      - name: Check out code onto GOPATH
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: ./src/github.com/${{ github.repository }}
+
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      - name: Set up Go 1.14.x
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14.x
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v1
+        with:
+          version: latest
+          args: release --rm-dist
+          workdir: ./plugins/vsphere
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

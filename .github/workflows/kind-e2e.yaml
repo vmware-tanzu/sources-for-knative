@@ -77,10 +77,8 @@ jobs:
         # Deploy the controllers we published to the cluster.
         kubectl apply -f build.yaml
 
-        # Build Knative plugin and authenticate
-        ls
-        pushd ./plugins/vsphere
-        ./hack/build.sh --fast
+        # Build Knative plugin and create Secret
+        go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
         ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
         popd
 
