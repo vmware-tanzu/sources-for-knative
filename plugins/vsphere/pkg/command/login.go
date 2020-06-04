@@ -7,9 +7,10 @@ package command
 
 import (
 	"fmt"
-	"golang.org/x/crypto/ssh/terminal"
 	"io/ioutil"
 	"syscall"
+
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
