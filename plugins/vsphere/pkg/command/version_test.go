@@ -3,11 +3,12 @@ Copyright 2020 VMware, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package command
+package command_test
 
 import (
 	"bytes"
 	"fmt"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
 	"testing"
 
 	"gotest.tools/assert"
@@ -20,7 +21,7 @@ const (
 )
 
 func TestVersionSetup(t *testing.T) {
-	versionCommand := NewVersionCommand()
+	versionCommand := command.NewVersionCommand()
 
 	assert.Equal(t, versionCommand.Use, "version")
 	assert.Equal(t, versionCommand.Short, "Prints the plugin version")
@@ -28,9 +29,9 @@ func TestVersionSetup(t *testing.T) {
 }
 
 func TestVersionOutput(t *testing.T) {
-	Version = fakeVersion
-	BuildDate = fakeBuildDate
-	GitRevision = fakeGitRevision
+	command.Version = fakeVersion
+	command.BuildDate = fakeBuildDate
+	command.GitRevision = fakeGitRevision
 	expectedOutput := fmt.Sprintf(`Version:      %s
 Build Date:   %s
 Git Revision: %s
@@ -43,7 +44,7 @@ Git Revision: %s
 }
 
 func runVersionCmd() (string, error) {
-	versionCmd := NewVersionCommand()
+	versionCmd := command.NewVersionCommand()
 
 	output := new(bytes.Buffer)
 	versionCmd.SetOut(output)
