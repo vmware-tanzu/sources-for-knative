@@ -32,8 +32,8 @@ require (
 	k8s.io/code-generator v0.18.0
 	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/eventing v0.15.0
-	knative.dev/pkg v0.0.0-20200519155757-14eb3ae3a5a7
+	knative.dev/eventing v0.15.1-0.20200528220601-a61a6784a053
+	knative.dev/pkg v0.0.0-20200528142800-1c6815d7e4c9
 )
 
 replace (
