@@ -31,8 +31,8 @@ func NewLoginCommand(client *pkg.Client) *cobra.Command {
 
 	result := &cobra.Command{
 		Use:   "login",
-		Short: "Create the required VSphere credentials",
-		Long: `Create the required VSphere credentials
+		Short: "Create the required vSphere credentials",
+		Long: `Create the required vSphere credentials
 
 Examples:
 # Log in the default namespace
