@@ -26,7 +26,7 @@ type LoginOptions struct {
 	PasswordStdIn bool
 }
 
-func NewLoginCommand(client *pkg.Client) *cobra.Command {
+func NewLoginCommand(clients *pkg.Client) *cobra.Command {
 	options := &LoginOptions{}
 
 	result := &cobra.Command{
@@ -44,25 +44,25 @@ kn vsphere login --namespace ns --username john-doe --password-stdin --secret-na
 `,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			username := options.Username
-			if len(username) == 0 {
+			if username == "" {
 				return fmt.Errorf("'login' requires a nonempty username provided with the --username option")
 			}
 			password := options.Password
 			passwordViaStdIn := options.PasswordStdIn
-			if len(password) == 0 && !passwordViaStdIn {
+			if password == "" && !passwordViaStdIn {
 				return fmt.Errorf("'password' requires a nonempty password provided with the --password option or prompted later via the --password-std-in option")
 			}
-			if len(password) > 0 && passwordViaStdIn {
+			if password != "" && passwordViaStdIn {
 				return fmt.Errorf("either set an explicit password with the --password option or set the --password-stdin option to get prompted for one, do not set both")
 			}
 			secretName := options.SecretName
-			if len(secretName) == 0 {
+			if secretName == "" {
 				return fmt.Errorf("'secret-name' requires a nonempty secret name provided with the --secret-name option")
 			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			namespace, err := client.GetExplicitOrDefaultNamespace(options.Namespace)
+			namespace, err := clients.GetExplicitOrDefaultNamespace(options.Namespace)
 			if err != nil {
 				return fmt.Errorf("failed to get namespace: %+v", err)
 			}
@@ -71,7 +71,7 @@ kn vsphere login --namespace ns --username john-doe --password-stdin --secret-na
 				return fmt.Errorf("failed to get password: %+v", err)
 			}
 			credentials := newSecret(namespace, password, options)
-			if _, err := client.ClientSet.CoreV1().Secrets(namespace).Create(credentials); err != nil {
+			if _, err := clients.ClientSet.CoreV1().Secrets(namespace).Create(credentials); err != nil {
 				return fmt.Errorf("failed to create Secret: %+v", err)
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Created credentials")

@@ -6,9 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 package command_test
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
+	"k8s.io/apimachinery/pkg/runtime"
+	k8stesting "k8s.io/client-go/testing"
+	"k8s.io/client-go/tools/clientcmd"
 	"strings"
 	"testing"
 
@@ -21,10 +23,12 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 )
 
+const defaultNamespace = "configuredDefault"
+
 func TestNewLoginCommand(t *testing.T) {
-	username := "fbiville"
-	password := "s3cr3t"
-	secretName := "creds"
+	const username = "fbiville"
+	const password = "s3cr3t"
+	const secretName = "creds"
 
 	t.Run("defines basic metadata", func(t *testing.T) {
 		loginCommand := loginCommand(&pkg.Client{})
@@ -78,11 +82,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("logs in default namespace", func(t *testing.T) {
 		client := fake.NewSimpleClientset()
-		defaultNamespace := "configured-default"
-		clientConfig := command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
-			return defaultNamespace, nil
-		}}
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: clientConfig})
+		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -91,23 +91,13 @@ func TestNewLoginCommand(t *testing.T) {
 
 		err := loginCommand.Execute()
 
-		assert.NilError(t, err)
-		secret, err := client.CoreV1().
-			Secrets(defaultNamespace).
-			Get(secretName, metav1.GetOptions{})
-		assert.NilError(t, err)
-		assert.Equal(t, secret.Type, corev1.SecretTypeBasicAuth)
-		assert.Equal(t, secret.StringData["username"], username)
-		assert.Equal(t, secret.StringData["password"], password)
+		secret := retrieveCreatedSecret(t, err, client, defaultNamespace, secretName)
+		assertSecret(t, secret, username, password)
 	})
 
 	t.Run("logs in default namespace with prompted password", func(t *testing.T) {
 		client := fake.NewSimpleClientset()
-		defaultNamespace := "configured-default"
-		clientConfig := command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
-			return defaultNamespace, nil
-		}}
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: clientConfig})
+		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
 		loginCommand.SetIn(strings.NewReader(password))
 		loginCommand.SetArgs([]string{
 			"--username", username,
@@ -117,25 +107,14 @@ func TestNewLoginCommand(t *testing.T) {
 
 		err := loginCommand.Execute()
 
-		assert.NilError(t, err)
-		secret, err := client.CoreV1().
-			Secrets(defaultNamespace).
-			Get(secretName, metav1.GetOptions{})
-		assert.NilError(t, err)
-		assert.Equal(t, secret.Type, corev1.SecretTypeBasicAuth)
-		assert.Equal(t, secret.StringData["username"], username)
-		assert.Equal(t, secret.StringData["password"], password)
+		secret := retrieveCreatedSecret(t, err, client, defaultNamespace, secretName)
+		assertSecret(t, secret, username, password)
 	})
 
 	t.Run("fails to execute if password cannot be retrieved from standard input", func(t *testing.T) {
-		client := fake.NewSimpleClientset()
-		defaultNamespace := "configured-default"
-		clientConfig := command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
-			return defaultNamespace, nil
-		}}
-		errorMsg := "oops"
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: clientConfig})
-		loginCommand.SetIn(&failingReader{errorMessage: errorMsg})
+		stdInError := "oops"
+		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(), ClientConfig: regularClientConfig()})
+		loginCommand.SetIn(&failingReader{errorMessage: stdInError})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password-stdin",
@@ -144,7 +123,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 		err := loginCommand.Execute()
 
-		assert.ErrorContains(t, err, "failed to get password: "+errorMsg)
+		assert.ErrorContains(t, err, "failed to get password: "+stdInError)
 	})
 
 	t.Run("logs in specified namespace", func(t *testing.T) {
@@ -160,23 +139,14 @@ func TestNewLoginCommand(t *testing.T) {
 
 		err := loginCommand.Execute()
 
-		assert.NilError(t, err)
-		secret, err := client.CoreV1().
-			Secrets(namespace).
-			Get(secretName, metav1.GetOptions{})
-		assert.NilError(t, err)
-		assert.Equal(t, secret.Type, corev1.SecretTypeBasicAuth)
-		assert.Equal(t, secret.StringData["username"], username)
-		assert.Equal(t, secret.StringData["password"], password)
+		secret := retrieveCreatedSecret(t, err, client, namespace, secretName)
+		assertSecret(t, secret, username, password)
 	})
 
-	t.Run("fails to execute in default namespace when its retrieval fails", func(t *testing.T) {
-		client := fake.NewSimpleClientset()
+	t.Run("fails to execute when default namespace retrieval fails", func(t *testing.T) {
 		errorMsg := "a girl has no name...space"
-		clientConfig := command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
-			return "", errors.New(errorMsg)
-		}}
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: clientConfig})
+		clientConfig := failingClientConfig(fmt.Errorf(errorMsg))
+		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(), ClientConfig: clientConfig})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -187,6 +157,38 @@ func TestNewLoginCommand(t *testing.T) {
 
 		assert.ErrorContains(t, err, "failed to get namespace: "+errorMsg)
 	})
+
+	t.Run("fails to execute if secret creation fails", func(t *testing.T) {
+		secretCreationErrorMsg := "secret creation fail"
+		client := fake.NewSimpleClientset()
+		client.PrependReactor("create", "secrets", func(action k8stesting.Action) (bool, runtime.Object, error) {
+			return true, nil, fmt.Errorf(secretCreationErrorMsg)
+		})
+		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
+		loginCommand.SetArgs([]string{
+			"--username", username,
+			"--password", password,
+			"--secret-name", secretName,
+		})
+
+		err := loginCommand.Execute()
+
+		assert.ErrorContains(t, err, fmt.Sprintf("failed to create Secret: %s", secretCreationErrorMsg))
+	})
+
+	t.Run("fails to execute when trying to create a duplicate secret", func(t *testing.T) {
+		existingSecret := newSecret(defaultNamespace, secretName, username, password)
+		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(existingSecret), ClientConfig: regularClientConfig()})
+		loginCommand.SetArgs([]string{
+			"--username", username,
+			"--password", password,
+			"--secret-name", secretName,
+		})
+
+		err := loginCommand.Execute()
+
+		assert.ErrorContains(t, err, fmt.Sprintf(`failed to create Secret: secrets "%s" already exists`, secretName))
+	})
 }
 
 func loginCommand(client *pkg.Client) *cobra.Command {
@@ -194,6 +196,35 @@ func loginCommand(client *pkg.Client) *cobra.Command {
 	loginCommand.SetErr(ioutil.Discard)
 	loginCommand.SetOut(ioutil.Discard)
 	return loginCommand
+}
+
+func newSecret(namespace, secretName, username, password string) *corev1.Secret {
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Namespace: namespace,
+			Name:      secretName,
+		},
+		Type: corev1.SecretTypeBasicAuth,
+		StringData: map[string]string{
+			corev1.BasicAuthUsernameKey: username,
+			corev1.BasicAuthPasswordKey: password,
+		},
+	}
+}
+
+func retrieveCreatedSecret(t *testing.T, err error, client *fake.Clientset, ns, name string) *corev1.Secret {
+	assert.NilError(t, err)
+	secret, err := client.CoreV1().
+		Secrets(ns).
+		Get(name, metav1.GetOptions{})
+	assert.NilError(t, err)
+	return secret
+}
+
+func assertSecret(t *testing.T, secret *corev1.Secret, username string, password string) {
+	assert.Equal(t, secret.Type, corev1.SecretTypeBasicAuth)
+	assert.Equal(t, secret.StringData[corev1.BasicAuthUsernameKey], username)
+	assert.Equal(t, secret.StringData[corev1.BasicAuthPasswordKey], password)
 }
 
 func checkFlag(t *testing.T, command *cobra.Command, flagName string) bool {
@@ -206,4 +237,16 @@ type failingReader struct {
 
 func (f *failingReader) Read(ignored []byte) (n int, err error) {
 	return 0, fmt.Errorf(f.errorMessage)
+}
+
+func regularClientConfig() clientcmd.ClientConfig {
+	return command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
+		return defaultNamespace, nil
+	}}
+}
+
+func failingClientConfig(err error) clientcmd.ClientConfig {
+	return command.FakeClientConfig{DefaultNamespaceProvider: func() (string, error) {
+		return "", err
+	}}
 }
