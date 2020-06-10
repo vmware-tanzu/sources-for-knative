@@ -7,6 +7,7 @@ package pkg
 
 import (
 	"fmt"
+	vsphere "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
 	"os"
 	"path/filepath"
 
@@ -14,7 +15,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func NewClient(kubeConfigPath string) (*Client, error) {
+func NewClients(kubeConfigPath string) (*Clients, error) {
 	clientConfig, err := getClientConfig(kubeConfigPath)
 	if err != nil {
 		return nil, err
@@ -27,18 +28,19 @@ func NewClient(kubeConfigPath string) (*Client, error) {
 
 	clientSet, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {
-		fmt.Println("failed to create Client:", err)
+		fmt.Println("failed to create Clients:", err)
 		os.Exit(1)
 	}
-	return &Client{ClientSet: clientSet, ClientConfig: clientConfig}, nil
+	return &Clients{ClientSet: clientSet, ClientConfig: clientConfig}, nil
 }
 
-type Client struct {
-	ClientConfig clientcmd.ClientConfig
-	ClientSet    kubernetes.Interface
+type Clients struct {
+	ClientConfig     clientcmd.ClientConfig
+	ClientSet        kubernetes.Interface
+	VSphereClientSet vsphere.Interface
 }
 
-func (c *Client) GetExplicitOrDefaultNamespace(ns string) (string, error) {
+func (c *Clients) GetExplicitOrDefaultNamespace(ns string) (string, error) {
 	if ns != "" {
 		return ns, nil
 	}
