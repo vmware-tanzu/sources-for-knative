@@ -26,7 +26,7 @@ type LoginOptions struct {
 	PasswordStdIn bool
 }
 
-func NewLoginCommand(clients *pkg.Client) *cobra.Command {
+func NewLoginCommand(clients *pkg.Clients) *cobra.Command {
 	options := &LoginOptions{}
 
 	result := &cobra.Command{

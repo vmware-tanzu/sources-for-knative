@@ -15,14 +15,16 @@ import (
 )
 
 func TestNewRootCommand(t *testing.T) {
-	rootCommand := command.NewRootCommand(&pkg.Client{})
+	rootCommand := command.NewRootCommand(&pkg.Clients{})
 
 	assert.Equal(t, "kn-vsphere", rootCommand.Name())
 	assert.Check(t, len(rootCommand.Short) > 0,
 		"command should have a nonempty description")
-	assert.Check(t, len(rootCommand.Commands()) == 2, "unexpected number of commands")
+	assert.Check(t, len(rootCommand.Commands()) == 3, "unexpected number of subcommands")
 	assert.Check(t, HasLeafCommand(rootCommand, "login"),
 		"command should have subcommand login")
+	assert.Check(t, HasLeafCommand(rootCommand, "source"),
+		"command should have subcommand source")
 	assert.Check(t, HasLeafCommand(rootCommand, "version"),
 		"command should have subcommand version")
 }

@@ -19,12 +19,12 @@ import (
 )
 
 func main() {
-	client, err := pkg.NewClient(os.Getenv("KUBECONFIG"))
+	clients, err := pkg.NewClients(os.Getenv("KUBECONFIG"))
 	if err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}
-	if err := command.NewRootCommand(client).Execute(); err != nil {
+	if err := command.NewRootCommand(clients).Execute(); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}

@@ -60,6 +60,33 @@ Flags:
   -u, --username string      username (same as GOVC_USERNAME)
 ----
 
+==== `kn vsphere source`
+
+----
+Create a vSphere source to react to vSphere events
+
+Examples:
+# Create the source in the default namespace, sending events to the specified sink URI
+kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
+# Create the source in the specified namespace, sending events to the specified service
+kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
+
+Usage:
+  kn-vsphere source [flags]
+
+Flags:
+  -a, --address string            URL of ESXi or vCenter instance to connect to (same as GOVC_URL)
+  -h, --help                      help for source
+      --name string               name of the source to create
+  -n, --namespace string          namespace of the source to create (default namespace if omitted)
+  -s, --secret-ref string         reference to the Kubernetes secret for the vSphere credentials needed for the source address
+      --sink-api-version string   sink API version
+      --sink-kind string          sink kind
+      --sink-name string          sink name
+  -u, --sink-uri string           sink URI (can be absolute, or relative to the referred sink resource)
+  -k, --skip-tls-verify           disables certificate verification for the source address (same as GOVC_INSECURE)
+----
+
 ==== `kn vsphere version`
 
 This command prints out the version of this plugin and all extra information which might help, for example when creating bug reports.
@@ -90,6 +117,17 @@ $ kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-c
 ====
 
 This will create a Secret that can be referred by VSphereSource and VSphereBinding.
+
+==== Create a basic VSphereSource
+
+.Example Source creation in the default namespace
+====
+----
+$ kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
+----
+====
+
+This will create a VSphereSource that sends VSphere events to the specified URI.
 
 ==== Print out the version of this plugin
 
