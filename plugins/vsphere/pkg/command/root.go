@@ -18,6 +18,7 @@ func NewRootCommand(clients *pkg.Clients) *cobra.Command {
 	}
 	result.AddCommand(NewLoginCommand(clients))
 	result.AddCommand(NewSourceCommand(clients))
+	result.AddCommand(NewBindingCommand(clients))
 	result.AddCommand(NewVersionCommand())
 	return &result
 }
