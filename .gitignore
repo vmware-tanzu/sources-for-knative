@@ -6,3 +6,5 @@ bazel-*
 *.swp
 .history
 tmp/
+/plugins/vsphere/*vsphere
+/dist
