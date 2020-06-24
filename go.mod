@@ -3,9 +3,8 @@ module github.com/vmware-tanzu/sources-for-knative
 go 1.14
 
 require (
-	github.com/aws/aws-sdk-go v1.30.3 // indirect
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.0.0-RC4
+	github.com/cloudevents/sdk-go/v2 v2.0.1-0.20200608152019-2ab697c8fc0b
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
@@ -32,10 +31,11 @@ require (
 	k8s.io/apimachinery v0.18.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.0
-	k8s.io/kube-openapi v0.0.0-20200121204235-bf4fb3bd569c
+	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
 	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/eventing v0.15.1-0.20200528220601-a61a6784a053
-	knative.dev/pkg v0.0.0-20200528142800-1c6815d7e4c9
+	knative.dev/eventing v0.15.1-0.20200623172931-13e513727e77
+	knative.dev/pkg v0.0.0-20200623204627-e0a0d63a9e86
+	knative.dev/test-infra v0.0.0-20200623231727-6d5d6aeb457c // indirect
 )
 
 replace (

@@ -13,7 +13,7 @@ set -o pipefail
 cd ${ROOT_DIR}
 
 # This controls the release branch we track.
-VERSION="release-0.15"
+VERSION="master"
 
 # We need these flags for things to work properly.
 export GO111MODULE=on
