@@ -9,6 +9,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
+
 	"github.com/davecgh/go-spew/spew"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -17,7 +19,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"knative.dev/pkg/apis"
-	duckv1 "knative.dev/pkg/apis/duck/v1"
 	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
 	pkgtest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/helpers"
@@ -296,37 +297,21 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 func CreateSource(t *testing.T, clients *test.Clients, name string) context.CancelFunc {
 	t.Helper()
 
-	src := &v1alpha1.VSphereSource{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: test.Namespace,
-		},
-		Spec: v1alpha1.VSphereSourceSpec{
-			SourceSpec: duckv1.SourceSpec{
-				Sink: duckv1.Destination{
-					Ref: &duckv1.KReference{
-						APIVersion: "v1",
-						Kind:       "Service",
-						Name:       name,
-					},
-				},
-			},
-			VAuthSpec: v1alpha1.VAuthSpec{
-				Address: apis.URL{
-					Scheme: "https",
-					Host:   "vcsim.default.svc.cluster.local",
-				},
-				SkipTLSVerify: true,
-				SecretRef: corev1.LocalObjectReference{
-					Name: "vsphere-credentials",
-				},
-			},
-		},
-	}
+	knativePlugin := command.NewRootCommand(clients.AsPluginClients())
+	knativePlugin.SetArgs([]string{
+		"source",
+		"--namespace", test.Namespace,
+		"--name", name,
+		"--address", "https://vcsim.default.svc.cluster.local",
+		"--skip-tls-verify", "true",
+		"--secret-ref", "vsphere-credentials",
+		"--sink-api-version", "v1",
+		"--sink-kind", "Service",
+		"--sink-name", name,
+	})
 
 	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Sources.Delete(name, &metav1.DeleteOptions{}) }, t.Logf)
-	_, err := clients.VMWareClient.Sources.Create(src)
-	if err != nil {
+	if err := knativePlugin.Execute(); err != nil {
 		t.Fatalf("Error creating source: %v", err)
 	}
 

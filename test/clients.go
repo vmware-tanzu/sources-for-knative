@@ -8,8 +8,9 @@ package test
 import (
 	"time"
 
+	clients "github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
+
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"knative.dev/pkg/test"
 
@@ -34,51 +35,57 @@ const (
 type Clients struct {
 	KubeClient   *test.KubeClient
 	VMWareClient *VMWareClients
+	// for interop with clients.Clients -- see AsPluginClients
+	clientConfig clientcmd.ClientConfig
 }
 
 type VMWareClients struct {
 	Bindings sources.VSphereBindingInterface
 	Sources  sources.VSphereSourceInterface
+	// for interop with clients.Clients -- see AsPluginClients
+	clientSet *versioned.Clientset
 }
 
 func NewClients(configPath string, clusterName string, namespace string) (*Clients, error) {
-	cfg, err := BuildClientConfig(configPath, clusterName)
-	if err != nil {
-		return nil, err
-	}
-	return NewClientsFromConfig(cfg, namespace)
+	clientConfig := BuildClientConfig(configPath, clusterName)
+	return NewClientsFromConfig(clientConfig, namespace)
 }
 
 func Setup(t test.TLegacy) *Clients {
 	t.Helper()
-	clients, err := NewClients(test.Flags.Kubeconfig, test.Flags.Cluster, Namespace)
+	result, err := NewClients(test.Flags.Kubeconfig, test.Flags.Cluster, Namespace)
 	if err != nil {
 		t.Fatal("Couldn't initialize clients", "error", err.Error())
 	}
-	return clients
+	return result
 }
 
-func NewClientsFromConfig(cfg *rest.Config, namespace string) (*Clients, error) {
-	clients := &Clients{}
+func NewClientsFromConfig(clientConfig clientcmd.ClientConfig, namespace string) (*Clients, error) {
+	result := &Clients{}
+	result.clientConfig = clientConfig
+	cfg, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
 	kubeClient, err := kubernetes.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
-	clients.KubeClient = &test.KubeClient{Kube: kubeClient}
-
+	result.KubeClient = &test.KubeClient{Kube: kubeClient}
 	cs, err := versioned.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
 	}
-	clients.VMWareClient = &VMWareClients{
-		Bindings: cs.SourcesV1alpha1().VSphereBindings(namespace),
-		Sources:  cs.SourcesV1alpha1().VSphereSources(namespace),
+	result.VMWareClient = &VMWareClients{
+		Bindings:  cs.SourcesV1alpha1().VSphereBindings(namespace),
+		Sources:   cs.SourcesV1alpha1().VSphereSources(namespace),
+		clientSet: cs,
 	}
 
-	return clients, nil
+	return result, nil
 }
 
-func BuildClientConfig(kubeConfigPath string, clusterName string) (*rest.Config, error) {
+func BuildClientConfig(kubeConfigPath string, clusterName string) clientcmd.ClientConfig {
 	overrides := clientcmd.ConfigOverrides{}
 	// Override the cluster name if provided.
 	if clusterName != "" {
@@ -86,5 +93,13 @@ func BuildClientConfig(kubeConfigPath string, clusterName string) (*rest.Config,
 	}
 	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfigPath},
-		&overrides).ClientConfig()
+		&overrides)
+}
+
+func (c *Clients) AsPluginClients() *clients.Clients {
+	return &clients.Clients{
+		ClientConfig:     c.clientConfig,
+		ClientSet:        c.KubeClient.Kube,
+		VSphereClientSet: c.VMWareClient.clientSet,
+	}
 }

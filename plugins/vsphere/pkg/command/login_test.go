@@ -32,7 +32,7 @@ func TestNewLoginCommand(t *testing.T) {
 	const secretName = "creds"
 
 	t.Run("defines basic metadata", func(t *testing.T) {
-		loginCommand := loginCommand(&pkg.Client{})
+		loginCommand := loginCommand(&pkg.Clients{})
 
 		assert.Equal(t, loginCommand.Use, "login")
 		assert.Check(t, len(loginCommand.Short) > 0,
@@ -46,7 +46,7 @@ func TestNewLoginCommand(t *testing.T) {
 	})
 
 	t.Run("fails to execute with an empty username", func(t *testing.T) {
-		loginCommand := loginCommand(&pkg.Client{})
+		loginCommand := loginCommand(&pkg.Clients{})
 		loginCommand.SetArgs([]string{"--password", password, "--secret-name", secretName})
 
 		err := loginCommand.Execute()
@@ -55,7 +55,7 @@ func TestNewLoginCommand(t *testing.T) {
 	})
 
 	t.Run("fails to execute with an empty password", func(t *testing.T) {
-		loginCommand := loginCommand(&pkg.Client{})
+		loginCommand := loginCommand(&pkg.Clients{})
 		loginCommand.SetArgs([]string{"--username", username, "--secret-name", secretName})
 
 		err := loginCommand.Execute()
@@ -64,7 +64,7 @@ func TestNewLoginCommand(t *testing.T) {
 	})
 
 	t.Run("fails to execute with an explicit password and a stdin flag set", func(t *testing.T) {
-		loginCommand := loginCommand(&pkg.Client{})
+		loginCommand := loginCommand(&pkg.Clients{})
 		loginCommand.SetArgs([]string{"--username", username, "--secret-name", secretName, "--password", password, "--password-stdin"})
 
 		err := loginCommand.Execute()
@@ -73,7 +73,7 @@ func TestNewLoginCommand(t *testing.T) {
 	})
 
 	t.Run("fails to execute with an empty secret name", func(t *testing.T) {
-		loginCommand := loginCommand(&pkg.Client{})
+		loginCommand := loginCommand(&pkg.Clients{})
 		loginCommand.SetArgs([]string{"--username", username, "--password", password})
 
 		err := loginCommand.Execute()
@@ -83,7 +83,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("logs in default namespace", func(t *testing.T) {
 		client := fake.NewSimpleClientset()
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -98,7 +98,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("logs in default namespace with prompted password", func(t *testing.T) {
 		client := fake.NewSimpleClientset()
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
 		loginCommand.SetIn(strings.NewReader(password))
 		loginCommand.SetArgs([]string{
 			"--username", username,
@@ -114,7 +114,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("fails to execute if password cannot be retrieved from standard input", func(t *testing.T) {
 		stdInError := "oops"
-		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(), ClientConfig: regularClientConfig()})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: fake.NewSimpleClientset(), ClientConfig: regularClientConfig()})
 		loginCommand.SetIn(&failingReader{errorMessage: stdInError})
 		loginCommand.SetArgs([]string{
 			"--username", username,
@@ -129,7 +129,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("logs in specified namespace", func(t *testing.T) {
 		client := fake.NewSimpleClientset()
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: client})
 		namespace := "ns"
 		loginCommand.SetArgs([]string{
 			"--namespace", namespace,
@@ -147,7 +147,7 @@ func TestNewLoginCommand(t *testing.T) {
 	t.Run("fails to execute when default namespace retrieval fails", func(t *testing.T) {
 		errorMsg := "a girl has no name...space"
 		clientConfig := failingClientConfig(fmt.Errorf(errorMsg))
-		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(), ClientConfig: clientConfig})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: fake.NewSimpleClientset(), ClientConfig: clientConfig})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -165,7 +165,7 @@ func TestNewLoginCommand(t *testing.T) {
 		client.PrependReactor("create", "secrets", func(action k8stesting.Action) (bool, runtime.Object, error) {
 			return true, nil, fmt.Errorf(secretCreationErrorMsg)
 		})
-		loginCommand := loginCommand(&pkg.Client{ClientSet: client, ClientConfig: regularClientConfig()})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -179,7 +179,7 @@ func TestNewLoginCommand(t *testing.T) {
 
 	t.Run("fails to execute when trying to create a duplicate secret", func(t *testing.T) {
 		existingSecret := newSecret(defaultNamespace, secretName, username, password)
-		loginCommand := loginCommand(&pkg.Client{ClientSet: fake.NewSimpleClientset(existingSecret), ClientConfig: regularClientConfig()})
+		loginCommand := loginCommand(&pkg.Clients{ClientSet: fake.NewSimpleClientset(existingSecret), ClientConfig: regularClientConfig()})
 		loginCommand.SetArgs([]string{
 			"--username", username,
 			"--password", password,
@@ -192,7 +192,7 @@ func TestNewLoginCommand(t *testing.T) {
 	})
 }
 
-func loginCommand(client *pkg.Client) *cobra.Command {
+func loginCommand(client *pkg.Clients) *cobra.Command {
 	loginCommand := command.NewLoginCommand(client)
 	loginCommand.SetErr(ioutil.Discard)
 	loginCommand.SetOut(ioutil.Discard)
