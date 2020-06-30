@@ -306,7 +306,6 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--skip-tls-verify", "true",
 		"--secret-ref", "vsphere-credentials",
 		"--sink-api-version", "v1",
-		"--sink-api-version", "v1",
 		"--sink-kind", "Service",
 		"--sink-name", name,
 	})
