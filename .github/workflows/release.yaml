@@ -8,8 +8,8 @@ name: Create Release
 
 jobs:
 
-  kn-vsphere:
-    name: Release vSphere Knative plugin
+  cli:
+    name: Release the CLI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,7 +29,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   ko-resolve:
-    needs: kn-vsphere
+    needs: cli
     name: Release ko artifact
     runs-on: ubuntu-latest
     env:
@@ -60,13 +60,18 @@ jobs:
         fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
-    - name: Get the release upload URL
+    - name: Get Release URL
       id: get_release_url
-      run: echo ::set-output name=url::"https://github.com/${{ github.repository }}/releases/$(basename "${{ github.ref }}")"
+      uses: bruceadams/get-release@v1.2.0
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
 
     - name: Build and Publish images, Produce release artifact.
       working-directory: ./src/github.com/${{ github.repository }}
-      run: ko resolve --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
+      run: |
+        export GO111MODULE=on
+        export GOFLAGS=-mod=vendor
+        ko resolve --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
 
     - name: Upload Release Asset
       id: upload-release-asset
@@ -74,7 +79,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.get_release_url.outputs.url }}
+        upload_url: ${{ steps.get_release_url.outputs.upload_url }}
         asset_path: ./src/github.com/${{ github.repository }}/release.yaml
         asset_name: release.yaml
         asset_content_type: text/plain
