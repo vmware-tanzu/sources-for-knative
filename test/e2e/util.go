@@ -12,6 +12,7 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/vmware-tanzu/sources-for-knative/test"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -19,13 +20,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"knative.dev/pkg/apis"
-	duckv1alpha1 "knative.dev/pkg/apis/duck/v1alpha1"
 	pkgtest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/helpers"
-	"knative.dev/pkg/tracker"
-
-	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
-	"github.com/vmware-tanzu/sources-for-knative/test"
 )
 
 func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, context.CancelFunc) {
@@ -36,37 +32,21 @@ func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, c
 		"job-name": name,
 	}
 
-	b := &v1alpha1.VSphereBinding{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: test.Namespace,
-		},
-		Spec: v1alpha1.VSphereBindingSpec{
-			BindingSpec: duckv1alpha1.BindingSpec{
-				Subject: tracker.Reference{
-					APIVersion: "batch/v1",
-					Kind:       "Job",
-					Selector: &metav1.LabelSelector{
-						MatchLabels: selector,
-					},
-				},
-			},
-			VAuthSpec: v1alpha1.VAuthSpec{
-				Address: apis.URL{
-					Scheme: "https",
-					Host:   "vcsim.default.svc.cluster.local",
-				},
-				SkipTLSVerify: true,
-				SecretRef: corev1.LocalObjectReference{
-					Name: "vsphere-credentials",
-				},
-			},
-		},
-	}
+	knativePlugin := command.NewRootCommand(clients.AsPluginClients())
+	knativePlugin.SetArgs([]string{
+		"binding",
+		"--namespace", test.Namespace,
+		"--name", name,
+		"--address", "https://vcsim.default.svc.cluster.local",
+		"--skip-tls-verify", "true",
+		"--secret-ref", "vsphere-credentials",
+		"--subject-api-version", "batch/v1",
+		"--subject-kind", "Job",
+		"--subject-selector", metav1.FormatLabelSelector(&metav1.LabelSelector{MatchLabels: selector}),
+	})
 
 	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Bindings.Delete(name, &metav1.DeleteOptions{}) }, t.Logf)
-	_, err := clients.VMWareClient.Bindings.Create(b)
-	if err != nil {
+	if err := knativePlugin.Execute(); err != nil {
 		t.Fatalf("Error creating binding: %v", err)
 	}
 

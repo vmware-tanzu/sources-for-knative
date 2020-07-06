@@ -20,11 +20,13 @@ func TestNewRootCommand(t *testing.T) {
 	assert.Equal(t, "kn-vsphere", rootCommand.Name())
 	assert.Check(t, len(rootCommand.Short) > 0,
 		"command should have a nonempty description")
-	assert.Check(t, len(rootCommand.Commands()) == 3, "unexpected number of subcommands")
+	assert.Check(t, len(rootCommand.Commands()) == 4, "unexpected number of subcommands")
 	assert.Check(t, HasLeafCommand(rootCommand, "login"),
 		"command should have subcommand login")
 	assert.Check(t, HasLeafCommand(rootCommand, "source"),
 		"command should have subcommand source")
+	assert.Check(t, HasLeafCommand(rootCommand, "binding"),
+		"command should have subcommand binding")
 	assert.Check(t, HasLeafCommand(rootCommand, "version"),
 		"command should have subcommand version")
 }

@@ -87,6 +87,34 @@ Flags:
   -k, --skip-tls-verify           disables certificate verification for the source address (same as GOVC_INSECURE)
 ----
 
+==== `kn vsphere binding`
+
+----
+Create a vSphere binding to call into the vSphere API
+
+Usage:
+  kn-vsphere binding [flags]
+
+Examples:
+# Create the binding in the default namespace, targeting a Deployment subject
+kn vsphere binding --name binding --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --subject-api-version app/v1 --subject-kind Deployment --subject-name my-simple-app
+# Create the binding in the specified namespace, targeting a selection of Job subjects
+kn vsphere binding --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --subject-api-version batch/v1 --subject-kind Job --subject-selector foo=bar
+
+
+Flags:
+  -a, --address string               URL of the events to fetch
+  -h, --help                         help for binding
+      --name string                  name of the binding to create
+  -n, --namespace string             namespace of the binding to create (default namespace if omitted)
+  -s, --secret-ref string            reference to the Kubernetes secret for the vSphere credentials needed for the source address
+  -k, --skip-tls-verify              disables certificate verification for the source address (same as GOVC_INSECURE)
+      --subject-api-version string   subject API version
+      --subject-kind string          subject kind
+      --subject-name string          subject name (cannot be used with --subject-selector)
+      --subject-selector string      subject selector (cannot be used with --subject-name)
+----
+
 ==== `kn vsphere version`
 
 This command prints out the version of this plugin and all extra information which might help, for example when creating bug reports.
@@ -124,6 +152,15 @@ This will create a Secret that can be referred by VSphereSource and VSphereBindi
 ====
 ----
 $ kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
+----
+====
+
+==== Create a basic VSphereBinding
+
+.Example Binding creation in the default namespace
+====
+----
+$ kn vsphere binding --name binding --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --subject-api-version app/v1 --subject-kind Deployment --subject-name my-simple-app
 ----
 ====
 
