@@ -13,7 +13,7 @@ set -o pipefail
 cd ${ROOT_DIR}
 
 # This controls the release branch we track.
-VERSION="master"
+VERSION="release-0.16"
 
 # We need these flags for things to work properly.
 export GO111MODULE=on
@@ -21,9 +21,9 @@ export GO111MODULE=on
 # The list of dependencies that we track at HEAD and periodically
 # float forward in this repository.
 FLOATING_DEPS=(
-  "knative.dev/pkg@release-0.16"
+  "knative.dev/pkg@${VERSION}"
   "knative.dev/eventing@${VERSION}"
-  "knative.dev/test-infra@release-0.16"
+  "knative.dev/test-infra@${VERSION}"
 )
 
 # Parse flags to determine any we should pass to dep.
