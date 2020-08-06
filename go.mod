@@ -4,38 +4,29 @@ go 1.14
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.0.1-0.20200630063327-b91da81265fe
+	github.com/cloudevents/sdk-go/v2 v2.2.0
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
-	github.com/google/go-cmp v0.4.0
-	github.com/grpc-ecosystem/grpc-gateway v1.14.3 // indirect
-	github.com/hashicorp/go-multierror v1.1.0 // indirect
-	github.com/imdario/mergo v0.3.9 // indirect
+	github.com/google/go-cmp v0.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/rogpeppe/go-internal v1.5.2 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
-	go.uber.org/zap v1.14.1
-	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
-	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
-	golang.org/x/tools v0.0.0-20200402223321-bcf690261a44 // indirect
-	gopkg.in/inf.v0 v0.9.1 // indirect
+	go.uber.org/zap v1.15.0
+	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.18.0
-	k8s.io/apiextensions-apiserver v0.18.0 // indirect
-	k8s.io/apimachinery v0.18.0
+	k8s.io/api v0.18.7-rc.0
+	k8s.io/apimachinery v0.18.7-rc.0
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/code-generator v0.18.0
+	k8s.io/code-generator v0.18.6
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	k8s.io/utils v0.0.0-20200327001022-6496210b90e8 // indirect
-	knative.dev/eventing v0.15.1-0.20200707170044-e018fe794753
-	knative.dev/pkg v0.0.0-20200702222342-ea4d6e985ba0
+	knative.dev/eventing v0.16.1-0.20200806150929-af8773b690f7
+	knative.dev/pkg v0.0.0-20200806022228-2aae6f373dda
 )
 
 replace (
