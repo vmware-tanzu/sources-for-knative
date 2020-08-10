@@ -38,6 +38,9 @@ rules:
     verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
   # We need to muck with rolebindings so that we can give receive adapter
   # access to configmaps where it stores the state.
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
   - apiGroups: ["rbac.authorization.k8s.io"]
     resources: ["rolebindings"]
     verbs: ["get", "list", "create", "update", "delete", "patch", "watch"]
