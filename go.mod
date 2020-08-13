@@ -25,9 +25,9 @@ require (
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.6
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	knative.dev/eventing v0.16.1-0.20200810160130-a54347292b52
-	knative.dev/pkg v0.0.0-20200810172230-c903170f4193
-	knative.dev/test-infra v0.0.0-20200810174730-4ac247cc9720 // indirect
+	knative.dev/eventing v0.16.1-0.20200812203106-45c93e360a11
+	knative.dev/pkg v0.0.0-20200812183506-c4576fd38ec2
+	knative.dev/test-infra v0.0.0-20200812164905-ea529e42205b // indirect
 )
 
 replace (
