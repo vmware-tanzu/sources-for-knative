@@ -13,8 +13,8 @@ set -o pipefail
 cd ${ROOT_DIR}
 
 # This controls the release branch we track.
-# VERSION="release-0.16" # use this one for pre-release week.
-VERSION="master"         # use this one for development times.
+VERSION="release-0.17" # use this one for pre-release week.
+# VERSION="master"         # use this one for development times.
 
 
 # We need these flags for things to work properly.
@@ -24,7 +24,8 @@ export GO111MODULE=on
 # float forward in this repository.
 FLOATING_DEPS=(
   "knative.dev/pkg@${VERSION}"
-  "knative.dev/eventing@${VERSION}"
+  "knative.dev/eventing@master" # todo: change after eventing cuts.
+#  "knative.dev/eventing@${VERSION}"
   "knative.dev/test-infra@${VERSION}"
 )
 
