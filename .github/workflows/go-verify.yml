@@ -24,20 +24,13 @@ jobs:
     steps:
 
     - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v1
+      uses: actions/setup-go@v2
       with:
         go-version: ${{ matrix.go-version }}
       id: go
 
-    - name: Add GOPATH/bin to PATH
-      shell: bash
-      run: |
-        echo "::set-env name=GOPATH::$(go env GOPATH)"
-        echo "::add-path::$(go env GOPATH)/bin"
-
     - name: Install Dependencies
       run: |
-        go get github.com/golang/dep/cmd/dep
         go get github.com/google/ko/cmd/ko
         go get github.com/otiai10/copy
         go get github.com/google/go-licenses
