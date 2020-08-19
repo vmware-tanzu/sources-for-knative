@@ -13,8 +13,8 @@ set -o pipefail
 cd ${ROOT_DIR}
 
 # This controls the release branch we track.
-VERSION="release-0.17" # use this one for pre-release week.
-# VERSION="master"         # use this one for development times.
+# VERSION="release-0.17" # use this one for pre-release week.
+VERSION="master"         # use this one for development times.
 
 
 # We need these flags for things to work properly.
