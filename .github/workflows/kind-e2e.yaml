@@ -14,7 +14,7 @@ jobs:
     env:
       GOPATH: ${{ github.workspace }}
       GO111MODULE: off
-      KO_DOCKER_REPO: ko.local
+      KO_DOCKER_REPO: kind.local
 
     steps:
     - name: Set up Go 1.14.x
@@ -61,15 +61,7 @@ jobs:
         # Build and Publish our containers to the docker daemon (including test assets)
         export GO111MODULE=on
         export GOFLAGS=-mod=vendor
-        ko resolve -PRf config/ -f test/config > build.yaml
-
-        # Load our docker images into the kind cluster!
-        for x in $(docker images  --format='{{.Repository}}:{{.Tag}}' | grep ko.local); do
-          kind load docker-image $x
-        done
-
-        # Deploy the controllers we published to the cluster.
-        kubectl apply -f build.yaml
+        ko apply -PRf config/ -f test/config
 
         # Build Knative plugin and create Secret
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
