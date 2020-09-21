@@ -1,0 +1,53 @@
+name: Auto Updates
+
+on:
+  schedule:
+  - cron:  '0 2,14 * * 1-5' # 7am/pm Pacific on weekdays
+
+jobs:
+  update-deps:
+    name: Update Deps and Codegen
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+
+    steps:
+
+    - name: Set up Go 1.15.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15.x
+      id: go
+
+    - name: Check out code onto GOPATH
+      uses: actions/checkout@v2
+
+    - name: Update Deps and Codegen
+      shell: bash
+      run: |
+        # Determine the name of the go module.
+        export MODULE_NAME=$(go mod graph | cut -d' ' -f 1 | grep -v '@' | head -1)
+
+        # TODO(mattmoor): Move this into `./hack/update-codegen.sh`
+        TMP_DIR="$(mktemp -d)"
+        trap 'rm -rf ${TMP_DIR} && rm -rf $SCRIPT_ROOT/vendor' EXIT
+        export GOPATH=${GOPATH:-${TMP_DIR}}
+        TMP_REPO_PATH="${TMP_DIR}/src/${MODULE_NAME}"
+        mkdir -p "$(dirname "${TMP_REPO_PATH}")" && ln -s "${GITHUB_WORKSPACE}" "${TMP_REPO_PATH}"
+
+        ./hack/update-deps.sh --upgrade
+        # We may pull in code-generator updates, or not have generated code.
+        [[ ! -f hack/update-codegen.sh ]] || ./hack/update-codegen.sh
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'upgrade to latest dependencies'
+        title: '[Automated] Upgrade to latest dependencies'
+        body: |
+          Produced via:
+          ```shell
+          ./hack/update-deps.sh --upgrade
+          ./hack/update-codegen.sh
+          ```
