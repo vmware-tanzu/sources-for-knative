@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 package v1alpha1
 
 import (
+	"context"
 	time "time"
 
 	sourcesv1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
@@ -50,13 +51,13 @@ func NewFilteredVSphereBindingInformer(client versioned.Interface, namespace str
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SourcesV1alpha1().VSphereBindings(namespace).List(options)
+				return client.SourcesV1alpha1().VSphereBindings(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SourcesV1alpha1().VSphereBindings(namespace).Watch(options)
+				return client.SourcesV1alpha1().VSphereBindings(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&sourcesv1alpha1.VSphereBinding{},

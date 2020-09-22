@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package command_test
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -217,7 +218,7 @@ func retrieveCreatedSecret(t *testing.T, err error, client *fake.Clientset, ns, 
 	assert.NilError(t, err)
 	secret, err := client.CoreV1().
 		Secrets(ns).
-		Get(name, metav1.GetOptions{})
+		Get(context.Background(), name, metav1.GetOptions{})
 	assert.NilError(t, err)
 	return secret
 }

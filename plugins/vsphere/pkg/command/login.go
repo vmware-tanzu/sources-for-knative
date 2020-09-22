@@ -69,7 +69,7 @@ kn vsphere login --namespace ns --username john-doe --password-stdin --secret-na
 				return fmt.Errorf("failed to get password: %+v", err)
 			}
 			credentials := newSecret(namespace, password, options)
-			if _, err := clients.ClientSet.CoreV1().Secrets(namespace).Create(credentials); err != nil {
+			if _, err := clients.ClientSet.CoreV1().Secrets(namespace).Create(cmd.Context(), credentials, metav1.CreateOptions{}); err != nil {
 				return fmt.Errorf("failed to create Secret: %+v", err)
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Created credentials")

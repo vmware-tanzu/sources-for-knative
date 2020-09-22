@@ -8,6 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 package v1alpha1
 
 import (
+	"context"
 	"time"
 
 	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
@@ -26,15 +27,15 @@ type VSphereBindingsGetter interface {
 
 // VSphereBindingInterface has methods to work with VSphereBinding resources.
 type VSphereBindingInterface interface {
-	Create(*v1alpha1.VSphereBinding) (*v1alpha1.VSphereBinding, error)
-	Update(*v1alpha1.VSphereBinding) (*v1alpha1.VSphereBinding, error)
-	UpdateStatus(*v1alpha1.VSphereBinding) (*v1alpha1.VSphereBinding, error)
-	Delete(name string, options *v1.DeleteOptions) error
-	DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error
-	Get(name string, options v1.GetOptions) (*v1alpha1.VSphereBinding, error)
-	List(opts v1.ListOptions) (*v1alpha1.VSphereBindingList, error)
-	Watch(opts v1.ListOptions) (watch.Interface, error)
-	Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VSphereBinding, err error)
+	Create(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.CreateOptions) (*v1alpha1.VSphereBinding, error)
+	Update(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (*v1alpha1.VSphereBinding, error)
+	UpdateStatus(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (*v1alpha1.VSphereBinding, error)
+	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
+	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.VSphereBinding, error)
+	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.VSphereBindingList, error)
+	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VSphereBinding, err error)
 	VSphereBindingExpansion
 }
 
@@ -53,20 +54,20 @@ func newVSphereBindings(c *SourcesV1alpha1Client, namespace string) *vSphereBind
 }
 
 // Get takes name of the vSphereBinding, and returns the corresponding vSphereBinding object, and an error if there is any.
-func (c *vSphereBindings) Get(name string, options v1.GetOptions) (result *v1alpha1.VSphereBinding, err error) {
+func (c *vSphereBindings) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VSphereBinding, err error) {
 	result = &v1alpha1.VSphereBinding{}
 	err = c.client.Get().
 		Namespace(c.ns).
 		Resource("vspherebindings").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // List takes label and field selectors, and returns the list of VSphereBindings that match those selectors.
-func (c *vSphereBindings) List(opts v1.ListOptions) (result *v1alpha1.VSphereBindingList, err error) {
+func (c *vSphereBindings) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.VSphereBindingList, err error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -77,13 +78,13 @@ func (c *vSphereBindings) List(opts v1.ListOptions) (result *v1alpha1.VSphereBin
 		Resource("vspherebindings").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Watch returns a watch.Interface that watches the requested vSphereBindings.
-func (c *vSphereBindings) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *vSphereBindings) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	var timeout time.Duration
 	if opts.TimeoutSeconds != nil {
 		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
@@ -94,87 +95,90 @@ func (c *vSphereBindings) Watch(opts v1.ListOptions) (watch.Interface, error) {
 		Resource("vspherebindings").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch()
+		Watch(ctx)
 }
 
 // Create takes the representation of a vSphereBinding and creates it.  Returns the server's representation of the vSphereBinding, and an error, if there is any.
-func (c *vSphereBindings) Create(vSphereBinding *v1alpha1.VSphereBinding) (result *v1alpha1.VSphereBinding, err error) {
+func (c *vSphereBindings) Create(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.CreateOptions) (result *v1alpha1.VSphereBinding, err error) {
 	result = &v1alpha1.VSphereBinding{}
 	err = c.client.Post().
 		Namespace(c.ns).
 		Resource("vspherebindings").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(vSphereBinding).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Update takes the representation of a vSphereBinding and updates it. Returns the server's representation of the vSphereBinding, and an error, if there is any.
-func (c *vSphereBindings) Update(vSphereBinding *v1alpha1.VSphereBinding) (result *v1alpha1.VSphereBinding, err error) {
+func (c *vSphereBindings) Update(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (result *v1alpha1.VSphereBinding, err error) {
 	result = &v1alpha1.VSphereBinding{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("vspherebindings").
 		Name(vSphereBinding.Name).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(vSphereBinding).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-
-func (c *vSphereBindings) UpdateStatus(vSphereBinding *v1alpha1.VSphereBinding) (result *v1alpha1.VSphereBinding, err error) {
+func (c *vSphereBindings) UpdateStatus(ctx context.Context, vSphereBinding *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (result *v1alpha1.VSphereBinding, err error) {
 	result = &v1alpha1.VSphereBinding{}
 	err = c.client.Put().
 		Namespace(c.ns).
 		Resource("vspherebindings").
 		Name(vSphereBinding.Name).
 		SubResource("status").
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(vSphereBinding).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
 
 // Delete takes name of the vSphereBinding and deletes it. Returns an error if one occurs.
-func (c *vSphereBindings) Delete(name string, options *v1.DeleteOptions) error {
+func (c *vSphereBindings) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("vspherebindings").
 		Name(name).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *vSphereBindings) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
+func (c *vSphereBindings) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
 	var timeout time.Duration
-	if listOptions.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
+	if listOpts.TimeoutSeconds != nil {
+		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
 		Namespace(c.ns).
 		Resource("vspherebindings").
-		VersionedParams(&listOptions, scheme.ParameterCodec).
+		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Body(options).
-		Do().
+		Body(&opts).
+		Do(ctx).
 		Error()
 }
 
 // Patch applies the patch and returns the patched vSphereBinding.
-func (c *vSphereBindings) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VSphereBinding, err error) {
+func (c *vSphereBindings) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VSphereBinding, err error) {
 	result = &v1alpha1.VSphereBinding{}
 	err = c.client.Patch(pt).
 		Namespace(c.ns).
 		Resource("vspherebindings").
-		SubResource(subresources...).
 		Name(name).
+		SubResource(subresources...).
+		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(data).
-		Do().
+		Do(ctx).
 		Into(result)
 	return
 }
