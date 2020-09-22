@@ -10,7 +10,7 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
-	github.com/google/go-cmp v0.5.1
+	github.com/google/go-cmp v0.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/spf13/cobra v1.0.0
 	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
@@ -20,22 +20,24 @@ require (
 	go.uber.org/zap v1.15.0
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.18.7-rc.0
-	k8s.io/apimachinery v0.18.7-rc.0
+	k8s.io/api v0.18.8
+	k8s.io/apimachinery v0.18.8
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
-	k8s.io/code-generator v0.18.6
+	k8s.io/code-generator v0.18.8
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	knative.dev/eventing v0.17.1-0.20200818204013-05d1644c30c7
-	knative.dev/pkg v0.0.0-20200819000613-c30ec2ffd4ec
-	knative.dev/test-infra v0.0.0-20200818223413-ab8738ebf9f4 // indirect
+	knative.dev/eventing v0.17.1-0.20200922201940-baa7cd3e8254
+	knative.dev/pkg v0.0.0-20200922164940-4bf40ad82aab
 )
 
 replace (
 	github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 	github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
-	k8s.io/api => k8s.io/api v0.16.4
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.16.4
-	k8s.io/apimachinery => k8s.io/apimachinery v0.16.4
-	k8s.io/client-go => k8s.io/client-go v0.16.4
-	k8s.io/code-generator => k8s.io/code-generator v0.16.4
+
+	k8s.io/api => k8s.io/api v0.18.8
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.8
+	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
+	k8s.io/apiserver => k8s.io/apiserver v0.18.8
+	k8s.io/client-go => k8s.io/client-go v0.18.8
+	k8s.io/code-generator => k8s.io/code-generator v0.18.8
+	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 )

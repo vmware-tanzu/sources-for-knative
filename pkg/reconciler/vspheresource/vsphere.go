@@ -16,6 +16,7 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources"
 	resourcenames "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	appsv1listers "k8s.io/client-go/listers/apps/v1"
 	corev1Listers "k8s.io/client-go/listers/core/v1"
@@ -66,7 +67,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, vms *sourcesv1alpha1.VSp
 		return err
 	}
 
-	uri, err := r.resolver.URIFromDestinationV1(vms.Spec.Sink, vms)
+	uri, err := r.resolver.URIFromDestinationV1(ctx, vms.Spec.Sink, vms)
 	if err != nil {
 		return err
 	}
@@ -86,7 +87,7 @@ func (r *Reconciler) reconcileVSphereBinding(ctx context.Context, vms *sourcesv1
 	vspherebinding, err := r.vspherebindingLister.VSphereBindings(ns).Get(vspherebindingName)
 	if apierrs.IsNotFound(err) {
 		vspherebinding = resources.MakeVSphereBinding(ctx, vms)
-		vspherebinding, err = r.client.SourcesV1alpha1().VSphereBindings(ns).Create(vspherebinding)
+		vspherebinding, err = r.client.SourcesV1alpha1().VSphereBindings(ns).Create(ctx, vspherebinding, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create vspherebinding %q: %w", vspherebindingName, err)
 		}
@@ -98,7 +99,7 @@ func (r *Reconciler) reconcileVSphereBinding(ctx context.Context, vms *sourcesv1
 		desiredVSphereBinding := resources.MakeVSphereBinding(ctx, vms)
 		vspherebinding = vspherebinding.DeepCopy()
 		vspherebinding.Spec = desiredVSphereBinding.Spec
-		vspherebinding, err = r.client.SourcesV1alpha1().VSphereBindings(ns).Update(vspherebinding)
+		vspherebinding, err = r.client.SourcesV1alpha1().VSphereBindings(ns).Update(ctx, vspherebinding, metav1.UpdateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create vspherebinding %q: %w", vspherebindingName, err)
 		}
@@ -119,7 +120,7 @@ func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha
 	// OwnerRefs set up properly so it gets Garbage Collected.
 	if apierrs.IsNotFound(err) {
 		cm = resources.MakeConfigMap(ctx, vms)
-		cm, err = r.kubeclient.CoreV1().ConfigMaps(ns).Create(cm)
+		_, err = r.kubeclient.CoreV1().ConfigMaps(ns).Create(ctx, cm, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create configmap %q: %w", name, err)
 		}
@@ -138,7 +139,7 @@ func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1
 	sa, err := r.saLister.ServiceAccounts(ns).Get(name)
 	if apierrs.IsNotFound(err) {
 		sa = resources.MakeServiceAccount(ctx, vms)
-		sa, err = r.kubeclient.CoreV1().ServiceAccounts(ns).Create(sa)
+		_, err = r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create serviceaccount %q: %w", name, err)
 		}
@@ -156,7 +157,7 @@ func (r *Reconciler) reconcileRoleBinding(ctx context.Context, vms *sourcesv1alp
 	roleBinding, err := r.rbacLister.RoleBindings(ns).Get(name)
 	if apierrs.IsNotFound(err) {
 		roleBinding = resources.MakeRoleBinding(ctx, vms)
-		roleBinding, err = r.kubeclient.RbacV1().RoleBindings(ns).Create(roleBinding)
+		_, err = r.kubeclient.RbacV1().RoleBindings(ns).Create(ctx, roleBinding, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create rolebinding %q: %w", name, err)
 		}
@@ -175,7 +176,7 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 	deployment, err := r.deploymentLister.Deployments(ns).Get(deploymentName)
 	if apierrs.IsNotFound(err) {
 		deployment = resources.MakeDeployment(ctx, vms, r.adapterImage)
-		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Create(deployment)
+		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Create(ctx, deployment, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
 		}
@@ -187,7 +188,7 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 		desiredDeployment := resources.MakeDeployment(ctx, vms, r.adapterImage)
 		deployment = deployment.DeepCopy()
 		deployment.Spec = desiredDeployment.Spec
-		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Update(deployment)
+		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Update(ctx, deployment, metav1.UpdateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
 		}

@@ -114,7 +114,7 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 			if _, err = clients.VSphereClientSet.
 				SourcesV1alpha1().
 				VSphereSources(namespace).
-				Create(newSource(namespace, sinkDestination, address, options)); err != nil {
+				Create(cmd.Context(), newSource(namespace, sinkDestination, address, options), metav1.CreateOptions{}); err != nil {
 				return fmt.Errorf("failed to create source: %+v", err)
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Created source")

@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package command_test
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"reflect"
@@ -350,7 +351,7 @@ func retrieveCreatedBinding(t *testing.T, err error, vSphereClientSet vsphere.In
 	assert.NilError(t, err)
 	source, err := vSphereClientSet.SourcesV1alpha1().
 		VSphereBindings(namespace).
-		Get(sourceName, metav1.GetOptions{})
+		Get(context.Background(), sourceName, metav1.GetOptions{})
 	assert.NilError(t, err)
 	return source
 }

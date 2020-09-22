@@ -88,7 +88,7 @@ kn vsphere binding --namespace ns --name source --address https://my-vsphere-end
 			if _, err := clients.VSphereClientSet.
 				SourcesV1alpha1().
 				VSphereBindings(namespace).
-				Create(newBinding(namespace, address, selector, options)); err != nil {
+				Create(cmd.Context(), newBinding(namespace, address, selector, options), metav1.CreateOptions{}); err != nil {
 				return fmt.Errorf("failed to create Binding: %+v", err)
 			}
 			fmt.Fprintln(cmd.OutOrStdout(), "Created binding")

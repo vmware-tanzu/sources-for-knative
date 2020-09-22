@@ -45,14 +45,14 @@ func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, c
 		"--subject-selector", metav1.FormatLabelSelector(&metav1.LabelSelector{MatchLabels: selector}),
 	})
 
-	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Bindings.Delete(name, &metav1.DeleteOptions{}) }, t.Logf)
+	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Bindings.Delete(context.Background(), name, metav1.DeleteOptions{}) }, t.Logf)
 	if err := knativePlugin.Execute(); err != nil {
 		t.Fatalf("Error creating binding: %v", err)
 	}
 
 	// Wait for the Binding to become "Ready"
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-		b, err := clients.VMWareClient.Bindings.Get(name, metav1.GetOptions{})
+		b, err := clients.VMWareClient.Bindings.Get(context.Background(), name, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return false, nil
 		} else if err != nil {
@@ -67,7 +67,7 @@ func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, c
 	}
 
 	return selector, func() {
-		err := clients.VMWareClient.Bindings.Delete(name, &metav1.DeleteOptions{})
+		err := clients.VMWareClient.Bindings.Delete(context.Background(), name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up binding %s", name)
 		}
@@ -105,9 +105,9 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 		},
 	}
 	pkgtest.CleanupOnInterrupt(func() {
-		clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(job.Name, &metav1.DeleteOptions{})
+		clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(context.Background(), job.Name, metav1.DeleteOptions{})
 	}, t.Logf)
-	job, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Create(job)
+	job, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("Error creating Job: %v", err)
 	}
@@ -117,7 +117,7 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 	t.Log("", "job", spew.Sprint(job))
 
 	defer func() {
-		err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(job.Name, &metav1.DeleteOptions{})
+		err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(context.Background(), job.Name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up Job %s", job.Name)
 		}
@@ -125,7 +125,7 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 
 	// Wait for the Job to report a successful execution.
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-		js, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Get(job.Name, metav1.GetOptions{})
+		js, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Get(context.Background(), job.Name, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return false, nil
 		} else if err != nil {
@@ -183,9 +183,9 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 		},
 	}
 	pkgtest.CleanupOnInterrupt(func() {
-		clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(job.Name, &metav1.DeleteOptions{})
+		clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(context.Background(), job.Name, metav1.DeleteOptions{})
 	}, t.Logf)
-	job, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Create(job)
+	job, err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Create(context.Background(), job, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatalf("Error creating Job: %v", err)
 	}
@@ -195,7 +195,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 	t.Log("", "job", spew.Sprint(job))
 
 	cancel := func() {
-		err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(job.Name, &metav1.DeleteOptions{})
+		err := clients.KubeClient.Kube.BatchV1().Jobs(job.Namespace).Delete(context.Background(), job.Name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up Job %s", job.Name)
 		}
@@ -203,7 +203,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 	waiter := func() {
 		// Wait for the Job to report a successful execution.
 		waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-			js, err := clients.KubeClient.Kube.BatchV1().Jobs(test.Namespace).Get(name, metav1.GetOptions{})
+			js, err := clients.KubeClient.Kube.BatchV1().Jobs(test.Namespace).Get(context.Background(), name, metav1.GetOptions{})
 			if apierrs.IsNotFound(err) {
 				t.Logf("Not found: %v", err)
 				return false, nil
@@ -237,9 +237,9 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 		},
 	}
 	pkgtest.CleanupOnInterrupt(func() {
-		clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Delete(svc.Name, &metav1.DeleteOptions{})
+		clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Delete(context.Background(), svc.Name, metav1.DeleteOptions{})
 	}, t.Logf)
-	svc, err = clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Create(svc)
+	svc, err = clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Create(context.Background(), svc, metav1.CreateOptions{})
 	if err != nil {
 		cancel()
 		t.Fatalf("Error creating Service: %v", err)
@@ -247,7 +247,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 
 	// Wait for pods to show up in the Endpoints resource.
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-		ep, err := clients.KubeClient.Kube.CoreV1().Endpoints(svc.Namespace).Get(svc.Name, metav1.GetOptions{})
+		ep, err := clients.KubeClient.Kube.CoreV1().Endpoints(svc.Namespace).Get(context.Background(), svc.Name, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return false, nil
 		} else if err != nil {
@@ -266,7 +266,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 	}
 
 	return name, waiter, func() {
-		err := clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Delete(svc.Name, &metav1.DeleteOptions{})
+		err := clients.KubeClient.Kube.CoreV1().Services(svc.Namespace).Delete(context.Background(), svc.Name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up Service %s: %v", svc.Name, err)
 		}
@@ -290,14 +290,14 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--sink-name", name,
 	})
 
-	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Sources.Delete(name, &metav1.DeleteOptions{}) }, t.Logf)
+	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Sources.Delete(context.Background(), name, metav1.DeleteOptions{}) }, t.Logf)
 	if err := knativePlugin.Execute(); err != nil {
 		t.Fatalf("Error creating source: %v", err)
 	}
 
 	// Wait for the Source to become "Ready"
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
-		src, err := clients.VMWareClient.Sources.Get(name, metav1.GetOptions{})
+		src, err := clients.VMWareClient.Sources.Get(context.Background(), name, metav1.GetOptions{})
 		if apierrs.IsNotFound(err) {
 			return false, nil
 		} else if err != nil {
@@ -312,7 +312,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 	}
 
 	return func() {
-		err := clients.VMWareClient.Sources.Delete(name, &metav1.DeleteOptions{})
+		err := clients.VMWareClient.Sources.Delete(context.Background(), name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up source %s", name)
 		}

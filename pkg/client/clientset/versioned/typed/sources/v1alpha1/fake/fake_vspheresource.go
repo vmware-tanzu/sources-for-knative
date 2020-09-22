@@ -8,6 +8,8 @@ SPDX-License-Identifier: Apache-2.0
 package fake
 
 import (
+	"context"
+
 	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
@@ -28,7 +30,7 @@ var vspheresourcesResource = schema.GroupVersionResource{Group: "sources.tanzu.v
 var vspheresourcesKind = schema.GroupVersionKind{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Kind: "VSphereSource"}
 
 // Get takes name of the vSphereSource, and returns the corresponding vSphereSource object, and an error if there is any.
-func (c *FakeVSphereSources) Get(name string, options v1.GetOptions) (result *v1alpha1.VSphereSource, err error) {
+func (c *FakeVSphereSources) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VSphereSource, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewGetAction(vspheresourcesResource, c.ns, name), &v1alpha1.VSphereSource{})
 
@@ -39,7 +41,7 @@ func (c *FakeVSphereSources) Get(name string, options v1.GetOptions) (result *v1
 }
 
 // List takes label and field selectors, and returns the list of VSphereSources that match those selectors.
-func (c *FakeVSphereSources) List(opts v1.ListOptions) (result *v1alpha1.VSphereSourceList, err error) {
+func (c *FakeVSphereSources) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.VSphereSourceList, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewListAction(vspheresourcesResource, vspheresourcesKind, c.ns, opts), &v1alpha1.VSphereSourceList{})
 
@@ -61,14 +63,14 @@ func (c *FakeVSphereSources) List(opts v1.ListOptions) (result *v1alpha1.VSphere
 }
 
 // Watch returns a watch.Interface that watches the requested vSphereSources.
-func (c *FakeVSphereSources) Watch(opts v1.ListOptions) (watch.Interface, error) {
+func (c *FakeVSphereSources) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
 	return c.Fake.
 		InvokesWatch(testing.NewWatchAction(vspheresourcesResource, c.ns, opts))
 
 }
 
 // Create takes the representation of a vSphereSource and creates it.  Returns the server's representation of the vSphereSource, and an error, if there is any.
-func (c *FakeVSphereSources) Create(vSphereSource *v1alpha1.VSphereSource) (result *v1alpha1.VSphereSource, err error) {
+func (c *FakeVSphereSources) Create(ctx context.Context, vSphereSource *v1alpha1.VSphereSource, opts v1.CreateOptions) (result *v1alpha1.VSphereSource, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewCreateAction(vspheresourcesResource, c.ns, vSphereSource), &v1alpha1.VSphereSource{})
 
@@ -79,7 +81,7 @@ func (c *FakeVSphereSources) Create(vSphereSource *v1alpha1.VSphereSource) (resu
 }
 
 // Update takes the representation of a vSphereSource and updates it. Returns the server's representation of the vSphereSource, and an error, if there is any.
-func (c *FakeVSphereSources) Update(vSphereSource *v1alpha1.VSphereSource) (result *v1alpha1.VSphereSource, err error) {
+func (c *FakeVSphereSources) Update(ctx context.Context, vSphereSource *v1alpha1.VSphereSource, opts v1.UpdateOptions) (result *v1alpha1.VSphereSource, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateAction(vspheresourcesResource, c.ns, vSphereSource), &v1alpha1.VSphereSource{})
 
@@ -91,7 +93,7 @@ func (c *FakeVSphereSources) Update(vSphereSource *v1alpha1.VSphereSource) (resu
 
 // UpdateStatus was generated because the type contains a Status member.
 // Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeVSphereSources) UpdateStatus(vSphereSource *v1alpha1.VSphereSource) (*v1alpha1.VSphereSource, error) {
+func (c *FakeVSphereSources) UpdateStatus(ctx context.Context, vSphereSource *v1alpha1.VSphereSource, opts v1.UpdateOptions) (*v1alpha1.VSphereSource, error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewUpdateSubresourceAction(vspheresourcesResource, "status", c.ns, vSphereSource), &v1alpha1.VSphereSource{})
 
@@ -102,7 +104,7 @@ func (c *FakeVSphereSources) UpdateStatus(vSphereSource *v1alpha1.VSphereSource)
 }
 
 // Delete takes name of the vSphereSource and deletes it. Returns an error if one occurs.
-func (c *FakeVSphereSources) Delete(name string, options *v1.DeleteOptions) error {
+func (c *FakeVSphereSources) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
 		Invokes(testing.NewDeleteAction(vspheresourcesResource, c.ns, name), &v1alpha1.VSphereSource{})
 
@@ -110,15 +112,15 @@ func (c *FakeVSphereSources) Delete(name string, options *v1.DeleteOptions) erro
 }
 
 // DeleteCollection deletes a collection of objects.
-func (c *FakeVSphereSources) DeleteCollection(options *v1.DeleteOptions, listOptions v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(vspheresourcesResource, c.ns, listOptions)
+func (c *FakeVSphereSources) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	action := testing.NewDeleteCollectionAction(vspheresourcesResource, c.ns, listOpts)
 
 	_, err := c.Fake.Invokes(action, &v1alpha1.VSphereSourceList{})
 	return err
 }
 
 // Patch applies the patch and returns the patched vSphereSource.
-func (c *FakeVSphereSources) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.VSphereSource, err error) {
+func (c *FakeVSphereSources) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VSphereSource, err error) {
 	obj, err := c.Fake.
 		Invokes(testing.NewPatchSubresourceAction(vspheresourcesResource, c.ns, name, pt, data, subresources...), &v1alpha1.VSphereSource{})
 
