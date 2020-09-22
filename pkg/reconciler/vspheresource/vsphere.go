@@ -120,7 +120,7 @@ func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha
 	// OwnerRefs set up properly so it gets Garbage Collected.
 	if apierrs.IsNotFound(err) {
 		cm = resources.MakeConfigMap(ctx, vms)
-		cm, err = r.kubeclient.CoreV1().ConfigMaps(ns).Create(ctx, cm, metav1.CreateOptions{})
+		_, err = r.kubeclient.CoreV1().ConfigMaps(ns).Create(ctx, cm, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create configmap %q: %w", name, err)
 		}
@@ -139,7 +139,7 @@ func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1
 	sa, err := r.saLister.ServiceAccounts(ns).Get(name)
 	if apierrs.IsNotFound(err) {
 		sa = resources.MakeServiceAccount(ctx, vms)
-		sa, err = r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
+		_, err = r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create serviceaccount %q: %w", name, err)
 		}
@@ -157,7 +157,7 @@ func (r *Reconciler) reconcileRoleBinding(ctx context.Context, vms *sourcesv1alp
 	roleBinding, err := r.rbacLister.RoleBindings(ns).Get(name)
 	if apierrs.IsNotFound(err) {
 		roleBinding = resources.MakeRoleBinding(ctx, vms)
-		roleBinding, err = r.kubeclient.RbacV1().RoleBindings(ns).Create(ctx, roleBinding, metav1.CreateOptions{})
+		_, err = r.kubeclient.RbacV1().RoleBindings(ns).Create(ctx, roleBinding, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create rolebinding %q: %w", name, err)
 		}
