@@ -19,7 +19,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
       - name: GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
@@ -38,14 +38,14 @@ jobs:
       KO_DOCKER_REPO: docker.io/vmware
 
     steps:
-    - name: Set up Go 1.14.x
+    - name: Set up Go 1.15.x
       uses: actions/setup-go@v2
       with:
-        go-version: 1.14.x
+        go-version: 1.15.x
 
     - name: Setup ko
       run: |
-        GO111MODULE=on go get github.com/google/ko/cmd/ko
+        GO111MODULE=on go get github.com/google/ko/cmd/ko@master
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Check out code onto GOPATH
@@ -65,7 +65,7 @@ jobs:
       run: |
         export GO111MODULE=on
         export GOFLAGS=-mod=vendor
-        ko resolve --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
+        ko resolve --platform=all --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
 
     - name: Upload Release Asset
       id: upload-release-asset

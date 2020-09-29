@@ -17,10 +17,10 @@ jobs:
       KO_DOCKER_REPO: kind.local
 
     steps:
-    - name: Set up Go 1.14.x
+    - name: Set up Go 1.15.x
       uses: actions/setup-go@v2
       with:
-        go-version: 1.14.x
+        go-version: 1.15.x
 
     - name: Install Dependencies
       run: |
@@ -61,7 +61,7 @@ jobs:
         # Build and Publish our containers to the docker daemon (including test assets)
         export GO111MODULE=on
         export GOFLAGS=-mod=vendor
-        ko apply -PRf config/ -f test/config
+        ko apply --platform=all -PRf config/ -f test/config
 
         # Build Knative plugin and create Secret
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
