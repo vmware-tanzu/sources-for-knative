@@ -23,8 +23,8 @@ export GO111MODULE=on
 # The list of dependencies that we track at HEAD and periodically
 # float forward in this repository.
 FLOATING_DEPS=(
-  "knative.dev/test-infra@release-0.18"
-  "knative.dev/pkg@release-0.18"
+  "knative.dev/test-infra@${VERSION}"
+  "knative.dev/pkg@${VERSION}"
   "knative.dev/eventing@${VERSION}"
 )
 
