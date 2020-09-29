@@ -14,7 +14,7 @@ cd ${ROOT_DIR}
 
 # This controls the release branch we track.
 # VERSION="release-0.17" # use this one for pre-release week.
-VERSION="master"         # use this one for development times.
+# VERSION="master"         # use this one for development times.
 
 
 # We need these flags for things to work properly.
@@ -25,7 +25,7 @@ export GO111MODULE=on
 FLOATING_DEPS=(
   "knative.dev/test-infra@release-0.18"
   "knative.dev/pkg@release-0.18"
-  "knative.dev/eventing@${VERSION}"
+  "knative.dev/eventing@v0.18.0"
 )
 
 # Parse flags to determine any we should pass to dep.
