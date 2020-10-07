@@ -8,7 +8,7 @@
 export GO111MODULE=on
 export GOFLAGS=-mod=vendor
 
-cat | ko resolve --platform=all --strict -Bf - <<EOF
+cat | ko resolve --platform=all -Bf - <<EOF
 images:
 - ko://github.com/vmware/govmomi/govc
 - ko://github.com/vmware-tanzu/sources-for-knative/test/test_images/listener
