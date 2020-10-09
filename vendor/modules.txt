@@ -109,7 +109,7 @@ github.com/elazarl/go-bindata-assetfs
 # github.com/emicklei/go-restful v2.9.5+incompatible
 github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
-# github.com/evanphx/json-patch v4.9.0+incompatible
+# github.com/evanphx/json-patch v4.5.0+incompatible
 github.com/evanphx/json-patch
 # github.com/fatih/structs v1.1.0
 ## explicit
@@ -695,7 +695,7 @@ honnef.co/go/tools/staticcheck
 honnef.co/go/tools/stylecheck
 honnef.co/go/tools/unused
 honnef.co/go/tools/version
-# k8s.io/api v0.18.10-rc.0 => k8s.io/api v0.18.9
+# k8s.io/api v0.18.8 => k8s.io/api v0.18.8
 ## explicit
 k8s.io/api/admission/v1
 k8s.io/api/admissionregistration/v1
@@ -738,10 +738,10 @@ k8s.io/api/settings/v1alpha1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apiextensions-apiserver v0.18.4 => k8s.io/apiextensions-apiserver v0.18.9
+# k8s.io/apiextensions-apiserver v0.18.4 => k8s.io/apiextensions-apiserver v0.18.8
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
-# k8s.io/apimachinery v0.18.10-rc.0 => k8s.io/apimachinery v0.18.9
+# k8s.io/apimachinery v0.18.8 => k8s.io/apimachinery v0.18.8
 ## explicit
 k8s.io/apimachinery/pkg/api/apitesting/fuzzer
 k8s.io/apimachinery/pkg/api/equality
@@ -790,7 +790,7 @@ k8s.io/apimachinery/pkg/version
 k8s.io/apimachinery/pkg/watch
 k8s.io/apimachinery/third_party/forked/golang/json
 k8s.io/apimachinery/third_party/forked/golang/reflect
-# k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible => k8s.io/client-go v0.18.9
+# k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible => k8s.io/client-go v0.18.8
 ## explicit
 k8s.io/client-go/discovery
 k8s.io/client-go/discovery/fake
@@ -1005,7 +1005,7 @@ k8s.io/client-go/util/jsonpath
 k8s.io/client-go/util/keyutil
 k8s.io/client-go/util/retry
 k8s.io/client-go/util/workqueue
-# k8s.io/code-generator v0.18.10-rc.0 => k8s.io/code-generator v0.18.9
+# k8s.io/code-generator v0.18.8 => k8s.io/code-generator v0.18.8
 ## explicit
 k8s.io/code-generator
 k8s.io/code-generator/cmd/client-gen
@@ -1111,11 +1111,7 @@ knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/configmap
 knative.dev/eventing/pkg/kncloudevents
 knative.dev/eventing/pkg/tracing
-<<<<<<< HEAD
-# knative.dev/pkg v0.0.0-20201009153721-3eb7d13daebe
-=======
-# knative.dev/pkg v0.0.0-20200929211029-1e373a9e5dea
->>>>>>> use buoy to help manage releases for knative and k8s
+# knative.dev/pkg v0.0.0-20201009175121-3c4df8c27293
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1188,7 +1184,7 @@ knative.dev/pkg/webhook/psbinding
 knative.dev/pkg/webhook/resourcesemantics
 knative.dev/pkg/webhook/resourcesemantics/defaulting
 knative.dev/pkg/webhook/resourcesemantics/validation
-# knative.dev/test-infra v0.0.0-20201009170521-9cecbccfd17c
+# knative.dev/test-infra v0.0.0-20201009204121-322fb08edae7
 ## explicit
 knative.dev/test-infra/scripts
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba
@@ -1197,10 +1193,10 @@ sigs.k8s.io/structured-merge-diff/v3/value
 sigs.k8s.io/yaml
 # github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 # github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
-# k8s.io/api => k8s.io/api v0.18.9
-# k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.9
-# k8s.io/apimachinery => k8s.io/apimachinery v0.18.9
+# k8s.io/api => k8s.io/api v0.18.8
+# k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.8
+# k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
 # k8s.io/apiserver => k8s.io/apiserver v0.18.8
-# k8s.io/client-go => k8s.io/client-go v0.18.9
-# k8s.io/code-generator => k8s.io/code-generator v0.18.9
+# k8s.io/client-go => k8s.io/client-go v0.18.8
+# k8s.io/code-generator => k8s.io/code-generator v0.18.8
 # k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
