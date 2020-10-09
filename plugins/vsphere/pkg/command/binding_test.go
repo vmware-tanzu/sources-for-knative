@@ -167,14 +167,14 @@ or a nonempty subject selector with the --subject-selector option`)
 
 	t.Run("creates basic binding in default namespace", func(t *testing.T) {
 		bindingCommand, vSphereClientSet := bindingCommand(regularClientConfig())
-		subjectApiVersion := "apps/v1"
+		subjectAPIVersion := "apps/v1"
 		subjectKind := "Deployment"
 		subjectName := "my-simple-app"
 		bindingCommand.SetArgs([]string{
 			"--name", bindingName,
 			"--address", bindingAddress,
 			"--secret-ref", secretRef,
-			"--subject-api-version", subjectApiVersion,
+			"--subject-api-version", subjectAPIVersion,
 			"--subject-kind", subjectKind,
 			"--subject-name", subjectName,
 		})
@@ -184,23 +184,23 @@ or a nonempty subject selector with the --subject-selector option`)
 		binding := retrieveCreatedBinding(t, err, vSphereClientSet, defaultNamespace, bindingName)
 		assertBasicBinding(t, &binding.Spec, bindingAddress, secretRef, false)
 		assertSubject(t, &binding.Spec.Subject,
-			subjectApiVersion, subjectKind, defaultNamespace, subjectName, defaultSelector())
+			subjectAPIVersion, subjectKind, defaultNamespace, subjectName, defaultSelector())
 	})
 
 	t.Run("creates insecure binding in explicit namespace", func(t *testing.T) {
 		namespace := "ns"
 		bindingCommand, vSphereClientSet := bindingCommand(regularClientConfig())
-		subjectApiVersion := "apps/v1"
+		subjectAPIVersion := "apps/v1"
 		subjectKind := "Deployment"
 		subjectName := "my-simple-app"
-		skipTlsVerify := true
+		skipTLSVerify := true
 		bindingCommand.SetArgs([]string{
 			"--namespace", namespace,
 			"--name", bindingName,
 			"--address", bindingAddress,
-			"--skip-tls-verify", strconv.FormatBool(skipTlsVerify),
+			"--skip-tls-verify", strconv.FormatBool(skipTLSVerify),
 			"--secret-ref", secretRef,
-			"--subject-api-version", subjectApiVersion,
+			"--subject-api-version", subjectAPIVersion,
 			"--subject-kind", subjectKind,
 			"--subject-name", subjectName,
 		})
@@ -208,25 +208,25 @@ or a nonempty subject selector with the --subject-selector option`)
 		err := bindingCommand.Execute()
 
 		binding := retrieveCreatedBinding(t, err, vSphereClientSet, namespace, bindingName)
-		assertBasicBinding(t, &binding.Spec, bindingAddress, secretRef, skipTlsVerify)
+		assertBasicBinding(t, &binding.Spec, bindingAddress, secretRef, skipTLSVerify)
 		assertSubject(t, &binding.Spec.Subject,
-			subjectApiVersion, subjectKind, namespace, subjectName, defaultSelector())
+			subjectAPIVersion, subjectKind, namespace, subjectName, defaultSelector())
 	})
 
 	t.Run("creates binding with subject label selector in default namespace", func(t *testing.T) {
 		bindingCommand, vSphereClientSet := bindingCommand(regularClientConfig())
-		subjectApiVersion := "apps/v1"
+		subjectAPIVersion := "apps/v1"
 		subjectKind := "Deployment"
 		labelName := "foo"
 		labelValue := "bar"
-		skipTlsVerify := true
+		skipTLSVerify := true
 		bindingCommand.SetArgs([]string{
 			"--namespace", defaultNamespace,
 			"--name", bindingName,
 			"--address", bindingAddress,
-			"--skip-tls-verify", strconv.FormatBool(skipTlsVerify),
+			"--skip-tls-verify", strconv.FormatBool(skipTLSVerify),
 			"--secret-ref", secretRef,
-			"--subject-api-version", subjectApiVersion,
+			"--subject-api-version", subjectAPIVersion,
 			"--subject-kind", subjectKind,
 			"--subject-kind", subjectKind,
 			"--subject-selector", fmt.Sprintf("%s=%s", labelName, labelValue),
@@ -235,9 +235,9 @@ or a nonempty subject selector with the --subject-selector option`)
 		err := bindingCommand.Execute()
 
 		binding := retrieveCreatedBinding(t, err, vSphereClientSet, defaultNamespace, bindingName)
-		assertBasicBinding(t, &binding.Spec, bindingAddress, secretRef, skipTlsVerify)
+		assertBasicBinding(t, &binding.Spec, bindingAddress, secretRef, skipTLSVerify)
 		assertSubject(t, &binding.Spec.Subject,
-			subjectApiVersion, subjectKind, defaultNamespace, "", &metav1.LabelSelector{
+			subjectAPIVersion, subjectKind, defaultNamespace, "", &metav1.LabelSelector{
 				MatchLabels:      map[string]string{labelName: labelValue},
 				MatchExpressions: []metav1.LabelSelectorRequirement{},
 			})
@@ -315,16 +315,16 @@ or a nonempty subject selector with the --subject-selector option`)
 	})
 
 	t.Run("fails to execute when trying to create a duplicate binding", func(t *testing.T) {
-		subjectApiVersion := "apps/v1"
+		subjectAPIVersion := "apps/v1"
 		subjectKind := "Deployment"
 		subjectName := "my-simple-app"
-		existingBinding := newBinding(t, defaultNamespace, bindingName, bindingAddress, secretRef, subjectApiVersion, subjectKind, subjectName)
+		existingBinding := newBinding(t, defaultNamespace, bindingName, bindingAddress, secretRef, subjectAPIVersion, subjectKind, subjectName)
 		bindingCommand, _ := bindingCommand(regularClientConfig(), existingBinding)
 		bindingCommand.SetArgs([]string{
 			"--name", bindingName,
 			"--address", bindingAddress,
 			"--secret-ref", secretRef,
-			"--subject-api-version", subjectApiVersion,
+			"--subject-api-version", subjectAPIVersion,
 			"--subject-kind", subjectKind,
 			"--subject-name", subjectName,
 		})
@@ -356,10 +356,10 @@ func retrieveCreatedBinding(t *testing.T, err error, vSphereClientSet vsphere.In
 	return source
 }
 
-func assertBasicBinding(t *testing.T, bindingSpec *v1alpha1.VSphereBindingSpec, bindingAddress string, secretRef string, skipTlsVerify bool) {
+func assertBasicBinding(t *testing.T, bindingSpec *v1alpha1.VSphereBindingSpec, bindingAddress string, secretRef string, skipTLSVerify bool) {
 	assert.Equal(t, bindingSpec.Address.String(), bindingAddress)
 	assert.Equal(t, bindingSpec.SecretRef.Name, secretRef)
-	assert.Check(t, bindingSpec.SkipTLSVerify == skipTlsVerify)
+	assert.Check(t, bindingSpec.SkipTLSVerify == skipTLSVerify)
 }
 
 func defaultSelector() *metav1.LabelSelector {
@@ -377,7 +377,7 @@ func assertSubject(t *testing.T, subject *tracker.Reference, apiVersion, kind, n
 	assert.Check(t, reflect.DeepEqual(subject.Selector, selector))
 }
 
-func newBinding(t *testing.T, namespace, name, address, secretRef, subjectApiVersion, subjectKind, subjectName string) runtime.Object {
+func newBinding(t *testing.T, namespace, name, address, secretRef, subjectAPIVersion, subjectKind, subjectName string) runtime.Object {
 	bindingAddress := parseUri(t, address)
 	return &v1alpha1.VSphereBinding{
 		ObjectMeta: metav1.ObjectMeta{
@@ -387,7 +387,7 @@ func newBinding(t *testing.T, namespace, name, address, secretRef, subjectApiVer
 		Spec: v1alpha1.VSphereBindingSpec{
 			BindingSpec: duckv1alpha1.BindingSpec{
 				Subject: tracker.Reference{
-					APIVersion: subjectApiVersion,
+					APIVersion: subjectAPIVersion,
 					Kind:       subjectKind,
 					Namespace:  namespace,
 					Name:       subjectName,
