@@ -69,17 +69,17 @@ func NewController(
 	vsphereInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue))
 
 	deploymentInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		FilterFunc: controller.FilterGroupKind(v1alpha1.Kind("VSphereSource")),
+		FilterFunc: controller.FilterControllerGK(v1alpha1.Kind("VSphereSource")),
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
 	saInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		FilterFunc: controller.FilterGroupKind(v1alpha1.Kind("VSphereSource")),
+		FilterFunc: controller.FilterControllerGK(v1alpha1.Kind("VSphereSource")),
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
 	rbacInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		FilterFunc: controller.FilterGroupKind(v1alpha1.Kind("VSphereSource")),
+		FilterFunc: controller.FilterControllerGK(v1alpha1.Kind("VSphereSource")),
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
