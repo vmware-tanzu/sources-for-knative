@@ -1069,7 +1069,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/eventing v0.18.0
+# knative.dev/eventing v0.18.1-0.20201009013021-d37dbc88e6fd
 ## explicit
 knative.dev/eventing/pkg/adapter/v2
 knative.dev/eventing/pkg/adapter/v2/util/crstatusevent
@@ -1090,6 +1090,7 @@ knative.dev/eventing/pkg/apis/messaging/config
 knative.dev/eventing/pkg/apis/messaging/v1
 knative.dev/eventing/pkg/apis/messaging/v1beta1
 knative.dev/eventing/pkg/apis/sources
+knative.dev/eventing/pkg/apis/sources/v1
 knative.dev/eventing/pkg/apis/sources/v1alpha1
 knative.dev/eventing/pkg/apis/sources/v1alpha2
 knative.dev/eventing/pkg/apis/sources/v1beta1
@@ -1102,6 +1103,7 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/flows/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/flows/v1beta1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1beta1
+knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1alpha1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1alpha2
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta1
@@ -1109,7 +1111,7 @@ knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/configmap
 knative.dev/eventing/pkg/kncloudevents
 knative.dev/eventing/pkg/tracing
-# knative.dev/pkg v0.0.0-20200929052028-236c084e37a3
+# knative.dev/pkg v0.0.0-20201009023821-73da5142da72
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1182,7 +1184,7 @@ knative.dev/pkg/webhook/psbinding
 knative.dev/pkg/webhook/resourcesemantics
 knative.dev/pkg/webhook/resourcesemantics/defaulting
 knative.dev/pkg/webhook/resourcesemantics/validation
-# knative.dev/test-infra v0.0.0-20200928212629-45266e61aa32
+# knative.dev/test-infra v0.0.0-20201008221921-aeca2ff2371a
 knative.dev/test-infra/scripts
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba
 sigs.k8s.io/structured-merge-diff/v3/value
