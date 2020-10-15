@@ -46,7 +46,7 @@ type VMWareClients struct {
 	clientSet *versioned.Clientset
 }
 
-func NewClients(configPath string, clusterName string, namespace string) (*Clients, error) {
+func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
 	clientConfig := BuildClientConfig(configPath, clusterName)
 	return NewClientsFromConfig(clientConfig, namespace)
 }
@@ -71,7 +71,7 @@ func NewClientsFromConfig(clientConfig clientcmd.ClientConfig, namespace string)
 	if err != nil {
 		return nil, err
 	}
-	result.KubeClient = &test.KubeClient{Kube: kubeClient}
+	result.KubeClient = &test.KubeClient{Interface: kubeClient}
 	cs, err := versioned.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func BuildClientConfig(kubeConfigPath string, clusterName string) clientcmd.Clie
 func (c *Clients) AsPluginClients() *clients.Clients {
 	return &clients.Clients{
 		ClientConfig:     c.clientConfig,
-		ClientSet:        c.KubeClient.Kube,
+		ClientSet:        c.KubeClient,
 		VSphereClientSet: c.VMWareClient.clientSet,
 	}
 }
