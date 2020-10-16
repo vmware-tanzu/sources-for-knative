@@ -25,43 +25,43 @@ func (*VSphereSource) GetConditionSet() apis.ConditionSet {
 }
 
 // GetGroupVersionKind implements kmeta.OwnerRefable
-func (as *VSphereSource) GetGroupVersionKind() schema.GroupVersionKind {
+func (vs *VSphereSource) GetGroupVersionKind() schema.GroupVersionKind {
 	return SchemeGroupVersion.WithKind("VSphereSource")
 }
 
-func (ass *VSphereSourceStatus) InitializeConditions() {
-	condSet.Manage(ass).InitializeConditions()
+func (vss *VSphereSourceStatus) InitializeConditions() {
+	condSet.Manage(vss).InitializeConditions()
 }
 
-func (ass *VSphereSourceStatus) PropagateAuthStatus(status duckv1.Status) {
+func (vss *VSphereSourceStatus) PropagateAuthStatus(status duckv1.Status) {
 	cond := status.GetCondition(apis.ConditionReady)
 	switch {
 	case cond == nil:
-		condSet.Manage(ass).MarkUnknown(VSphereSourceConditionAuthReady, "", "")
+		condSet.Manage(vss).MarkUnknown(VSphereSourceConditionAuthReady, "", "")
 	case cond.Status == corev1.ConditionUnknown:
-		condSet.Manage(ass).MarkUnknown(VSphereSourceConditionAuthReady, cond.Reason, cond.Message)
+		condSet.Manage(vss).MarkUnknown(VSphereSourceConditionAuthReady, cond.Reason, cond.Message)
 	case cond.Status == corev1.ConditionFalse:
-		condSet.Manage(ass).MarkFalse(VSphereSourceConditionAuthReady, cond.Reason, cond.Message)
+		condSet.Manage(vss).MarkFalse(VSphereSourceConditionAuthReady, cond.Reason, cond.Message)
 	case cond.Status == corev1.ConditionTrue:
-		condSet.Manage(ass).MarkTrue(VSphereSourceConditionAuthReady)
+		condSet.Manage(vss).MarkTrue(VSphereSourceConditionAuthReady)
 	}
 }
 
-func (ass *VSphereSourceStatus) PropagateAdapterStatus(d appsv1.DeploymentStatus) {
+func (vss *VSphereSourceStatus) PropagateAdapterStatus(d appsv1.DeploymentStatus) {
 	// Check if the Deployment is available.
 	for _, cond := range d.Conditions {
 		if cond.Type == appsv1.DeploymentAvailable {
 			switch {
 			case cond.Status == corev1.ConditionUnknown:
-				condSet.Manage(ass).MarkUnknown(VSphereSourceConditionAdapterReady, cond.Reason, cond.Message)
+				condSet.Manage(vss).MarkUnknown(VSphereSourceConditionAdapterReady, cond.Reason, cond.Message)
 			case cond.Status == corev1.ConditionFalse:
-				condSet.Manage(ass).MarkFalse(VSphereSourceConditionAdapterReady, cond.Reason, cond.Message)
+				condSet.Manage(vss).MarkFalse(VSphereSourceConditionAdapterReady, cond.Reason, cond.Message)
 			case cond.Status == corev1.ConditionTrue:
-				condSet.Manage(ass).MarkTrue(VSphereSourceConditionAdapterReady)
+				condSet.Manage(vss).MarkTrue(VSphereSourceConditionAdapterReady)
 			}
 			return
 		}
 	}
 
-	condSet.Manage(ass).MarkUnknown(VSphereSourceConditionAdapterReady, "", "")
+	condSet.Manage(vss).MarkUnknown(VSphereSourceConditionAdapterReady, "", "")
 }

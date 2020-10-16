@@ -12,11 +12,11 @@ import (
 )
 
 // Validate implements apis.Validatable
-func (fb *VSphereSource) Validate(ctx context.Context) *apis.FieldError {
-	return fb.Spec.Validate(ctx).ViaField("spec")
+func (vs *VSphereSource) Validate(ctx context.Context) *apis.FieldError {
+	return vs.Spec.Validate(ctx).ViaField("spec")
 }
 
 // Validate implements apis.Validatable
-func (fbs *VSphereSourceSpec) Validate(ctx context.Context) *apis.FieldError {
-	return fbs.Sink.Validate(ctx).ViaField("sink").Also(fbs.VAuthSpec.Validate(ctx))
+func (vsss *VSphereSourceSpec) Validate(ctx context.Context) *apis.FieldError {
+	return vsss.Sink.Validate(ctx).ViaField("sink").Also(vsss.VAuthSpec.Validate(ctx))
 }

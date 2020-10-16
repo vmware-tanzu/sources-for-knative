@@ -12,10 +12,10 @@ import (
 )
 
 // Validate implements apis.Validatable
-func (fb *VSphereBinding) Validate(ctx context.Context) *apis.FieldError {
-	err := fb.Spec.Validate(ctx).ViaField("spec")
-	if fb.Spec.Subject.Namespace != "" && fb.Namespace != fb.Spec.Subject.Namespace {
-		err = err.Also(apis.ErrInvalidValue(fb.Spec.Subject.Namespace, "spec.subject.namespace"))
+func (vsb *VSphereBinding) Validate(ctx context.Context) *apis.FieldError {
+	err := vsb.Spec.Validate(ctx).ViaField("spec")
+	if vsb.Spec.Subject.Namespace != "" && vsb.Namespace != vsb.Spec.Subject.Namespace {
+		err = err.Also(apis.ErrInvalidValue(vsb.Spec.Subject.Namespace, "spec.subject.namespace"))
 	}
 	return err
 }
