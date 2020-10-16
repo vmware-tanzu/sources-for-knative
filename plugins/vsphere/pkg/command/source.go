@@ -22,31 +22,31 @@ type SourceOptions struct {
 	Namespace     string
 	Name          string
 	Address       string
-	SkipTlsVerify bool
+	SkipTLSVerify bool
 	SecretRef     string
 
-	SinkUri        string
-	SinkApiVersion string
+	SinkURI        string
+	SinkAPIVersion string
 	SinkKind       string
 	SinkName       string
 }
 
 func (so *SourceOptions) AsSinkDestination(namespace string) (*duckv1.Destination, error) {
-	apiUrl, err := so.sinkUrl()
+	apiURL, err := so.sinkURL()
 	if err != nil {
 		return nil, err
 	}
 	return &duckv1.Destination{
 		Ref: so.sinkReference(namespace),
-		URI: apiUrl,
+		URI: apiURL,
 	}, nil
 }
 
-func (so *SourceOptions) sinkUrl() (*apis.URL, error) {
-	if so.SinkUri == "" {
+func (so *SourceOptions) sinkURL() (*apis.URL, error) {
+	if so.SinkURI == "" {
 		return nil, nil
 	}
-	address, err := url.Parse(so.SinkUri)
+	address, err := url.Parse(so.SinkURI)
 	if err != nil {
 		return nil, err
 	}
@@ -55,11 +55,11 @@ func (so *SourceOptions) sinkUrl() (*apis.URL, error) {
 }
 
 func (so *SourceOptions) sinkReference(namespace string) *duckv1.KReference {
-	if so.SinkApiVersion == "" {
+	if so.SinkAPIVersion == "" {
 		return nil
 	}
 	return &duckv1.KReference{
-		APIVersion: so.SinkApiVersion,
+		APIVersion: so.SinkAPIVersion,
 		Kind:       so.SinkKind,
 		Namespace:  namespace,
 		Name:       so.SinkName,
@@ -87,9 +87,9 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 			if options.SecretRef == "" {
 				return fmt.Errorf("'secret-ref' requires a nonempty secret reference provided with the --secret-ref option")
 			}
-			sinkCoordinatesAllEmpty := options.SinkApiVersion == "" && options.SinkKind == "" && options.SinkName == ""
-			sinkCoordinatesAllSet := options.SinkApiVersion != "" && options.SinkKind != "" && options.SinkName != ""
-			if options.SinkUri == "" && sinkCoordinatesAllEmpty ||
+			sinkCoordinatesAllEmpty := options.SinkAPIVersion == "" && options.SinkKind == "" && options.SinkName == ""
+			sinkCoordinatesAllSet := options.SinkAPIVersion != "" && options.SinkKind != "" && options.SinkName != ""
+			if options.SinkURI == "" && sinkCoordinatesAllEmpty ||
 				(!sinkCoordinatesAllEmpty && !sinkCoordinatesAllSet) {
 				return fmt.Errorf("sink requires an URI" +
 					"\nand/or a nonempty API version --sink-api-version option," +
@@ -127,11 +127,11 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 	_ = result.MarkFlagRequired("name")
 	flags.StringVarP(&options.Address, "address", "a", "", "URL of ESXi or vCenter instance to connect to (same as GOVC_URL)")
 	_ = result.MarkFlagRequired("address")
-	flags.BoolVarP(&options.SkipTlsVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as GOVC_INSECURE)")
+	flags.BoolVarP(&options.SkipTLSVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as GOVC_INSECURE)")
 	flags.StringVarP(&options.SecretRef, "secret-ref", "s", "", "reference to the Kubernetes secret for the vSphere credentials needed for the source address")
 	_ = result.MarkFlagRequired("secret-ref")
-	flags.StringVarP(&options.SinkUri, "sink-uri", "u", "", "sink URI (can be absolute, or relative to the referred sink resource)")
-	flags.StringVar(&options.SinkApiVersion, "sink-api-version", "", "sink API version")
+	flags.StringVarP(&options.SinkURI, "sink-uri", "u", "", "sink URI (can be absolute, or relative to the referred sink resource)")
+	flags.StringVar(&options.SinkAPIVersion, "sink-api-version", "", "sink API version")
 	flags.StringVar(&options.SinkKind, "sink-kind", "", "sink kind")
 	flags.StringVar(&options.SinkName, "sink-name", "", "sink name")
 	return &result
@@ -149,7 +149,7 @@ func newSource(namespace string, sinkDestination *duckv1.Destination, address *u
 			},
 			VAuthSpec: v1alpha1.VAuthSpec{
 				Address:       apis.URL(*address),
-				SkipTLSVerify: options.SkipTlsVerify,
+				SkipTLSVerify: options.SkipTLSVerify,
 				SecretRef: corev1.LocalObjectReference{
 					Name: options.SecretRef,
 				},

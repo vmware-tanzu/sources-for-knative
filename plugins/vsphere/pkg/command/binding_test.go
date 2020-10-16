@@ -378,7 +378,7 @@ func assertSubject(t *testing.T, subject *tracker.Reference, apiVersion, kind, n
 }
 
 func newBinding(t *testing.T, namespace, name, address, secretRef, subjectAPIVersion, subjectKind, subjectName string) runtime.Object {
-	bindingAddress := parseUri(t, address)
+	bindingAddress := parseURI(t, address)
 	return &v1alpha1.VSphereBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,

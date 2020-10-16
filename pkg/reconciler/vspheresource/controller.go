@@ -87,7 +87,7 @@ func NewController(
 	// and it is high churn.
 
 	vspherebindingInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		FilterFunc: controller.FilterGroupKind(v1alpha1.Kind("VSphereSource")),
+		FilterFunc: controller.FilterControllerGK(v1alpha1.Kind("VSphereSource")),
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
