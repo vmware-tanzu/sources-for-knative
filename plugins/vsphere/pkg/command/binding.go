@@ -23,10 +23,10 @@ type BindingOptions struct {
 	Namespace     string
 	Name          string
 	Address       string
-	SkipTlsVerify bool
+	SkipTLSVerify bool
 	SecretRef     string
 
-	SubjectApiVersion string
+	SubjectAPIVersion string
 	SubjectKind       string
 	SubjectName       string
 	SubjectSelector   string
@@ -54,7 +54,7 @@ kn vsphere binding --namespace ns --name source --address https://my-vsphere-end
 			if options.SecretRef == "" {
 				return fmt.Errorf("'secret-ref' requires a nonempty secret reference provided with the --secret-ref option")
 			}
-			if options.SubjectApiVersion == "" {
+			if options.SubjectAPIVersion == "" {
 				return fmt.Errorf("'subject-api-version' requires a nonempty subject API version provided with the --subject-api-version option")
 			}
 			if options.SubjectKind == "" {
@@ -102,10 +102,10 @@ kn vsphere binding --namespace ns --name source --address https://my-vsphere-end
 	_ = result.MarkFlagRequired("name")
 	flags.StringVarP(&options.Address, "address", "a", "", "URL of the events to fetch")
 	_ = result.MarkFlagRequired("address")
-	flags.BoolVarP(&options.SkipTlsVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as GOVC_INSECURE)")
+	flags.BoolVarP(&options.SkipTLSVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as GOVC_INSECURE)")
 	flags.StringVarP(&options.SecretRef, "secret-ref", "s", "", "reference to the Kubernetes secret for the vSphere credentials needed for the source address")
 	_ = result.MarkFlagRequired("secret-ref")
-	flags.StringVar(&options.SubjectApiVersion, "subject-api-version", "", "subject API version")
+	flags.StringVar(&options.SubjectAPIVersion, "subject-api-version", "", "subject API version")
 	_ = result.MarkFlagRequired("subject-api-version")
 	flags.StringVar(&options.SubjectKind, "subject-kind", "", "subject kind")
 	_ = result.MarkFlagRequired("subject-kind")
@@ -123,7 +123,7 @@ func newBinding(namespace string, address *url.URL, selector *metav1.LabelSelect
 		Spec: v1alpha1.VSphereBindingSpec{
 			BindingSpec: duckv1alpha1.BindingSpec{
 				Subject: tracker.Reference{
-					APIVersion: options.SubjectApiVersion,
+					APIVersion: options.SubjectAPIVersion,
 					Kind:       options.SubjectKind,
 					Namespace:  namespace,
 					Name:       options.SubjectName,
@@ -132,7 +132,7 @@ func newBinding(namespace string, address *url.URL, selector *metav1.LabelSelect
 			},
 			VAuthSpec: v1alpha1.VAuthSpec{
 				Address:       apis.URL(*address),
-				SkipTLSVerify: options.SkipTlsVerify,
+				SkipTLSVerify: options.SkipTLSVerify,
 				SecretRef: corev1.LocalObjectReference{
 					Name: options.SecretRef,
 				},

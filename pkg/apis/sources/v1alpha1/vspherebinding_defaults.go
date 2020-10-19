@@ -10,9 +10,9 @@ import (
 )
 
 // SetDefaults implements apis.Defaultable
-func (as *VSphereBinding) SetDefaults(ctx context.Context) {
-	if as.Spec.Subject.Namespace == "" {
+func (vsb *VSphereBinding) SetDefaults(ctx context.Context) {
+	if vsb.Spec.Subject.Namespace == "" {
 		// Default the subject's namespace to our namespace.
-		as.Spec.Subject.Namespace = as.Namespace
+		vsb.Spec.Subject.Namespace = vsb.Namespace
 	}
 }

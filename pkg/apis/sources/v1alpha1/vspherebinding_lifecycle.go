@@ -22,23 +22,23 @@ import (
 var vsbCondSet = apis.NewLivingConditionSet()
 
 // GetGroupVersionKind returns the GroupVersionKind.
-func (s *VSphereBinding) GetGroupVersionKind() schema.GroupVersionKind {
+func (vsb *VSphereBinding) GetGroupVersionKind() schema.GroupVersionKind {
 	return SchemeGroupVersion.WithKind("VSphereBinding")
 }
 
 // GetUntypedSpec implements apis.HasSpec
-func (s *VSphereBinding) GetUntypedSpec() interface{} {
-	return s.Spec
+func (vsb *VSphereBinding) GetUntypedSpec() interface{} {
+	return vsb.Spec
 }
 
 // GetSubject implements psbinding.Bindable
-func (sb *VSphereBinding) GetSubject() tracker.Reference {
-	return sb.Spec.Subject
+func (vsb *VSphereBinding) GetSubject() tracker.Reference {
+	return vsb.Spec.Subject
 }
 
 // GetBindingStatus implements psbinding.Bindable
-func (sb *VSphereBinding) GetBindingStatus() duck.BindableStatus {
-	return &sb.Status
+func (vsb *VSphereBinding) GetBindingStatus() duck.BindableStatus {
+	return &vsb.Status
 }
 
 // SetObservedGeneration implements psbinding.BindableStatus

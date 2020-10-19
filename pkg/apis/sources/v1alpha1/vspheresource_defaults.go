@@ -12,7 +12,7 @@ import (
 )
 
 // SetDefaults implements apis.Defaultable
-func (as *VSphereSource) SetDefaults(ctx context.Context) {
-	withNS := apis.WithinParent(ctx, as.ObjectMeta)
-	as.Spec.Sink.SetDefaults(withNS)
+func (vs *VSphereSource) SetDefaults(ctx context.Context) {
+	withNS := apis.WithinParent(ctx, vs.ObjectMeta)
+	vs.Spec.Sink.SetDefaults(withNS)
 }

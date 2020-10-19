@@ -35,7 +35,7 @@ func TestNewSourceCommand(t *testing.T) {
 	const sourceName = "spring"
 	const secretRef = "street-creds"
 	const sourceAddress = "https://my-vsphere-endpoint.example.com"
-	const sinkUri = "https://sink.example.com"
+	const sinkURI = "https://sink.example.com"
 
 	t.Run("defines basic metadata", func(t *testing.T) {
 		sourceCommand, _ := sourceCommand(regularClientConfig())
@@ -62,7 +62,7 @@ func TestNewSourceCommand(t *testing.T) {
 		sourceCommand.SetArgs([]string{
 			"--address", sourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -75,7 +75,7 @@ func TestNewSourceCommand(t *testing.T) {
 		sourceCommand.SetArgs([]string{
 			"--name", sourceName,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -88,7 +88,7 @@ func TestNewSourceCommand(t *testing.T) {
 		sourceCommand.SetArgs([]string{
 			"--name", sourceName,
 			"--address", sourceAddress,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -104,17 +104,17 @@ func TestNewSourceCommand(t *testing.T) {
 			"no", []string{},
 		},
 		{"all but name", []string{
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 			"--sink-api-version", "some-api-version",
 			"--sink-kind", "some-kind"},
 		},
 		{"all but kind", []string{
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 			"--sink-api-version", "some-api-version",
 			"--sink-name", "some-name"},
 		},
 		{"all but API version", []string{
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 			"--sink-kind", "some-kind",
 			"--sink-name", "some-name"},
 		},
@@ -164,33 +164,33 @@ and with a nonempty name with the --sink-name`)
 			"--name", sourceName,
 			"--address", sourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
 
 		source := retrieveCreatedSource(t, err, vSphereClientSet, defaultNamespace, sourceName)
 		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, false)
-		assert.Equal(t, source.Spec.Sink.URI.String(), sinkUri)
+		assert.Equal(t, source.Spec.Sink.URI.String(), sinkURI)
 		assert.Check(t, source.Spec.Sink.Ref == nil)
 	})
 
 	t.Run("creates insecure source with Service and relative sink URI in explicit namespace", func(t *testing.T) {
 		namespace := "ns"
-		sinkUri := "/relative/uri"
+		sinkURI := "/relative/uri"
 		sourceCommand, vSphereClientSet := sourceCommand(regularClientConfig())
-		skipTlsVerify := true
-		sinkApiVersion := "v1"
+		skipTLSVerify := true
+		sinkAPIVersion := "v1"
 		sinkKind := "Service"
 		sinkName := "some-service"
 		sourceCommand.SetArgs([]string{
 			"--namespace", namespace,
 			"--name", sourceName,
 			"--address", sourceAddress,
-			"--skip-tls-verify", strconv.FormatBool(skipTlsVerify),
+			"--skip-tls-verify", strconv.FormatBool(skipTLSVerify),
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
-			"--sink-api-version", sinkApiVersion,
+			"--sink-uri", sinkURI,
+			"--sink-api-version", sinkAPIVersion,
 			"--sink-kind", sinkKind,
 			"--sink-name", sinkName,
 		})
@@ -198,9 +198,9 @@ and with a nonempty name with the --sink-name`)
 		err := sourceCommand.Execute()
 
 		source := retrieveCreatedSource(t, err, vSphereClientSet, namespace, sourceName)
-		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, skipTlsVerify)
-		assert.Equal(t, source.Spec.Sink.URI.String(), sinkUri)
-		assertSinkReference(t, source.Spec.Sink.Ref, sinkApiVersion, sinkKind, namespace, sinkName)
+		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, skipTLSVerify)
+		assert.Equal(t, source.Spec.Sink.URI.String(), sinkURI)
+		assertSinkReference(t, source.Spec.Sink.Ref, sinkAPIVersion, sinkKind, namespace, sinkName)
 	})
 
 	t.Run("fails to execute when default namespace retrieval fails", func(t *testing.T) {
@@ -210,7 +210,7 @@ and with a nonempty name with the --sink-name`)
 			"--name", sourceName,
 			"--address", sourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -225,7 +225,7 @@ and with a nonempty name with the --sink-name`)
 			"--name", sourceName,
 			"--address", invalidSourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -258,7 +258,7 @@ and with a nonempty name with the --sink-name`)
 			"--name", sourceName,
 			"--address", sourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -267,13 +267,13 @@ and with a nonempty name with the --sink-name`)
 	})
 
 	t.Run("fails to execute when trying to create a duplicate source", func(t *testing.T) {
-		existingSource := newSource(t, defaultNamespace, sourceName, sourceAddress, secretRef, sinkUri)
+		existingSource := newSource(t, defaultNamespace, sourceName, sourceAddress, secretRef, sinkURI)
 		sourceCommand, _ := sourceCommand(regularClientConfig(), existingSource)
 		sourceCommand.SetArgs([]string{
 			"--name", sourceName,
 			"--address", sourceAddress,
 			"--secret-ref", secretRef,
-			"--sink-uri", sinkUri,
+			"--sink-uri", sinkURI,
 		})
 
 		err := sourceCommand.Execute()
@@ -303,10 +303,10 @@ func retrieveCreatedSource(t *testing.T, err error, vSphereClientSet vsphere.Int
 	return source
 }
 
-func assertBasicSource(t *testing.T, sourceSpec *v1alpha1.VSphereSourceSpec, sourceAddress string, secretRef string, skipTlsVerify bool) {
+func assertBasicSource(t *testing.T, sourceSpec *v1alpha1.VSphereSourceSpec, sourceAddress string, secretRef string, skipTLSVerify bool) {
 	assert.Equal(t, sourceSpec.Address.String(), sourceAddress)
 	assert.Equal(t, sourceSpec.SecretRef.Name, secretRef)
-	assert.Check(t, sourceSpec.SkipTLSVerify == skipTlsVerify)
+	assert.Check(t, sourceSpec.SkipTLSVerify == skipTLSVerify)
 }
 
 func assertSinkReference(t *testing.T, sinkRef *duckv1.KReference, apiVersion, kind, namespace, name string) {
@@ -316,8 +316,8 @@ func assertSinkReference(t *testing.T, sinkRef *duckv1.KReference, apiVersion, k
 	assert.Equal(t, sinkRef.Name, name)
 }
 
-func newSource(t *testing.T, namespace, name, address, secretRef, sinkUri string) runtime.Object {
-	sourceAddress := parseUri(t, address)
+func newSource(t *testing.T, namespace, name, address, secretRef, sinkURI string) runtime.Object {
+	sourceAddress := parseURI(t, address)
 	return &v1alpha1.VSphereSource{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
@@ -330,7 +330,7 @@ func newSource(t *testing.T, namespace, name, address, secretRef, sinkUri string
 				},
 			},
 			VAuthSpec: v1alpha1.VAuthSpec{
-				Address:       parseUri(t, sinkUri),
+				Address:       parseURI(t, sinkURI),
 				SkipTLSVerify: false,
 				SecretRef: corev1.LocalObjectReference{
 					Name: secretRef,
@@ -340,7 +340,7 @@ func newSource(t *testing.T, namespace, name, address, secretRef, sinkUri string
 	}
 }
 
-func parseUri(t *testing.T, uri string) apis.URL {
+func parseURI(t *testing.T, uri string) apis.URL {
 	result, err := url.Parse(uri)
 	assert.NilError(t, err)
 	return apis.URL(*result)
