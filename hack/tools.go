@@ -12,6 +12,7 @@ import (
 	_ "k8s.io/code-generator"
 
 	// codegen: hack/generate-knative.sh
+	_ "knative.dev/hack"
 	_ "knative.dev/pkg/hack"
 
 	_ "k8s.io/code-generator/cmd/client-gen"
