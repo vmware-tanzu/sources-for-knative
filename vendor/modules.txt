@@ -61,8 +61,8 @@ github.com/aws/aws-sdk-go/service/sts
 github.com/aws/aws-sdk-go/service/sts/stsiface
 # github.com/beorn7/perks v1.0.1
 github.com/beorn7/perks/quantile
-# github.com/blang/semver v3.5.1+incompatible
-github.com/blang/semver
+# github.com/blang/semver/v4 v4.0.0
+github.com/blang/semver/v4
 # github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd
 ## explicit
 github.com/braintree/manners
@@ -435,7 +435,7 @@ go.opencensus.io/trace
 go.opencensus.io/trace/internal
 go.opencensus.io/trace/propagation
 go.opencensus.io/trace/tracestate
-# go.uber.org/atomic v1.6.0
+# go.uber.org/atomic v1.7.0
 go.uber.org/atomic
 # go.uber.org/automaxprocs v1.3.0
 go.uber.org/automaxprocs/internal/cgroups
@@ -635,6 +635,8 @@ google.golang.org/protobuf/types/known/timestamppb
 google.golang.org/protobuf/types/known/wrapperspb
 # gopkg.in/alecthomas/kingpin.v2 v2.2.6
 gopkg.in/alecthomas/kingpin.v2
+# gopkg.in/evanphx/json-patch.v4 v4.9.0
+gopkg.in/evanphx/json-patch.v4
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
 # gopkg.in/yaml.v2 v2.3.0
@@ -1019,7 +1021,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/eventing v0.18.1-0.20201027122433-0a54fd909f39
+# knative.dev/eventing v0.18.1-0.20201028140834-69181035e56a
 ## explicit
 knative.dev/eventing/pkg/adapter/v2
 knative.dev/eventing/pkg/adapter/v2/util/crstatusevent
@@ -1059,7 +1061,10 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1alpha2
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta1
 knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/kncloudevents
-# knative.dev/pkg v0.0.0-20201027121533-273ba59a1132
+# knative.dev/hack v0.0.0-20201027221733-0d7f2f064b7b
+## explicit
+knative.dev/hack
+# knative.dev/pkg v0.0.0-20201028133634-8ae84fe12a61
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1133,8 +1138,6 @@ knative.dev/pkg/webhook/psbinding
 knative.dev/pkg/webhook/resourcesemantics
 knative.dev/pkg/webhook/resourcesemantics/defaulting
 knative.dev/pkg/webhook/resourcesemantics/validation
-# knative.dev/test-infra v0.0.0-20201026182042-46291de4ab66
-knative.dev/test-infra/scripts
 # sigs.k8s.io/structured-merge-diff/v3 v3.0.1-0.20200706213357-43c19bbb7fba
 sigs.k8s.io/structured-merge-diff/v3/value
 # sigs.k8s.io/yaml v1.2.0
