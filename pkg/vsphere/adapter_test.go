@@ -7,25 +7,25 @@ package vsphere
 
 import (
 	"context"
+	"net/http"
+	"testing"
+	"time"
+
 	"github.com/cloudevents/sdk-go/v2/client"
 	cecontext "github.com/cloudevents/sdk-go/v2/context"
 	"github.com/vmware/govmomi/vim25/types"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
-	"net/http"
-	"testing"
-	"time"
 
 	"github.com/cloudevents/sdk-go/v2/binding"
 	"github.com/cloudevents/sdk-go/v2/event"
 	cehttp "github.com/cloudevents/sdk-go/v2/protocol/http"
 )
 
-
 type roundTripperTest struct {
 	statusCodes  []int
 	requestCount int
-    events []event.Event
+	events       []event.Event
 }
 
 func (r *roundTripperTest) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -43,22 +43,22 @@ type mockType struct {
 	event *types.Event
 }
 
-func (m *mockType) 	GetEvent() *types.Event{
+func (m *mockType) GetEvent() *types.Event {
 	return m.event
 }
 
 func TestSendEvents(t *testing.T) {
 	testCases := map[string]struct {
 		statusCodes []int
-		moref types.ManagedObjectReference
-		baseEvents []types.BaseEvent
-		wantEvents       []event.Event
-		result error
+		moref       types.ManagedObjectReference
+		baseEvents  []types.BaseEvent
+		wantEvents  []event.Event
+		result      error
 	}{
 		"one event, succeeds": {
 			statusCodes: []int{200},
-			moref: types.ManagedObjectReference{Value: "VirtualMachine", Type: "vm59"},
-			baseEvents: []types.BaseEvent{&mockType{event: &types.Event{CreatedTime: time.Now()}}},
+			moref:       types.ManagedObjectReference{Value: "VirtualMachine", Type: "vm59"},
+			baseEvents:  []types.BaseEvent{&mockType{event: &types.Event{CreatedTime: time.Now()}}},
 		},
 	}
 	for n, tc := range testCases {
