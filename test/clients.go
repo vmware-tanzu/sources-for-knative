@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package test
 
 import (
+	"testing"
 	"time"
 
 	clients "github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
@@ -51,7 +52,7 @@ func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
 	return NewClientsFromConfig(clientConfig, namespace)
 }
 
-func Setup(t test.TLegacy) *Clients {
+func Setup(t *testing.T) *Clients {
 	t.Helper()
 	result, err := NewClients(test.Flags.Kubeconfig, test.Flags.Cluster, Namespace)
 	if err != nil {
