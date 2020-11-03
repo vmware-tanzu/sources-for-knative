@@ -114,7 +114,7 @@ func TestVSphereBindingUndo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Containers: []corev1.Container{{
@@ -136,7 +136,7 @@ func TestVSphereBindingUndo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}, {
 							Name:  "sidecar",
@@ -154,7 +154,7 @@ func TestVSphereBindingUndo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Volumes: []corev1.Volume{{
@@ -285,7 +285,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Volumes: []corev1.Volume{{
@@ -337,7 +337,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Volumes: []corev1.Volume{{
@@ -430,7 +430,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Volumes: []corev1.Volume{{
@@ -514,7 +514,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Containers: []corev1.Container{{
@@ -556,7 +556,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}, {
 							Name:  "sidecar",
@@ -594,7 +594,7 @@ func TestVSphereBindingDo(t *testing.T) {
 							VolumeMounts: []corev1.VolumeMount{{
 								Name:      vsphere.VolumeName,
 								ReadOnly:  true,
-								MountPath: vsphere.MountPath,
+								MountPath: vsphere.DefaultMountPath,
 							}},
 						}},
 						Volumes: []corev1.Volume{{

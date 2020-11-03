@@ -25,6 +25,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 
 	"github.com/vmware/govmomi/vapi/internal"
@@ -34,8 +35,10 @@ import (
 
 // Client extends soap.Client to support JSON encoding, while inheriting security features, debug tracing and session persistence.
 type Client struct {
+	mu sync.Mutex
+
 	*soap.Client
-	SessionID string
+	sessionID string
 }
 
 // Session information
@@ -60,7 +63,17 @@ func (m *LocalizableMessage) Error() string {
 func NewClient(c *vim25.Client) *Client {
 	sc := c.Client.NewServiceClient(Path, "")
 
-	return &Client{sc, ""}
+	return &Client{Client: sc}
+}
+
+// SessionID is set by calling Login() or optionally with the given id param
+func (c *Client) SessionID(id ...string) string {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if len(id) != 0 {
+		c.sessionID = id[0]
+	}
+	return c.sessionID
 }
 
 type marshaledClient struct {
@@ -71,7 +84,7 @@ type marshaledClient struct {
 func (c *Client) MarshalJSON() ([]byte, error) {
 	m := marshaledClient{
 		SoapClient: c.Client,
-		SessionID:  c.SessionID,
+		SessionID:  c.sessionID,
 	}
 
 	return json.Marshal(m)
@@ -87,7 +100,7 @@ func (c *Client) UnmarshalJSON(b []byte) error {
 
 	*c = Client{
 		Client:    m.SoapClient,
-		SessionID: m.SessionID,
+		sessionID: m.SessionID,
 	}
 
 	return nil
@@ -127,8 +140,8 @@ func (c *Client) Do(ctx context.Context, req *http.Request, resBody interface{})
 
 	req.Header.Set("Accept", "application/json")
 
-	if c.SessionID != "" {
-		req.Header.Set(internal.SessionCookieName, c.SessionID)
+	if id := c.SessionID(); id != "" {
+		req.Header.Set(internal.SessionCookieName, id)
 	}
 
 	if s, ok := ctx.Value(signerContext{}).(Signer); ok {
@@ -171,6 +184,41 @@ func (c *Client) Do(ctx context.Context, req *http.Request, resBody interface{})
 	})
 }
 
+// authHeaders ensures the given map contains a REST auth header
+func (c *Client) authHeaders(h map[string]string) map[string]string {
+	if _, exists := h[internal.SessionCookieName]; exists {
+		return h
+	}
+	if h == nil {
+		h = make(map[string]string)
+	}
+
+	h[internal.SessionCookieName] = c.SessionID()
+
+	return h
+}
+
+// Download wraps soap.Client.Download, adding the REST authentication header
+func (c *Client) Download(ctx context.Context, u *url.URL, param *soap.Download) (io.ReadCloser, int64, error) {
+	p := *param
+	p.Headers = c.authHeaders(p.Headers)
+	return c.Client.Download(ctx, u, &p)
+}
+
+// DownloadFile wraps soap.Client.DownloadFile, adding the REST authentication header
+func (c *Client) DownloadFile(ctx context.Context, file string, u *url.URL, param *soap.Download) error {
+	p := *param
+	p.Headers = c.authHeaders(p.Headers)
+	return c.Client.DownloadFile(ctx, file, u, &p)
+}
+
+// Upload wraps soap.Client.Upload, adding the REST authentication header
+func (c *Client) Upload(ctx context.Context, f io.Reader, u *url.URL, param *soap.Upload) error {
+	p := *param
+	p.Headers = c.authHeaders(p.Headers)
+	return c.Client.Upload(ctx, f, u, &p)
+}
+
 // Login creates a new session via Basic Authentication with the given url.Userinfo.
 func (c *Client) Login(ctx context.Context, user *url.Userinfo) error {
 	req := c.Resource(internal.SessionPath).Request(http.MethodPost)
@@ -183,7 +231,15 @@ func (c *Client) Login(ctx context.Context, user *url.Userinfo) error {
 		}
 	}
 
-	return c.Do(ctx, req, &c.SessionID)
+	var id string
+	err := c.Do(ctx, req, &id)
+	if err != nil {
+		return err
+	}
+
+	c.SessionID(id)
+
+	return nil
 }
 
 func (c *Client) LoginByToken(ctx context.Context) error {

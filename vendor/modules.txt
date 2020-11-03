@@ -265,7 +265,7 @@ github.com/sirupsen/logrus
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
+# github.com/vmware/govmomi v0.23.1
 ## explicit
 github.com/vmware/govmomi
 github.com/vmware/govmomi/event
@@ -338,6 +338,7 @@ github.com/vmware/govmomi/govc/tags/association
 github.com/vmware/govmomi/govc/tags/category
 github.com/vmware/govmomi/govc/task
 github.com/vmware/govmomi/govc/vapp
+github.com/vmware/govmomi/govc/vcsa/log
 github.com/vmware/govmomi/govc/version
 github.com/vmware/govmomi/govc/vm
 github.com/vmware/govmomi/govc/vm/disk
@@ -366,6 +367,7 @@ github.com/vmware/govmomi/performance
 github.com/vmware/govmomi/property
 github.com/vmware/govmomi/session
 github.com/vmware/govmomi/session/cache
+github.com/vmware/govmomi/session/keepalive
 github.com/vmware/govmomi/simulator
 github.com/vmware/govmomi/simulator/esx
 github.com/vmware/govmomi/simulator/internal
@@ -378,6 +380,7 @@ github.com/vmware/govmomi/sts/internal
 github.com/vmware/govmomi/sts/simulator
 github.com/vmware/govmomi/task
 github.com/vmware/govmomi/units
+github.com/vmware/govmomi/vapi/appliance/logging
 github.com/vmware/govmomi/vapi/cluster
 github.com/vmware/govmomi/vapi/cluster/internal
 github.com/vmware/govmomi/vapi/cluster/simulator

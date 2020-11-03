@@ -45,17 +45,16 @@ type vAdapter struct {
 
 func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClient cloudevents.Client) adapter.Adapter {
 	env := processed.(*envConfig)
-
 	logger := logging.FromContext(ctx)
 
-	vClient, err := New(ctx)
+	vClient, err := NewSOAPClient(ctx)
 	if err != nil {
-		logger.Fatalf("Unable to create vSphere client: %v", err)
+		logger.Fatalf("unable to create vSphere client: %v", err)
 	}
 
-	source, err := Address(ctx)
-	if err != nil {
-		logger.Fatalf("Unable to determine source: %v", err)
+	source := vClient.URL().Host
+	if source == "" {
+		logger.Fatal("unable to determine vSphere client source: empty host")
 	}
 
 	store := kvstore.NewConfigMapKVStore(ctx, env.KVConfigMap, env.Namespace, kubeclient.Get(ctx).CoreV1())
@@ -76,8 +75,12 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 
 // Start implements adapter.Adapter
 func (a *vAdapter) Start(ctx context.Context) error {
-	manager := event.NewManager(a.VClient.Client)
+	defer func() {
+		// using fresh ctx to avoid canceled error during logout
+		_ = a.VClient.Logout(context.Background()) // best effort, ignoring error
+	}()
 
+	manager := event.NewManager(a.VClient.Client)
 	managedTypes := []types.ManagedObjectReference{a.VClient.ServiceContent.RootFolder}
 	return manager.Events(ctx, managedTypes, 1, true /* tail */, false /* force */, a.sendEvents(ctx))
 }
@@ -85,26 +88,26 @@ func (a *vAdapter) Start(ctx context.Context) error {
 func (a *vAdapter) sendEvents(ctx context.Context) func(moref types.ManagedObjectReference, baseEvents []types.BaseEvent) error {
 	return func(moref types.ManagedObjectReference, baseEvents []types.BaseEvent) error {
 		for _, be := range baseEvents {
-			event := cloudevents.NewEvent(cloudevents.VersionV1)
+			ev := cloudevents.NewEvent(cloudevents.VersionV1)
 
-			event.SetType("com.vmware.vsphere." + reflect.TypeOf(be).Elem().Name())
-			event.SetTime(be.GetEvent().CreatedTime)
-			event.SetID(fmt.Sprintf("%d", be.GetEvent().Key))
-			event.SetSource(a.Source)
+			ev.SetType("com.vmware.vsphere." + reflect.TypeOf(be).Elem().Name())
+			ev.SetTime(be.GetEvent().CreatedTime)
+			ev.SetID(fmt.Sprintf("%d", be.GetEvent().Key))
+			ev.SetSource(a.Source)
 
 			switch e := be.(type) {
 			case *types.EventEx:
-				event.SetExtension("EventEx", e)
+				ev.SetExtension("EventEx", e)
 			case *types.ExtendedEvent:
-				event.SetExtension("ExtendedEvent", e)
+				ev.SetExtension("ExtendedEvent", e)
 			}
 			// TODO(mattmoor): Consider setting the subject
 
-			if err := event.SetData(cloudevents.ApplicationXML, be); err != nil {
+			if err := ev.SetData(cloudevents.ApplicationXML, be); err != nil {
 				logging.FromContext(ctx).Errorw("failed to set data on event", zap.Error(err))
 			}
 
-			result := a.CEClient.Send(ctx, event)
+			result := a.CEClient.Send(ctx, ev)
 			if !cloudevents.IsACK(result) {
 				a.Logger.Errorw("failed to send cloudevent", zap.Error(result))
 				return result

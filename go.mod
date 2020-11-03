@@ -13,7 +13,7 @@ require (
 	github.com/google/go-cmp v0.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/spf13/cobra v1.0.0
-	github.com/vmware/govmomi v0.22.2-0.20200505195818-967bc5808c63
+	github.com/vmware/govmomi v0.23.1
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect

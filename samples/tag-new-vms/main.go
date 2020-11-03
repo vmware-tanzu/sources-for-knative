@@ -27,8 +27,8 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Instantiate a client for interacting with the vSphere APIs.
-	client, err := vsphere.NewREST(ctx)
+	// Instantiate a client for interacting with the vSphere REST APIs.
+	client, err := vsphere.NewRESTClient(ctx)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

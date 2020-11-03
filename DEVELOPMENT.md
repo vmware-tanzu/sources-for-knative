@@ -19,8 +19,12 @@ You must install these tools:
 
 1. [`go`](https://golang.org/doc/install): The language Knative is built in
 1. [`git`](https://help.github.com/articles/set-up-git/): For source control.
-1. [`dep`](https://github.com/golang/dep): For managing external dependencies.
 1. [`ko`](https://github.com/google/ko): The primary Knative development tool.
+1. [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl/): For
+   managing your Kubernetes development environments.
+1. [`bash`](https://www.gnu.org/software/bash/) v4 or later.
+
+> **Note:** On MacOS the default bash is too old, you can use [Homebrew](https://brew.sh) to install a later version.
 
 ### Environment setup
 
@@ -66,8 +70,8 @@ git remote add upstream https://github.com/vmware-tanzu/sources-for-knative.git
 git remote set-url --push upstream no_push
 ```
 
-_Adding the `upstream` remote sets you up nicely for regularly
-[syncing your fork](https://help.github.com/articles/syncing-a-fork/)._
+> **Note:** Adding the `upstream` remote sets you up nicely for regularly
+[syncing your fork](https://help.github.com/articles/syncing-a-fork/).
 
 Once you reach this point you are ready to do a full build and deploy as
 described below.
@@ -83,6 +87,23 @@ ko apply -f config
 This will build all of the Go binaries into containers, publish them to your
 `KO_DOCKER_REPO` and deploy them to the active `kubectl` context.
 
+> **Note:** The dependency on an external container registry can be avoided if you run `ko` in a `kind` environment
+>, as described [here](https://github.com/google/ko#with-kind).
+
+### Code Generation
+
+As you make changes to the code-base, there are two special cases to be aware
+of:
+
+- **If you change a type definition ([pkg/apis/](./pkg/apis/.)),** then you must
+  run [`./hack/update-codegen.sh`](./hack/update-codegen.sh).
+- **If you change a package's deps** (including adding external dep), then you
+  must run [`./hack/update-deps.sh`](./hack/update-deps.sh).
+
+These are both idempotent, and we expect that running these at `HEAD` to have no
+diffs.
+
+
 ### Running the adapter on your local machine
 
 Sometimes you might want to develop against a VSphere server that is not
@@ -91,15 +112,16 @@ accessible from your development cluster. So you can run the receive adapter
 kubernetes cluster to use for the ConfigMap-based bookmarking
 ([issue](https://github.com/vmware-tanzu-private/sources-for-knative/issues/16)).
 
-Store the credentials on the filesystem:
+Store the credentials on the filesystem in a writable path:
 
 ```shell
-mkdir -p /var/bindings/vsphere
-echo -n 'administrator@Vsphere.local' > /var/bindings/vsphere/username
-echo -n 'mysuper$ecretPassword' > /var/bindings/vsphere/password
+export GOVC_SECRET_PATH=var/bindings/vsphere
+mkdir -p $GOVC_SECRET_PATH
+echo -n 'administrator@Vsphere.local' > $GOVC_SECRET_PATH/username
+echo -n 'mysuper$ecretPassword' > $GOVC_SECRET_PATH/password
 ```
 
-Point at a configmap to use on your active `kubectl` context for bookmarking:
+Point at a configmap to use on your active `kubectl` context and namespace for bookmarking (event replay):
 
 ```shell
 export NAMESPACE=default
@@ -125,14 +147,14 @@ If you are using GKE for your bookmarking configmap, uncomment the following
 line in `cmd/adapter/main.go`:
 
 ```go
-	// Uncomment if you want to run locally against remote GKE cluster.
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+// Uncomment if you want to run locally against remote GKE cluster.
+// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 ```
 
 And then finally run the receive adapter, pointing to your kubeconfig file
 
 ```shell
-go run ./cmd/adapter/main.go
+go run ./cmd/sources-for-knative-adapter/main.go
 ```
 
 ### Local development notes with KinD
@@ -143,7 +165,7 @@ will have to have Docker running.
 First install KinD, and create a cluster:
 
 ```shell
-GO111MODULE="on" go get sigs.k8s.io/kind@v0.7.0 && kind create cluster
+GO111MODULE="on" go get sigs.k8s.io/kind@v0.9.0 && kind create cluster
 ```
 
 Make sure the KinD cluster is your active `kubectl` context:

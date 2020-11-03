@@ -83,7 +83,7 @@ func (vsb *VSphereBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 	volumeMount := corev1.VolumeMount{
 		Name:      vsphere.VolumeName,
 		ReadOnly:  true,
-		MountPath: vsphere.MountPath,
+		MountPath: vsphere.DefaultMountPath,
 	}
 
 	spec := ps.Spec.Template.Spec
