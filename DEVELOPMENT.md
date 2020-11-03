@@ -112,7 +112,7 @@ accessible from your development cluster. So you can run the receive adapter
 kubernetes cluster to use for the ConfigMap-based bookmarking
 ([issue](https://github.com/vmware-tanzu-private/sources-for-knative/issues/16)).
 
-Store the credentials on the filesystem in a writable path:
+Store the credentials on the filesystem in a custom path:
 
 ```shell
 export GOVC_SECRET_PATH=var/bindings/vsphere

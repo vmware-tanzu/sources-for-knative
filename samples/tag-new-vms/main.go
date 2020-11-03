@@ -32,8 +32,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	r := &receiver{manager: tags.NewManager(client)}
+	defer client.Logout(context.Background()) // using fresh context to avoid canceled err
 
+	r := &receiver{manager: tags.NewManager(client)}
 	if err := ceclient.StartReceiver(ctx, r.handle); err != nil {
 		log.Fatal(err)
 	}
