@@ -101,6 +101,7 @@ func (a *vAdapter) sendEvents(ctx context.Context) func(moref types.ManagedObjec
 			case *types.ExtendedEvent:
 				ev.SetExtension("ExtendedEvent", e)
 			}
+
 			// TODO(mattmoor): Consider setting the subject
 
 			if err := ev.SetData(cloudevents.ApplicationXML, be); err != nil {
