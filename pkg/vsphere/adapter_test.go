@@ -67,7 +67,6 @@ func TestSendEvents(t *testing.T) {
 		t.Run(n, func(t *testing.T) {
 			roundTripper := &roundTripperTest{statusCodes: tc.statusCodes}
 			opts := []cehttp.Option{
-				//cehttp.WithClient(http.Client{Timeout: time.Second}),
 				cehttp.WithRoundTripper(roundTripper),
 			}
 			p, err := cehttp.New(opts...)
