@@ -68,7 +68,7 @@ func TestSendEvents(t *testing.T) {
 		"one event, fails": {
 			statusCodes: []int{500},
 			moref:       types.ManagedObjectReference{Value: "VirtualMachine", Type: "vm59"},
-			baseEvents:  []types.BaseEvent{&mockType{event: &types.Event{CreatedTime: now}}},
+			baseEvents:  []types.BaseEvent{baseEvent},
 			wantEvents:  []*event.Event{createEvent("test-source", "mockType", "0", "eventex", nil, baseEvent, now)},
 			result:      errors.New("500: "),
 		},
