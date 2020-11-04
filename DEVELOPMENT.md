@@ -24,7 +24,8 @@ You must install these tools:
    managing your Kubernetes development environments.
 1. [`bash`](https://www.gnu.org/software/bash/) v4 or later.
 
-> **Note:** On MacOS the default bash is too old, you can use [Homebrew](https://brew.sh) to install a later version.
+> **Note:** On MacOS the default bash is too old, you can use
+> [Homebrew](https://brew.sh) to install a later version.
 
 ### Environment setup
 
@@ -71,7 +72,7 @@ git remote set-url --push upstream no_push
 ```
 
 > **Note:** Adding the `upstream` remote sets you up nicely for regularly
-[syncing your fork](https://help.github.com/articles/syncing-a-fork/).
+> [syncing your fork](https://help.github.com/articles/syncing-a-fork/).
 
 Once you reach this point you are ready to do a full build and deploy as
 described below.
@@ -87,8 +88,9 @@ ko apply -f config
 This will build all of the Go binaries into containers, publish them to your
 `KO_DOCKER_REPO` and deploy them to the active `kubectl` context.
 
-> **Note:** The dependency on an external container registry can be avoided if you run `ko` in a `kind` environment
->, as described [here](https://github.com/google/ko#with-kind).
+> **Note:** The dependency on an external container registry can be avoided if
+> you run `ko` in a `kind` environment , as described
+> [here](https://github.com/google/ko#with-kind).
 
 ### Code Generation
 
@@ -102,7 +104,6 @@ of:
 
 These are both idempotent, and we expect that running these at `HEAD` to have no
 diffs.
-
 
 ### Running the adapter on your local machine
 
@@ -121,7 +122,8 @@ echo -n 'administrator@Vsphere.local' > $GOVC_SECRET_PATH/username
 echo -n 'mysuper$ecretPassword' > $GOVC_SECRET_PATH/password
 ```
 
-Point at a configmap to use on your active `kubectl` context and namespace for bookmarking (event replay):
+Point at a configmap to use on your active `kubectl` context and namespace for
+bookmarking (event replay):
 
 ```shell
 export NAMESPACE=default
