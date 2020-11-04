@@ -179,6 +179,7 @@ github.com/hashicorp/errwrap
 # github.com/hashicorp/go-cleanhttp v0.5.1
 github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-multierror v1.1.0
+## explicit
 github.com/hashicorp/go-multierror
 # github.com/hashicorp/go-retryablehttp v0.6.7
 github.com/hashicorp/go-retryablehttp
@@ -201,8 +202,10 @@ github.com/kelseyhightower/envconfig
 # github.com/konsorten/go-windows-terminal-sequences v1.0.3
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/kr/pretty v0.2.0 => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
+## explicit
 github.com/kr/pretty
 # github.com/kr/pty v1.1.8
+## explicit
 github.com/kr/pty
 # github.com/kr/text v0.2.0
 github.com/kr/text
@@ -695,7 +698,7 @@ k8s.io/api/settings/v1alpha1
 k8s.io/api/storage/v1
 k8s.io/api/storage/v1alpha1
 k8s.io/api/storage/v1beta1
-# k8s.io/apiextensions-apiserver v0.18.4 => k8s.io/apiextensions-apiserver v0.18.8
+# k8s.io/apiextensions-apiserver v0.18.8 => k8s.io/apiextensions-apiserver v0.18.8
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions
 k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1
 # k8s.io/apimachinery v0.18.8 => k8s.io/apimachinery v0.18.8
@@ -1025,7 +1028,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/eventing v0.18.1-0.20201102101835-766a24c64166
+# knative.dev/eventing v0.18.1-0.20201104130304-44e2412a9d92
 ## explicit
 knative.dev/eventing/pkg/adapter/v2
 knative.dev/eventing/pkg/adapter/v2/util/crstatusevent
@@ -1065,10 +1068,10 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1alpha2
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta1
 knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/kncloudevents
-# knative.dev/hack v0.0.0-20201028205534-fe80f1c8af68
+# knative.dev/hack v0.0.0-20201103151104-3d5abc3a0075
 ## explicit
 knative.dev/hack
-# knative.dev/pkg v0.0.0-20201102142336-d24e6ce616f3
+# knative.dev/pkg v0.0.0-20201103163404-5514ab0c1fdf
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck

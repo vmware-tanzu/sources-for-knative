@@ -11,7 +11,10 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/google/go-cmp v0.5.2
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/kr/pretty v0.2.0 // indirect
+	github.com/kr/pty v1.1.8 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/vmware/govmomi v0.23.1
 	github.com/yudai/gotty v1.0.1
@@ -25,9 +28,9 @@ require (
 	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
 	k8s.io/code-generator v0.18.8
 	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	knative.dev/eventing v0.18.1-0.20201102101835-766a24c64166
-	knative.dev/hack v0.0.0-20201028205534-fe80f1c8af68
-	knative.dev/pkg v0.0.0-20201102142336-d24e6ce616f3
+	knative.dev/eventing v0.18.1-0.20201104130304-44e2412a9d92
+	knative.dev/hack v0.0.0-20201103151104-3d5abc3a0075
+	knative.dev/pkg v0.0.0-20201103163404-5514ab0c1fdf
 )
 
 replace (
