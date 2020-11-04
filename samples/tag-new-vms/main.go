@@ -27,13 +27,14 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	// Instantiate a client for interacting with the vSphere APIs.
-	client, err := vsphere.NewREST(ctx)
+	// Instantiate a client for interacting with the vSphere REST APIs.
+	client, err := vsphere.NewRESTClient(ctx)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	r := &receiver{manager: tags.NewManager(client)}
+	defer client.Logout(context.Background()) // using fresh context to avoid canceled err
 
+	r := &receiver{manager: tags.NewManager(client)}
 	if err := ceclient.StartReceiver(ctx, r.handle); err != nil {
 		log.Fatal(err)
 	}
