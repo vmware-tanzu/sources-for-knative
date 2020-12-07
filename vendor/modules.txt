@@ -63,6 +63,8 @@ github.com/aws/aws-sdk-go/service/sts/stsiface
 github.com/beorn7/perks/quantile
 # github.com/blang/semver/v4 v4.0.0
 github.com/blang/semver/v4
+# github.com/blendle/zapdriver v1.3.1
+github.com/blendle/zapdriver
 # github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd
 ## explicit
 github.com/braintree/manners
@@ -1073,7 +1075,7 @@ knative.dev/eventing/pkg/kncloudevents
 # knative.dev/hack v0.0.0-20201201234937-fddbf732e450
 ## explicit
 knative.dev/hack
-# knative.dev/pkg v0.0.0-20201203005309-e45bbefd1d63
+# knative.dev/pkg v0.0.0-20201205013209-beabf446d6e8
 ## explicit
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
