@@ -29,6 +29,10 @@ func TestBindingGOVC(t *testing.T) {
 	defer cancel()
 
 	script := strings.Join([]string{
+		"export GOVC_URL=$VC_URL",
+		"export GOVC_INSECURE=$VC_INSECURE",
+		"export GOVC_USERNAME=$VC_USERNAME",
+		"export GOVC_PASSWORD=$VC_PASSWORD",
 		"govc tags.category.create testing",
 		"govc tags.create -c testing shrug",
 	}, "\n")
