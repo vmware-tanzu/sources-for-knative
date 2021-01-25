@@ -29,6 +29,10 @@ func TestBindingGOVC(t *testing.T) {
 	defer cancel()
 
 	script := strings.Join([]string{
+		"export GOVC_URL=$VC_URL",
+		"export GOVC_INSECURE=$VC_INSECURE",
+		"export GOVC_USERNAME=$VC_USERNAME",
+		"export GOVC_PASSWORD=$VC_PASSWORD",
 		"govc tags.category.create testing",
 		"govc tags.create -c testing shrug",
 	}, "\n")
@@ -51,7 +55,7 @@ func TestBindingPowerCLICore(t *testing.T) {
 	script := strings.Join([]string{
 		// Log into the VI Server
 		"Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null",
-		"Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD",
+		"Connect-VIServer -Server ([System.Uri]$env:VC_URL).Host -User $env:VC_USERNAME -Password $env:VC_PASSWORD",
 
 		// Get Events and write them out.
 		"Get-VIEvent | Write-Host",

@@ -83,7 +83,7 @@ spec:
             - -Command
             - |
               Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Confirm:$false | Out-Null
-              Connect-VIServer -Server ([System.Uri]$env:GOVC_URL).Host -User $env:GOVC_USERNAME -Password $env:GOVC_PASSWORD
+              Connect-VIServer -Server ([System.Uri]$env:VC_URL).Host -User $env:VC_USERNAME -Password $env:VC_PASSWORD
 ```
 
 This Service authenticates `PowerCLI` using our injected credentials, and then

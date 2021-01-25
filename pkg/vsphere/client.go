@@ -34,9 +34,9 @@ const (
 )
 
 type EnvConfig struct {
-	Insecure   bool   `envconfig:"GOVC_INSECURE" default:"false"`
-	Address    string `envconfig:"GOVC_URL" required:"true"`
-	SecretPath string `envconfig:"GOVC_SECRET_PATH" default:""`
+	Insecure   bool   `envconfig:"VC_INSECURE" default:"false"`
+	Address    string `envconfig:"VC_URL" required:"true"`
+	SecretPath string `envconfig:"VC_SECRET_PATH" default:""`
 }
 
 // ReadKey reads the key from the secret.

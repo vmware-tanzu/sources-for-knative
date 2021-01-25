@@ -79,9 +79,9 @@ kn vsphere login --namespace ns --username john-doe --password-stdin --secret-na
 
 	flags := result.Flags()
 	flags.StringVarP(&options.Namespace, "namespace", "n", "", "namespace of the credentials to create (default namespace if omitted)")
-	flags.StringVarP(&options.Username, "username", "u", "", "username (same as GOVC_USERNAME)")
+	flags.StringVarP(&options.Username, "username", "u", "", "username (same as VC_USERNAME)")
 	_ = result.MarkFlagRequired("username")
-	flags.StringVarP(&options.Password, "password", "p", "", "password (same as GOVC_PASSWORD)")
+	flags.StringVarP(&options.Password, "password", "p", "", "password (same as VC_PASSWORD)")
 	flags.BoolVarP(&options.PasswordStdIn, "password-stdin", "i", false, "read password from standard input")
 	flags.StringVarP(&options.SecretName, "secret-name", "s", "", "name of the Secret created for the credentials")
 	_ = result.MarkFlagRequired("secret-name")

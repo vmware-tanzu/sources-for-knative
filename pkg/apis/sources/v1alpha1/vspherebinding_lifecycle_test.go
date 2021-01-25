@@ -99,16 +99,16 @@ func TestVSphereBindingUndo(t *testing.T) {
 								Name:  "FOO",
 								Value: "BAR",
 							}, {
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: "http://localhost:8080",
 							}, {
 								Name:  "BAZ",
 								Value: "INGA",
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name:  "GOVC_USERNAME",
+								Name:  "VC_USERNAME",
 								Value: "user",
 							}},
 							VolumeMounts: []corev1.VolumeMount{{
@@ -124,13 +124,13 @@ func TestVSphereBindingUndo(t *testing.T) {
 								Name:  "FOO",
 								Value: "BAR",
 							}, {
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: "http://localhost:8080",
 							}, {
 								Name:  "BAZ",
 								Value: "INGA",
 							}, {
-								Name:  "GOVC_PASSWORD",
+								Name:  "VC_PASSWORD",
 								Value: "pass",
 							}},
 							VolumeMounts: []corev1.VolumeMount{{
@@ -142,13 +142,13 @@ func TestVSphereBindingUndo(t *testing.T) {
 							Name:  "sidecar",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: "http://localhost:8080",
 							}, {
 								Name:  "BAZ",
 								Value: "INGA",
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "true",
 							}},
 							VolumeMounts: []corev1.VolumeMount{{
@@ -256,13 +256,13 @@ func TestVSphereBindingDo(t *testing.T) {
 							Name:  "blah",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -272,7 +272,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -308,13 +308,13 @@ func TestVSphereBindingDo(t *testing.T) {
 							Name:  "blah",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -324,7 +324,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -362,13 +362,13 @@ func TestVSphereBindingDo(t *testing.T) {
 							Name:  "blah",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: "the wrong value",
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: `{"extensions":{"wrong":"value"}}`,
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -378,7 +378,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -401,13 +401,13 @@ func TestVSphereBindingDo(t *testing.T) {
 							Name:  "blah",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -417,7 +417,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -485,13 +485,13 @@ func TestVSphereBindingDo(t *testing.T) {
 							Name:  "setup",
 							Image: "busybox",
 							Env: []corev1.EnvVar{{
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -501,7 +501,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -527,13 +527,13 @@ func TestVSphereBindingDo(t *testing.T) {
 								Name:  "BAZ",
 								Value: "INGA",
 							}, {
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -543,7 +543,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -565,13 +565,13 @@ func TestVSphereBindingDo(t *testing.T) {
 								Name:  "BAZ",
 								Value: "INGA",
 							}, {
-								Name:  "GOVC_URL",
+								Name:  "VC_URL",
 								Value: url.String(),
 							}, {
-								Name:  "GOVC_INSECURE",
+								Name:  "VC_INSECURE",
 								Value: "false",
 							}, {
-								Name: "GOVC_USERNAME",
+								Name: "VC_USERNAME",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{
@@ -581,7 +581,7 @@ func TestVSphereBindingDo(t *testing.T) {
 									},
 								},
 							}, {
-								Name: "GOVC_PASSWORD",
+								Name: "VC_PASSWORD",
 								ValueFrom: &corev1.EnvVarSource{
 									SecretKeyRef: &corev1.SecretKeySelector{
 										LocalObjectReference: corev1.LocalObjectReference{

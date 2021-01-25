@@ -70,8 +70,8 @@ secretRef:
 ```
 
 - `address` is the URL of ESXi or vCenter instance to connect to (same as
-  `GOVC_URL`).
-- `skipTLSVerify` disables certificate verification (same as `GOVC_INSECURE`).
+  `VC_URL`).
+- `skipTLSVerify` disables certificate verification (same as `VC_INSECURE`).
 - `secretRef` holds the name of the Kubernetes secret with the following form:
 
 ```yaml
@@ -81,9 +81,9 @@ metadata:
   name: vsphere-credentials
 type: kubernetes.io/basic-auth
 stringData:
-  # Same as GOVC_USERNAME
+  # Same as VC_USERNAME
   username: ...
-  # Same as GOVC_PASSWORD
+  # Same as VC_PASSWORD
   password: ...
 ```
 

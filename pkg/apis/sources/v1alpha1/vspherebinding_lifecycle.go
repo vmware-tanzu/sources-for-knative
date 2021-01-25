@@ -90,13 +90,13 @@ func (vsb *VSphereBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 	for i := range spec.InitContainers {
 		spec.InitContainers[i].VolumeMounts = append(spec.InitContainers[i].VolumeMounts, volumeMount)
 		spec.InitContainers[i].Env = append(spec.InitContainers[i].Env, corev1.EnvVar{
-			Name:  "GOVC_URL",
+			Name:  "VC_URL",
 			Value: vsb.Spec.Address.String(),
 		}, corev1.EnvVar{
-			Name:  "GOVC_INSECURE",
+			Name:  "VC_INSECURE",
 			Value: fmt.Sprintf("%v", vsb.Spec.SkipTLSVerify),
 		}, corev1.EnvVar{
-			Name: "GOVC_USERNAME",
+			Name: "VC_USERNAME",
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -106,7 +106,7 @@ func (vsb *VSphereBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 				},
 			},
 		}, corev1.EnvVar{
-			Name: "GOVC_PASSWORD",
+			Name: "VC_PASSWORD",
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -120,13 +120,13 @@ func (vsb *VSphereBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 	for i := range spec.Containers {
 		spec.Containers[i].VolumeMounts = append(spec.Containers[i].VolumeMounts, volumeMount)
 		spec.Containers[i].Env = append(spec.Containers[i].Env, corev1.EnvVar{
-			Name:  "GOVC_URL",
+			Name:  "VC_URL",
 			Value: vsb.Spec.Address.String(),
 		}, corev1.EnvVar{
-			Name:  "GOVC_INSECURE",
+			Name:  "VC_INSECURE",
 			Value: fmt.Sprintf("%v", vsb.Spec.SkipTLSVerify),
 		}, corev1.EnvVar{
-			Name: "GOVC_USERNAME",
+			Name: "VC_USERNAME",
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -136,7 +136,7 @@ func (vsb *VSphereBinding) Do(ctx context.Context, ps *duckv1.WithPod) {
 				},
 			},
 		}, corev1.EnvVar{
-			Name: "GOVC_PASSWORD",
+			Name: "VC_PASSWORD",
 			ValueFrom: &corev1.EnvVarSource{
 				SecretKeyRef: &corev1.SecretKeySelector{
 					LocalObjectReference: corev1.LocalObjectReference{
@@ -173,7 +173,7 @@ func (vsb *VSphereBinding) Undo(ctx context.Context, ps *duckv1.WithPod) {
 		env := make([]corev1.EnvVar, 0, len(spec.InitContainers[i].Env))
 		for j, ev := range c.Env {
 			switch ev.Name {
-			case "GOVC_URL", "GOVC_INSECURE", "GOVC_USERNAME", "GOVC_PASSWORD":
+			case "VC_URL", "VC_INSECURE", "VC_USERNAME", "VC_PASSWORD":
 				continue
 			default:
 				env = append(env, spec.InitContainers[i].Env[j])
@@ -195,7 +195,7 @@ func (vsb *VSphereBinding) Undo(ctx context.Context, ps *duckv1.WithPod) {
 		env := make([]corev1.EnvVar, 0, len(spec.Containers[i].Env))
 		for j, ev := range c.Env {
 			switch ev.Name {
-			case "GOVC_URL", "GOVC_INSECURE", "GOVC_USERNAME", "GOVC_PASSWORD":
+			case "VC_URL", "VC_INSECURE", "VC_USERNAME", "VC_PASSWORD":
 				continue
 			default:
 				env = append(env, spec.Containers[i].Env[j])
