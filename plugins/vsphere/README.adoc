@@ -54,10 +54,10 @@ Usage:
 Flags:
   -h, --help                 help for login
   -n, --namespace string     namespace of the credentials to create (default namespace if omitted)
-  -p, --password string      password (same as GOVC_PASSWORD)
+  -p, --password string      password (same as VC_PASSWORD)
   -i, --password-stdin       read password from standard input
   -s, --secret-name string   name of the Secret created for the credentials
-  -u, --username string      username (same as GOVC_USERNAME)
+  -u, --username string      username (same as VC_USERNAME)
 ----
 
 ==== `kn vsphere source`
@@ -75,7 +75,7 @@ Usage:
   kn-vsphere source [flags]
 
 Flags:
-  -a, --address string            URL of ESXi or vCenter instance to connect to (same as GOVC_URL)
+  -a, --address string            URL of ESXi or vCenter instance to connect to (same as VC_URL)
   -h, --help                      help for source
       --name string               name of the source to create
   -n, --namespace string          namespace of the source to create (default namespace if omitted)
@@ -84,7 +84,7 @@ Flags:
       --sink-kind string          sink kind
       --sink-name string          sink name
   -u, --sink-uri string           sink URI (can be absolute, or relative to the referred sink resource)
-  -k, --skip-tls-verify           disables certificate verification for the source address (same as GOVC_INSECURE)
+  -k, --skip-tls-verify           disables certificate verification for the source address (same as VC_INSECURE)
 ----
 
 ==== `kn vsphere binding`
@@ -108,7 +108,7 @@ Flags:
       --name string                  name of the binding to create
   -n, --namespace string             namespace of the binding to create (default namespace if omitted)
   -s, --secret-ref string            reference to the Kubernetes secret for the vSphere credentials needed for the source address
-  -k, --skip-tls-verify              disables certificate verification for the source address (same as GOVC_INSECURE)
+  -k, --skip-tls-verify              disables certificate verification for the source address (same as VC_INSECURE)
       --subject-api-version string   subject API version
       --subject-kind string          subject kind
       --subject-name string          subject name (cannot be used with --subject-selector)

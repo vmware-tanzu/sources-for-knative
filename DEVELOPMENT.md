@@ -116,10 +116,10 @@ kubernetes cluster to use for the ConfigMap-based bookmarking
 Store the credentials on the filesystem in a custom path:
 
 ```shell
-export GOVC_SECRET_PATH=var/bindings/vsphere
-mkdir -p $GOVC_SECRET_PATH
-echo -n 'administrator@Vsphere.local' > $GOVC_SECRET_PATH/username
-echo -n 'mysuper$ecretPassword' > $GOVC_SECRET_PATH/password
+export VC_SECRET_PATH=var/bindings/vsphere
+mkdir -p $VC_SECRET_PATH
+echo -n 'administrator@Vsphere.local' > $VC_SECRET_PATH/username
+echo -n 'mysuper$ecretPassword' > $VC_SECRET_PATH/password
 ```
 
 Point at a configmap to use on your active `kubectl` context and namespace for
@@ -135,8 +135,8 @@ Then set up the necessary env variables:
 ```shell
 export K_METRICS_CONFIG={}
 export K_LOGGING_CONFIG={}
-export GOVC_URL=<your vsphere url>
-export GOVC_INSECURE=true
+export VC_URL=<your vsphere url>
+export VC_INSECURE=true
 ```
 
 Then specify where the source should send events to

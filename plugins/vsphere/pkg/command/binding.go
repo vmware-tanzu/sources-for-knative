@@ -102,7 +102,7 @@ kn vsphere binding --namespace ns --name source --address https://my-vsphere-end
 	_ = result.MarkFlagRequired("name")
 	flags.StringVarP(&options.Address, "address", "a", "", "URL of the events to fetch")
 	_ = result.MarkFlagRequired("address")
-	flags.BoolVarP(&options.SkipTLSVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as GOVC_INSECURE)")
+	flags.BoolVarP(&options.SkipTLSVerify, "skip-tls-verify", "k", false, "disables certificate verification for the source address (same as VC_INSECURE)")
 	flags.StringVarP(&options.SecretRef, "secret-ref", "s", "", "reference to the Kubernetes secret for the vSphere credentials needed for the source address")
 	_ = result.MarkFlagRequired("secret-ref")
 	flags.StringVar(&options.SubjectAPIVersion, "subject-api-version", "", "subject API version")
