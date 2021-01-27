@@ -15,8 +15,10 @@ import (
 )
 
 // VSphereSourceLister helps list VSphereSources.
+// All objects returned here must be treated as read-only.
 type VSphereSourceLister interface {
 	// List lists all VSphereSources in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VSphereSource, err error)
 	// VSphereSources returns an object that can list and get VSphereSources.
 	VSphereSources(namespace string) VSphereSourceNamespaceLister
@@ -47,10 +49,13 @@ func (s *vSphereSourceLister) VSphereSources(namespace string) VSphereSourceName
 }
 
 // VSphereSourceNamespaceLister helps list and get VSphereSources.
+// All objects returned here must be treated as read-only.
 type VSphereSourceNamespaceLister interface {
 	// List lists all VSphereSources in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VSphereSource, err error)
 	// Get retrieves the VSphereSource from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.VSphereSource, error)
 	VSphereSourceNamespaceListerExpansion
 }

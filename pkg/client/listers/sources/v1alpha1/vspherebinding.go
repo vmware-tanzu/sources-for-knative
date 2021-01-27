@@ -15,8 +15,10 @@ import (
 )
 
 // VSphereBindingLister helps list VSphereBindings.
+// All objects returned here must be treated as read-only.
 type VSphereBindingLister interface {
 	// List lists all VSphereBindings in the indexer.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VSphereBinding, err error)
 	// VSphereBindings returns an object that can list and get VSphereBindings.
 	VSphereBindings(namespace string) VSphereBindingNamespaceLister
@@ -47,10 +49,13 @@ func (s *vSphereBindingLister) VSphereBindings(namespace string) VSphereBindingN
 }
 
 // VSphereBindingNamespaceLister helps list and get VSphereBindings.
+// All objects returned here must be treated as read-only.
 type VSphereBindingNamespaceLister interface {
 	// List lists all VSphereBindings in the indexer for a given namespace.
+	// Objects returned here must be treated as read-only.
 	List(selector labels.Selector) (ret []*v1alpha1.VSphereBinding, err error)
 	// Get retrieves the VSphereBinding from the indexer for a given namespace and name.
+	// Objects returned here must be treated as read-only.
 	Get(name string) (*v1alpha1.VSphereBinding, error)
 	VSphereBindingNamespaceListerExpansion
 }
