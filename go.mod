@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/sources-for-knative
 
-go 1.14
+go 1.15
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
@@ -13,7 +13,6 @@ require (
 	github.com/google/go-cmp v0.5.4
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/vmware/govmomi v0.23.1
@@ -25,10 +24,10 @@ require (
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.19.7
 	k8s.io/apimachinery v0.19.7
-	k8s.io/client-go v11.0.1-0.20190805182717-6502b5e7b1b5+incompatible
+	k8s.io/client-go v0.19.7
 	k8s.io/code-generator v0.19.7
-	k8s.io/kube-openapi v0.0.0-20200410145947-bcb3869e6f29
-	knative.dev/eventing v0.20.1-0.20210125233430-d4302617c965
+	k8s.io/kube-openapi v0.0.0-20200805222855-6aeccd4b50c6
+	knative.dev/eventing v0.20.1-0.20210127134430-ea452b5b6655
 	knative.dev/hack v0.0.0-20210120165453-8d623a0af457
 	knative.dev/pkg v0.0.0-20210125222030-6040b3af4803
 )
@@ -37,11 +36,5 @@ replace (
 	github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 	github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
 
-	k8s.io/api => k8s.io/api v0.18.8
-	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.18.8
-	k8s.io/apimachinery => k8s.io/apimachinery v0.18.8
-	k8s.io/apiserver => k8s.io/apiserver v0.18.8
-	k8s.io/client-go => k8s.io/client-go v0.18.8
-	k8s.io/code-generator => k8s.io/code-generator v0.18.8
 	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 )
