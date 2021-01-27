@@ -35,6 +35,4 @@ require (
 replace (
 	github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 	github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
-
-	k8s.io/kube-openapi => k8s.io/kube-openapi v0.0.0-20200410145947-61e04a5be9a6
 )
