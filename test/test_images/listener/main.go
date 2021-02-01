@@ -26,7 +26,7 @@ func main() {
 	once := sync.Once{}
 
 	if err := client.StartReceiver(ctx, func(ctx context.Context, event cloudevents.Event) error {
-		log.Printf("Received event: %#v", event)
+		log.Printf("Received event: %s", event.String())
 		once.Do(func() {
 			// Launch a go routine to avoid blocking.
 			go func() {

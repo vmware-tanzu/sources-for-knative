@@ -26,6 +26,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/vmware/govmomi"
@@ -222,42 +223,43 @@ func (*Model) fmtName(prefix string, num int) string {
 
 // kinds maps managed object types to their vcsim wrapper types
 var kinds = map[string]reflect.Type{
-	"AuthorizationManager":           reflect.TypeOf((*AuthorizationManager)(nil)).Elem(),
-	"ClusterComputeResource":         reflect.TypeOf((*ClusterComputeResource)(nil)).Elem(),
-	"CustomFieldsManager":            reflect.TypeOf((*CustomFieldsManager)(nil)).Elem(),
-	"CustomizationSpecManager":       reflect.TypeOf((*CustomizationSpecManager)(nil)).Elem(),
-	"Datacenter":                     reflect.TypeOf((*Datacenter)(nil)).Elem(),
-	"Datastore":                      reflect.TypeOf((*Datastore)(nil)).Elem(),
-	"DistributedVirtualPortgroup":    reflect.TypeOf((*DistributedVirtualPortgroup)(nil)).Elem(),
-	"DistributedVirtualSwitch":       reflect.TypeOf((*DistributedVirtualSwitch)(nil)).Elem(),
-	"EnvironmentBrowser":             reflect.TypeOf((*EnvironmentBrowser)(nil)).Elem(),
-	"EventManager":                   reflect.TypeOf((*EventManager)(nil)).Elem(),
-	"FileManager":                    reflect.TypeOf((*FileManager)(nil)).Elem(),
-	"Folder":                         reflect.TypeOf((*Folder)(nil)).Elem(),
-	"GuestOperationsManager":         reflect.TypeOf((*GuestOperationsManager)(nil)).Elem(),
-	"HostDatastoreBrowser":           reflect.TypeOf((*HostDatastoreBrowser)(nil)).Elem(),
-	"HostLocalAccountManager":        reflect.TypeOf((*HostLocalAccountManager)(nil)).Elem(),
-	"HostNetworkSystem":              reflect.TypeOf((*HostNetworkSystem)(nil)).Elem(),
-	"HostSystem":                     reflect.TypeOf((*HostSystem)(nil)).Elem(),
-	"IpPoolManager":                  reflect.TypeOf((*IpPoolManager)(nil)).Elem(),
-	"LicenseManager":                 reflect.TypeOf((*LicenseManager)(nil)).Elem(),
-	"OptionManager":                  reflect.TypeOf((*OptionManager)(nil)).Elem(),
-	"OvfManager":                     reflect.TypeOf((*OvfManager)(nil)).Elem(),
-	"PerformanceManager":             reflect.TypeOf((*PerformanceManager)(nil)).Elem(),
-	"PropertyCollector":              reflect.TypeOf((*PropertyCollector)(nil)).Elem(),
-	"ResourcePool":                   reflect.TypeOf((*ResourcePool)(nil)).Elem(),
-	"SearchIndex":                    reflect.TypeOf((*SearchIndex)(nil)).Elem(),
-	"SessionManager":                 reflect.TypeOf((*SessionManager)(nil)).Elem(),
-	"StoragePod":                     reflect.TypeOf((*StoragePod)(nil)).Elem(),
-	"StorageResourceManager":         reflect.TypeOf((*StorageResourceManager)(nil)).Elem(),
-	"TaskManager":                    reflect.TypeOf((*TaskManager)(nil)).Elem(),
-	"UserDirectory":                  reflect.TypeOf((*UserDirectory)(nil)).Elem(),
-	"VcenterVStorageObjectManager":   reflect.TypeOf((*VcenterVStorageObjectManager)(nil)).Elem(),
-	"ViewManager":                    reflect.TypeOf((*ViewManager)(nil)).Elem(),
-	"VirtualApp":                     reflect.TypeOf((*VirtualApp)(nil)).Elem(),
-	"VirtualDiskManager":             reflect.TypeOf((*VirtualDiskManager)(nil)).Elem(),
-	"VirtualMachine":                 reflect.TypeOf((*VirtualMachine)(nil)).Elem(),
-	"VmwareDistributedVirtualSwitch": reflect.TypeOf((*DistributedVirtualSwitch)(nil)).Elem(),
+	"AuthorizationManager":            reflect.TypeOf((*AuthorizationManager)(nil)).Elem(),
+	"ClusterComputeResource":          reflect.TypeOf((*ClusterComputeResource)(nil)).Elem(),
+	"CustomFieldsManager":             reflect.TypeOf((*CustomFieldsManager)(nil)).Elem(),
+	"CustomizationSpecManager":        reflect.TypeOf((*CustomizationSpecManager)(nil)).Elem(),
+	"Datacenter":                      reflect.TypeOf((*Datacenter)(nil)).Elem(),
+	"Datastore":                       reflect.TypeOf((*Datastore)(nil)).Elem(),
+	"DistributedVirtualPortgroup":     reflect.TypeOf((*DistributedVirtualPortgroup)(nil)).Elem(),
+	"DistributedVirtualSwitch":        reflect.TypeOf((*DistributedVirtualSwitch)(nil)).Elem(),
+	"DistributedVirtualSwitchManager": reflect.TypeOf((*DistributedVirtualSwitchManager)(nil)).Elem(),
+	"EnvironmentBrowser":              reflect.TypeOf((*EnvironmentBrowser)(nil)).Elem(),
+	"EventManager":                    reflect.TypeOf((*EventManager)(nil)).Elem(),
+	"FileManager":                     reflect.TypeOf((*FileManager)(nil)).Elem(),
+	"Folder":                          reflect.TypeOf((*Folder)(nil)).Elem(),
+	"GuestOperationsManager":          reflect.TypeOf((*GuestOperationsManager)(nil)).Elem(),
+	"HostDatastoreBrowser":            reflect.TypeOf((*HostDatastoreBrowser)(nil)).Elem(),
+	"HostLocalAccountManager":         reflect.TypeOf((*HostLocalAccountManager)(nil)).Elem(),
+	"HostNetworkSystem":               reflect.TypeOf((*HostNetworkSystem)(nil)).Elem(),
+	"HostSystem":                      reflect.TypeOf((*HostSystem)(nil)).Elem(),
+	"IpPoolManager":                   reflect.TypeOf((*IpPoolManager)(nil)).Elem(),
+	"LicenseManager":                  reflect.TypeOf((*LicenseManager)(nil)).Elem(),
+	"OptionManager":                   reflect.TypeOf((*OptionManager)(nil)).Elem(),
+	"OvfManager":                      reflect.TypeOf((*OvfManager)(nil)).Elem(),
+	"PerformanceManager":              reflect.TypeOf((*PerformanceManager)(nil)).Elem(),
+	"PropertyCollector":               reflect.TypeOf((*PropertyCollector)(nil)).Elem(),
+	"ResourcePool":                    reflect.TypeOf((*ResourcePool)(nil)).Elem(),
+	"SearchIndex":                     reflect.TypeOf((*SearchIndex)(nil)).Elem(),
+	"SessionManager":                  reflect.TypeOf((*SessionManager)(nil)).Elem(),
+	"StoragePod":                      reflect.TypeOf((*StoragePod)(nil)).Elem(),
+	"StorageResourceManager":          reflect.TypeOf((*StorageResourceManager)(nil)).Elem(),
+	"TaskManager":                     reflect.TypeOf((*TaskManager)(nil)).Elem(),
+	"UserDirectory":                   reflect.TypeOf((*UserDirectory)(nil)).Elem(),
+	"VcenterVStorageObjectManager":    reflect.TypeOf((*VcenterVStorageObjectManager)(nil)).Elem(),
+	"ViewManager":                     reflect.TypeOf((*ViewManager)(nil)).Elem(),
+	"VirtualApp":                      reflect.TypeOf((*VirtualApp)(nil)).Elem(),
+	"VirtualDiskManager":              reflect.TypeOf((*VirtualDiskManager)(nil)).Elem(),
+	"VirtualMachine":                  reflect.TypeOf((*VirtualMachine)(nil)).Elem(),
+	"VmwareDistributedVirtualSwitch":  reflect.TypeOf((*DistributedVirtualSwitch)(nil)).Elem(),
 }
 
 func loadObject(content types.ObjectContent) (mo.Reference, error) {
@@ -339,6 +341,46 @@ func (m *Model) resolveReferences(ctx *Context) error {
 	return nil
 }
 
+func (m *Model) decode(path string, data interface{}) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	dec := xml.NewDecoder(f)
+	dec.TypeFunc = types.TypeFunc()
+	err = dec.Decode(data)
+	_ = f.Close()
+	return err
+}
+
+func (m *Model) loadMethod(obj mo.Reference, dir string) error {
+	dir = filepath.Join(dir, obj.Reference().Encode())
+
+	info, err := ioutil.ReadDir(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+
+	zero := reflect.Value{}
+	for _, x := range info {
+		name := strings.TrimSuffix(x.Name(), ".xml") + "Response"
+		path := filepath.Join(dir, x.Name())
+		response := reflect.ValueOf(obj).Elem().FieldByName(name)
+		if response == zero {
+			return fmt.Errorf("field %T.%s not found", obj, name)
+		}
+		if err = m.decode(path, response.Addr().Interface()); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Load Model from the given directory, as created by the 'govc object.save' command.
 func (m *Model) Load(dir string) error {
 	ctx := internalContext
@@ -349,22 +391,17 @@ func (m *Model) Load(dir string) error {
 			return err
 		}
 		if info.IsDir() {
-			return nil
+			if path == dir {
+				return nil
+			}
+			return filepath.SkipDir
 		}
 		if filepath.Ext(path) != ".xml" {
 			return nil
 		}
 
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer func() { _ = f.Close() }()
-
-		dec := xml.NewDecoder(f)
-		dec.TypeFunc = types.TypeFunc()
 		var content types.ObjectContent
-		err = dec.Decode(&content)
+		err = m.decode(path, &content)
 		if err != nil {
 			return err
 		}
@@ -386,9 +423,13 @@ func (m *Model) Load(dir string) error {
 			return err
 		}
 
-		Map.Put(obj)
+		if x, ok := obj.(interface{ model(*Model) error }); ok {
+			if err = x.model(m); err != nil {
+				return err
+			}
+		}
 
-		return nil
+		return m.loadMethod(Map.Put(obj), dir)
 	})
 
 	if err != nil {
@@ -578,8 +619,12 @@ func (m *Model) Create() error {
 
 		for npg := 0; npg < m.Portgroup; npg++ {
 			name := m.fmtName(dcName+"_DVPG", npg)
+			spec := types.DVPortgroupConfigSpec{
+				Name: name,
+				Type: string(types.DistributedVirtualPortgroupPortgroupTypeEarlyBinding),
+			}
 
-			task, err := dvs.AddPortgroup(ctx, []types.DVPortgroupConfigSpec{{Name: name}})
+			task, err := dvs.AddPortgroup(ctx, []types.DVPortgroupConfigSpec{spec})
 			if err != nil {
 				return err
 			}
@@ -602,6 +647,7 @@ func (m *Model) Create() error {
 			spec := types.DVPortgroupConfigSpec{
 				Name:              name,
 				LogicalSwitchUuid: uuid.New().String(),
+				Type:              string(types.DistributedVirtualPortgroupPortgroupTypeEarlyBinding),
 			}
 
 			task, err := dvs.AddPortgroup(ctx, []types.DVPortgroupConfigSpec{spec})
@@ -732,14 +778,20 @@ func (m *Model) Create() error {
 	return nil
 }
 
+func (m *Model) createTempDir(dc string, name string) (string, error) {
+	dir, err := ioutil.TempDir("", fmt.Sprintf("govcsim-%s-%s-", dc, name))
+	if err == nil {
+		m.dirs = append(m.dirs, dir)
+	}
+	return dir, err
+}
+
 func (m *Model) createLocalDatastore(dc string, name string, hosts []*object.HostSystem) error {
 	ctx := context.Background()
-	dir, err := ioutil.TempDir("", fmt.Sprintf("govcsim-%s-%s-", dc, name))
+	dir, err := m.createTempDir(dc, name)
 	if err != nil {
 		return err
 	}
-
-	m.dirs = append(m.dirs, dir)
 
 	for _, host := range hosts {
 		dss, err := host.ConfigManager().DatastoreSystem(ctx)

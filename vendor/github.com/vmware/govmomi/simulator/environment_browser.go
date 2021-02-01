@@ -28,6 +28,8 @@ import (
 
 type EnvironmentBrowser struct {
 	mo.EnvironmentBrowser
+
+	types.QueryConfigOptionResponse
 }
 
 func newEnvironmentBrowser() *types.ManagedObjectReference {
@@ -57,9 +59,12 @@ func (b *EnvironmentBrowser) hosts(ctx *Context) []types.ManagedObjectReference 
 func (b *EnvironmentBrowser) QueryConfigOption(req *types.QueryConfigOption) soap.HasFault {
 	body := new(methods.QueryConfigOptionBody)
 
-	opt := &types.VirtualMachineConfigOption{
-		Version:       esx.HardwareVersion,
-		DefaultDevice: esx.VirtualDevice,
+	opt := b.QueryConfigOptionResponse.Returnval
+	if opt == nil {
+		opt = &types.VirtualMachineConfigOption{
+			Version:       esx.HardwareVersion,
+			DefaultDevice: esx.VirtualDevice,
+		}
 	}
 
 	body.Res = &types.QueryConfigOptionResponse{
@@ -85,23 +90,28 @@ func guestFamily(id string) string {
 func (b *EnvironmentBrowser) QueryConfigOptionEx(req *types.QueryConfigOptionEx) soap.HasFault {
 	body := new(methods.QueryConfigOptionExBody)
 
-	opt := &types.VirtualMachineConfigOption{
-		Version:       esx.HardwareVersion,
-		DefaultDevice: esx.VirtualDevice,
+	opt := b.QueryConfigOptionResponse.Returnval
+	if opt == nil {
+		opt = &types.VirtualMachineConfigOption{
+			Version:       esx.HardwareVersion,
+			DefaultDevice: esx.VirtualDevice,
+		}
 	}
 
-	// From the SDK QueryConfigOptionEx doc:
-	// "If guestId is nonempty, the guestOSDescriptor array of the config option is filtered to match against the guest IDs in the spec.
-	//  If there is no match, the whole list is returned."
-	for _, id := range req.Spec.GuestId {
-		for _, gid := range GuestID {
-			if string(gid) == id {
-				opt.GuestOSDescriptor = []types.GuestOsDescriptor{{
-					Id:     id,
-					Family: guestFamily(id),
-				}}
+	if req.Spec != nil {
+		// From the SDK QueryConfigOptionEx doc:
+		// "If guestId is nonempty, the guestOSDescriptor array of the config option is filtered to match against the guest IDs in the spec.
+		//  If there is no match, the whole list is returned."
+		for _, id := range req.Spec.GuestId {
+			for _, gid := range GuestID {
+				if string(gid) == id {
+					opt.GuestOSDescriptor = []types.GuestOsDescriptor{{
+						Id:     id,
+						Family: guestFamily(id),
+					}}
 
-				break
+					break
+				}
 			}
 		}
 	}
