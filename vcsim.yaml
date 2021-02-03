@@ -15,13 +15,6 @@ spec:
       - name: vcsim
         image: ko://github.com/vmware-tanzu/sources-for-knative/vendor/github.com/vmware/govmomi/vcsim
         args: [
-          "-dc", "1",
-          "-folder", "1",
-          "-ds", "4",
-          "-pod", "1",
-          # "-nsx", "2",
-          "-pool", "2",
-          "-app", "1",
           "-l", ":8989"
         ]
         ports:

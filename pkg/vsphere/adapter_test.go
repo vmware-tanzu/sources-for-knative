@@ -7,8 +7,14 @@ package vsphere
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -19,9 +25,19 @@ import (
 	"github.com/cloudevents/sdk-go/v2/event"
 	cehttp "github.com/cloudevents/sdk-go/v2/protocol/http"
 	"github.com/google/go-cmp/cmp"
+	"github.com/vmware/govmomi"
+	"github.com/vmware/govmomi/session"
+	"github.com/vmware/govmomi/simulator"
+	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/types"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
+	"knative.dev/pkg/kvstore"
+)
+
+const (
+	source    = "https://vcenter.local/sdk"
+	failNever = -1
 )
 
 type roundTripperTest struct {
@@ -38,6 +54,7 @@ func (r *roundTripperTest) RoundTrip(req *http.Request) (*http.Response, error) 
 		return nil, err
 	}
 	r.events = append(r.events, e)
+	r.requestCount++
 	return &http.Response{StatusCode: code}, nil
 }
 
@@ -50,27 +67,64 @@ func (m *mockType) GetEvent() *types.Event {
 }
 
 func TestSendEvents(t *testing.T) {
-	now := time.Now()
-	baseEvent := &mockType{event: &types.Event{CreatedTime: now}}
+	now := time.Now().UTC()
+	type sendResult struct {
+		count int
+		err   error
+	}
+
+	events := createTestEvents(3, source, now)
+
 	testCases := map[string]struct {
 		statusCodes []int
-		moref       types.ManagedObjectReference
 		baseEvents  []types.BaseEvent
 		wantEvents  []*event.Event
-		result      error
+		result      sendResult
 	}{
 		"one event, succeeds": {
-			statusCodes: []int{200},
-			moref:       types.ManagedObjectReference{Value: "VirtualMachine", Type: "vm59"},
-			baseEvents:  []types.BaseEvent{baseEvent},
-			wantEvents:  []*event.Event{createEvent("test-source", "mockType", "0", "eventex", nil, baseEvent, now)},
+			statusCodes: createStatusCodes(1, failNever),
+			baseEvents:  events.vEvents[:1],
+			wantEvents:  events.ceEvents[:1],
+			result: sendResult{
+				count: 1,
+				err:   nil,
+			},
 		},
 		"one event, fails": {
-			statusCodes: []int{500},
-			moref:       types.ManagedObjectReference{Value: "VirtualMachine", Type: "vm59"},
-			baseEvents:  []types.BaseEvent{baseEvent},
-			wantEvents:  []*event.Event{createEvent("test-source", "mockType", "0", "eventex", nil, baseEvent, now)},
-			result:      errors.New("500: "),
+			statusCodes: createStatusCodes(1, 0),
+			baseEvents:  events.vEvents[:1],
+			wantEvents:  events.ceEvents[:1],
+			result: sendResult{
+				count: 0,
+				err:   errors.New("500: "),
+			},
+		},
+		"two events, last fails": {
+			statusCodes: createStatusCodes(2, 1),
+			baseEvents:  events.vEvents[:2],
+			wantEvents:  events.ceEvents[:2],
+			result: sendResult{
+				count: 1,
+				err:   errors.New("500: "),
+			},
+		},
+		"three events, second fails": {
+			statusCodes: createStatusCodes(3, 1),
+			baseEvents:  events.vEvents[:3],
+			wantEvents:  events.ceEvents[:2],
+			result: sendResult{
+				count: 1, // send will stop after the first event which errors
+				err:   errors.New("500: "),
+			},
+		},
+		"three events, all succeed": {
+			statusCodes: createStatusCodes(3, failNever),
+			baseEvents:  events.vEvents[:3],
+			wantEvents:  events.ceEvents[:3],
+			result: sendResult{
+				count: 3,
+				err:   nil,
+			},
 		},
 	}
 	for n, tc := range testCases {
@@ -91,18 +145,23 @@ func TestSendEvents(t *testing.T) {
 			}
 			logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
 
-			adapter := vAdapter{Logger: logger.Sugar(), CEClient: c, Source: "test-source"}
-			sendEvents := adapter.sendEvents(ctx)
-			sendResult := sendEvents(tc.moref, tc.baseEvents)
-			if tc.result == nil && sendResult != nil {
+			adapter := vAdapter{Logger: logger.Sugar(), CEClient: c, Source: source}
+			count, sendResult := adapter.sendEvents(ctx, tc.baseEvents)
+
+			if count != tc.result.count {
+				t.Errorf("Unexpected event count from sendEvents, expected %v got %v", tc.result.count, count)
+			}
+
+			if tc.result.err == nil && sendResult != nil {
 				t.Error("Unexpected result from sendEvents, wanted no error got ", sendResult)
-			} else if tc.result != nil && sendResult == nil {
-				t.Error("Unexpected result from sendEvents, did not get expected error ", tc.result)
-			} else if tc.result != nil && sendResult != nil {
-				if sendResult.Error() != tc.result.Error() {
+			} else if tc.result.err != nil && sendResult == nil {
+				t.Error("Unexpected result from sendEvents, did not get expected error ", tc.result.err)
+			} else if tc.result.err != nil && sendResult != nil {
+				if sendResult.Error() != tc.result.err.Error() {
 					t.Errorf("Unexpected result from sendEvents, expected %v got %v", tc.result, sendResult)
 				}
 			}
+
 			for i := range tc.wantEvents {
 				if diff := cmp.Diff(tc.wantEvents[i], roundTripper.events[i]); diff != "" {
 					t.Error("unexpected diff in events", diff)
@@ -112,18 +171,367 @@ func TestSendEvents(t *testing.T) {
 	}
 }
 
-func createEvent(eventSource, eventType, eventID, extensionKey string, extensionValue interface{}, baseEvent interface{}, eventTime time.Time) *event.Event {
+type testEvents struct {
+	vEvents  []types.BaseEvent
+	ceEvents []*event.Event
+}
+
+func createTestEvents(count int, source string, created time.Time) testEvents {
+	const (
+		keyBegin = 1000
+	)
+
+	te := testEvents{
+		vEvents:  make([]types.BaseEvent, count),
+		ceEvents: make([]*event.Event, count),
+	}
+
+	for i := 0; i < count; i++ {
+		id := keyBegin + i
+		be := createBaseEvent(id, created)
+		ce := createCloudEvent(source, strconv.Itoa(id), be, created)
+		te.vEvents[i] = be
+		te.ceEvents[i] = ce
+	}
+	return te
+}
+
+func createBaseEvent(id int, created time.Time) types.BaseEvent {
+	return &mockType{
+		event: &types.Event{
+			Key:         int32(id),
+			CreatedTime: created,
+		},
+	}
+}
+
+func createCloudEvent(eventSource string, eventID string, baseEvent types.BaseEvent, eventTime time.Time) *event.Event {
+	details := getEventDetails(baseEvent)
+
 	ev := cloudevents.NewEvent(cloudevents.VersionV1)
 
-	ev.SetType("com.vmware.vsphere." + eventType)
+	ev.SetType("com.vmware.vsphere." + details.Type)
 	ev.SetTime(eventTime)
 	ev.SetID(eventID)
 	ev.SetSource(eventSource)
-	if extensionKey != "" {
-		ev.SetExtension(extensionKey, extensionValue)
-	}
+	ev.SetExtension("EventClass", details.Class)
 	if err := ev.SetData("application/xml", baseEvent); err != nil {
 		panic("Failed to SetData")
 	}
 	return &ev
+}
+
+func Test_getBeginFromCheckpoint(t *testing.T) {
+	now := time.Now().UTC()
+
+	type args struct {
+		vcTime time.Time
+		cp     checkpoint
+		maxAge time.Duration
+	}
+	tests := []struct {
+		name string
+		args args
+		want time.Time
+	}{
+		{
+			name: "empty checkpoint (use vcTime)",
+			args: args{
+				vcTime: now,
+				cp:     checkpoint{},
+				maxAge: checkpointDefaultAge,
+			},
+			want: now,
+		},
+		{
+			name: "checkpoint too old (use checkpointDefaultAge)",
+			args: args{
+				vcTime: now,
+				cp: checkpoint{
+					LastEventKey:          1234,
+					LastEventKeyTimestamp: now.Add(time.Hour * -1),
+				},
+				maxAge: checkpointDefaultAge,
+			},
+			want: now.Add(checkpointDefaultAge * -1),
+		},
+		{
+			name: "valid checkpoint within custom checkpointConfig maxAge",
+			args: args{
+				vcTime: now,
+				cp: checkpoint{
+					LastEventKey:          1234,
+					LastEventKeyTimestamp: now.Add(time.Hour * -1),
+				},
+				maxAge: time.Hour * 2,
+			},
+			want: now.Add(time.Hour * -1),
+		},
+	}
+	for _, tt := range tests {
+		ctx := context.TODO()
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getBeginFromCheckpoint(ctx, tt.args.vcTime, tt.args.cp, tt.args.maxAge); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getBeginFromCheckpoint() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_vAdapter_run(t *testing.T) {
+	const (
+		// number of vcsim events emitted for default VPX model
+		vcsimEvents = 26
+	)
+
+	now := time.Now().UTC()
+
+	type fields struct {
+		StatusCodes []int
+		Source      string
+		KVStore     kvstore.Interface
+		CpConfig    checkpointConfig
+	}
+	tests := []struct {
+		name              string
+		fields            fields
+		wantCheckpointKey int32 // key we expect in checkpoint after run returns
+		wantRunErr        error // error we expect after run returns
+	}{
+		{
+			name: "no existing checkpoint, no events received",
+			fields: fields{
+				StatusCodes: nil, // we don't send any events
+				Source:      source,
+				KVStore:     &fakeKVStore{},
+				CpConfig: checkpointConfig{
+					MaxAge: checkpointDefaultAge,
+					Period: time.Millisecond,
+				},
+			},
+			wantCheckpointKey: 0, // we never checkpoint in this test
+			wantRunErr:        context.Canceled,
+		},
+		{
+			name: "existing checkpoint, events received and all sends succeed",
+			fields: fields{
+				StatusCodes: createStatusCodes(vcsimEvents, failNever),
+				Source:      source,
+				KVStore: &fakeKVStore{
+					data: map[string]string{
+						checkpointKey: createCheckpoint(t, now.Add(time.Hour*-1)),
+					},
+					dataChan: make(chan string, 1),
+				},
+				CpConfig: checkpointConfig{
+					MaxAge: time.Hour,
+					Period: time.Millisecond,
+				},
+			},
+			wantCheckpointKey: 26,
+			wantRunErr:        context.Canceled,
+		},
+		{
+			name: "existing checkpoint, events received and first two sends succeeds",
+			fields: fields{
+				StatusCodes: createStatusCodes(vcsimEvents, 2),
+				Source:      source,
+				KVStore: &fakeKVStore{
+					data: map[string]string{
+						checkpointKey: createCheckpoint(t, now.Add(time.Hour*-1)),
+					},
+					dataChan: make(chan string, 1),
+				},
+				CpConfig: checkpointConfig{
+					MaxAge: time.Hour,
+					Period: time.Millisecond,
+				},
+			},
+			wantCheckpointKey: 2,
+			wantRunErr:        context.Canceled,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			simulator.Run(func(ctx context.Context, vim *vim25.Client) error {
+				ctx = cecontext.WithTarget(ctx, "fake.example.com")
+
+				roundTripper := &roundTripperTest{statusCodes: tt.fields.StatusCodes}
+				opts := []cehttp.Option{
+					cehttp.WithRoundTripper(roundTripper),
+				}
+				p, err := cehttp.New(opts...)
+				if err != nil {
+					t.Error(err)
+				}
+				c, err := client.New(p, client.WithTimeNow(), client.WithUUIDs())
+				if err != nil {
+					t.Error(err)
+				}
+				logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
+
+				vcClient := govmomi.Client{
+					Client:         vim,
+					SessionManager: session.NewManager(vim),
+				}
+				a := &vAdapter{
+					Logger:   logger.Sugar(),
+					Source:   tt.fields.Source,
+					VClient:  &vcClient,
+					CEClient: c,
+					KVStore:  tt.fields.KVStore,
+					CpConfig: tt.fields.CpConfig,
+				}
+
+				ctx, cancel := context.WithCancel(ctx)
+				defer cancel()
+
+				var (
+					wg sync.WaitGroup
+					// assertion variables
+					cp     checkpoint
+					runErr error
+				)
+
+				// run components
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					runErr = a.run(ctx) // will be stopped with cancel()
+				}()
+
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+
+					select {
+					case data := <-tt.fields.KVStore.(*fakeKVStore).dataChan:
+						err := json.Unmarshal([]byte(data), &cp)
+						if err != nil {
+							t.Errorf("unmarshal data from KV store: %v", err)
+						}
+						cancel() // stop run
+					case <-ctx.Done():
+					}
+				}()
+
+				// 	for test case(s) where we never send/checkpoint events so test won't hang
+				if tt.wantCheckpointKey == 0 {
+					wg.Add(1)
+					go func() {
+						defer wg.Done()
+						time.Sleep(time.Millisecond * 100)
+						cancel()
+					}()
+				}
+
+				wg.Wait()
+
+				if !reflect.DeepEqual(runErr, tt.wantRunErr) {
+					// hack because govmomi does not wrap context.Canceled err (uses url.Error with
+					// random port)
+					if runErr != nil && !strings.Contains(runErr.Error(), "context canceled") {
+						t.Error("run() unexpected error: ", runErr)
+					}
+				}
+
+				if tt.wantCheckpointKey != cp.LastEventKey {
+					t.Errorf("run() checkpointKey = %v, wantEventKey %v", cp.LastEventKey, tt.wantCheckpointKey)
+				}
+
+				return nil
+			})
+		})
+	}
+}
+
+func createCheckpoint(t *testing.T, lastEventTS time.Time) string {
+	t.Helper()
+	cp := checkpoint{
+		VCenter:               "",
+		LastEventKey:          0,
+		LastEventType:         "",
+		LastEventKeyTimestamp: lastEventTS,
+		CreatedTimestamp:      lastEventTS,
+	}
+	b, err := json.Marshal(cp)
+	if err != nil {
+		t.Fatalf("marshal checkpoint: %v", err)
+	}
+
+	return string(b)
+}
+
+// createStatusCodes returns a slice of status codes with count elements. If
+// failAt is < 0, all status codes will be 200. If failAt is >= 0 failAt and
+// following status codes of the returned slice will be 500s.
+func createStatusCodes(count, failAt int) []int {
+	code := 200
+	codes := make([]int, count)
+
+	for i := 0; i < count; i++ {
+		if failAt == i {
+			code = 500
+		}
+		codes[i] = code
+	}
+
+	return codes
+}
+
+type fakeKVStore struct {
+	sync.Mutex
+	data  map[string]string
+	saved bool
+
+	// send last checkpoint saved over this channel (should be buffered)
+	// can be used so sync between read/write goroutines in tests
+	dataChan chan string
+}
+
+func (f *fakeKVStore) Init(ctx context.Context) error {
+	panic("implement me")
+}
+
+func (f *fakeKVStore) Load(ctx context.Context) error {
+	panic("implement me")
+}
+
+func (f *fakeKVStore) Save(ctx context.Context) error {
+	f.Lock()
+	defer f.Unlock()
+	if f.saved {
+		return nil
+	}
+	f.saved = true
+	f.dataChan <- f.data[checkpointKey]
+	return nil
+}
+
+func (f *fakeKVStore) Get(ctx context.Context, key string, value interface{}) error {
+	v, ok := f.data[key]
+	if !ok {
+		return fmt.Errorf("key %s does not exist", key)
+	}
+	err := json.Unmarshal([]byte(v), value)
+	if err != nil {
+		return fmt.Errorf("failed to Unmarshal %q: %w", v, err)
+	}
+	return nil
+}
+
+func (f *fakeKVStore) Set(ctx context.Context, key string, value interface{}) error {
+	f.Lock()
+	defer f.Unlock()
+
+	f.saved = false
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("failed to Marshal: %w", err)
+	}
+	if f.data == nil {
+		f.data = map[string]string{}
+	}
+	f.data[key] = string(bytes)
+	return nil
 }

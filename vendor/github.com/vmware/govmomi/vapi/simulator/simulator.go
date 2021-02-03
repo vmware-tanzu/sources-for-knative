@@ -289,26 +289,40 @@ func (s *handler) DetachTag(id vim.ManagedObjectReference, tag vim.VslmTagEntry)
 	return nil
 }
 
-// OK responds with http.StatusOK and json encoded val if given.
-func OK(w http.ResponseWriter, val ...interface{}) {
+// StatusOK responds with http.StatusOK and json encoded val if given.
+// For use with "/api" endpoints.
+func StatusOK(w http.ResponseWriter, val ...interface{}) {
 	w.WriteHeader(http.StatusOK)
-
 	if len(val) == 0 {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(struct {
-		Value interface{} `json:"value,omitempty"`
-	}{
-		val[0],
-	})
+	err := json.NewEncoder(w).Encode(val[0])
 
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
+// OK responds with http.StatusOK and json encoded val if given.
+// For use with "/rest" endpoints where the response is a "value" wrapped structure.
+func OK(w http.ResponseWriter, val ...interface{}) {
+	if len(val) == 0 {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	s := struct {
+		Value interface{} `json:"value,omitempty"`
+	}{
+		val[0],
+	}
+
+	StatusOK(w, s)
+}
+
 // BadRequest responds with http.StatusBadRequest and json encoded vAPI error of type kind.
+// For use with "/rest" endpoints where the response is a "value" wrapped structure.
 func BadRequest(w http.ResponseWriter, kind string) {
 	w.WriteHeader(http.StatusBadRequest)
 
@@ -572,6 +586,7 @@ func (s *handler) tagID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// TODO: support cardinality checks
 func (s *handler) association(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -596,6 +611,7 @@ func (s *handler) association(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		OK(w, ids)
+
 	case "list-attached-objects-on-tags":
 		var res []tags.AttachedObjects
 		for _, id := range spec.TagIDs {
@@ -606,6 +622,7 @@ func (s *handler) association(w http.ResponseWriter, r *http.Request) {
 			res = append(res, o)
 		}
 		OK(w, res)
+
 	case "list-attached-tags-on-objects":
 		var res []tags.AttachedTags
 		for _, ref := range spec.ObjectIDs {
@@ -616,6 +633,56 @@ func (s *handler) association(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			res = append(res, o)
+		}
+		OK(w, res)
+
+	case "attach-multiple-tags-to-object":
+		// TODO: add check if target (moref) exist or return 403 as per API behavior
+
+		res := struct {
+			Success bool             `json:"success"`
+			Errors  tags.BatchErrors `json:"error_messages,omitempty"`
+		}{}
+
+		for _, id := range spec.TagIDs {
+			if _, exists := s.Association[id]; !exists {
+				log.Printf("association tag not found: %s", id)
+				res.Errors = append(res.Errors, tags.BatchError{
+					Type:    "cis.tagging.objectNotFound.error",
+					Message: fmt.Sprintf("Tagging object %s not found", id),
+				})
+			} else {
+				s.Association[id][*spec.ObjectID] = true
+			}
+		}
+
+		if len(res.Errors) == 0 {
+			res.Success = true
+		}
+		OK(w, res)
+
+	case "detach-multiple-tags-from-object":
+		// TODO: add check if target (moref) exist or return 403 as per API behavior
+
+		res := struct {
+			Success bool             `json:"success"`
+			Errors  tags.BatchErrors `json:"error_messages,omitempty"`
+		}{}
+
+		for _, id := range spec.TagIDs {
+			if _, exists := s.Association[id]; !exists {
+				log.Printf("association tag not found: %s", id)
+				res.Errors = append(res.Errors, tags.BatchError{
+					Type:    "cis.tagging.objectNotFound.error",
+					Message: fmt.Sprintf("Tagging object %s not found", id),
+				})
+			} else {
+				s.Association[id][*spec.ObjectID] = false
+			}
+		}
+
+		if len(res.Errors) == 0 {
+			res.Success = true
 		}
 		OK(w, res)
 	}

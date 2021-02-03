@@ -186,6 +186,9 @@ github.com/inconshreveable/mousetrap
 github.com/jmespath/go-jmespath
 # github.com/joho/godotenv v1.3.0
 github.com/joho/godotenv
+# github.com/jpillora/backoff v1.0.0
+## explicit
+github.com/jpillora/backoff
 # github.com/json-iterator/go v1.1.10
 github.com/json-iterator/go
 # github.com/kelseyhightower/envconfig v1.4.0
@@ -259,9 +262,13 @@ github.com/sirupsen/logrus
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/vmware/govmomi v0.23.1
+# github.com/vmware/govmomi v0.24.1-0.20210127152625-854ba4efe87e
 ## explicit
 github.com/vmware/govmomi
+github.com/vmware/govmomi/cns
+github.com/vmware/govmomi/cns/methods
+github.com/vmware/govmomi/cns/simulator
+github.com/vmware/govmomi/cns/types
 github.com/vmware/govmomi/event
 github.com/vmware/govmomi/find
 github.com/vmware/govmomi/govc
@@ -280,6 +287,7 @@ github.com/vmware/govmomi/govc/datastore/vsan
 github.com/vmware/govmomi/govc/device
 github.com/vmware/govmomi/govc/device/cdrom
 github.com/vmware/govmomi/govc/device/floppy
+github.com/vmware/govmomi/govc/device/pci
 github.com/vmware/govmomi/govc/device/scsi
 github.com/vmware/govmomi/govc/device/serial
 github.com/vmware/govmomi/govc/device/usb
@@ -317,6 +325,7 @@ github.com/vmware/govmomi/govc/logs
 github.com/vmware/govmomi/govc/ls
 github.com/vmware/govmomi/govc/metric
 github.com/vmware/govmomi/govc/metric/interval
+github.com/vmware/govmomi/govc/namespace/cluster
 github.com/vmware/govmomi/govc/object
 github.com/vmware/govmomi/govc/option
 github.com/vmware/govmomi/govc/permissions
@@ -327,6 +336,7 @@ github.com/vmware/govmomi/govc/sso
 github.com/vmware/govmomi/govc/sso/group
 github.com/vmware/govmomi/govc/sso/service
 github.com/vmware/govmomi/govc/sso/user
+github.com/vmware/govmomi/govc/storage/policy
 github.com/vmware/govmomi/govc/tags
 github.com/vmware/govmomi/govc/tags/association
 github.com/vmware/govmomi/govc/tags/category
@@ -341,6 +351,7 @@ github.com/vmware/govmomi/govc/vm/network
 github.com/vmware/govmomi/govc/vm/option
 github.com/vmware/govmomi/govc/vm/rdm
 github.com/vmware/govmomi/govc/vm/snapshot
+github.com/vmware/govmomi/govc/volume
 github.com/vmware/govmomi/guest
 github.com/vmware/govmomi/guest/toolbox
 github.com/vmware/govmomi/internal
@@ -381,6 +392,9 @@ github.com/vmware/govmomi/vapi/cluster/simulator
 github.com/vmware/govmomi/vapi/internal
 github.com/vmware/govmomi/vapi/library
 github.com/vmware/govmomi/vapi/library/finder
+github.com/vmware/govmomi/vapi/namespace
+github.com/vmware/govmomi/vapi/namespace/internal
+github.com/vmware/govmomi/vapi/namespace/simulator
 github.com/vmware/govmomi/vapi/rest
 github.com/vmware/govmomi/vapi/simulator
 github.com/vmware/govmomi/vapi/tags
@@ -396,6 +410,7 @@ github.com/vmware/govmomi/vim25/soap
 github.com/vmware/govmomi/vim25/types
 github.com/vmware/govmomi/vim25/xml
 github.com/vmware/govmomi/vmdk
+github.com/vmware/govmomi/vsan/vsanfs/types
 github.com/vmware/govmomi/vslm
 github.com/vmware/govmomi/vslm/methods
 github.com/vmware/govmomi/vslm/types

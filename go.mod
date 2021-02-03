@@ -12,10 +12,11 @@ require (
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/google/go-cmp v0.5.4
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/jpillora/backoff v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/spf13/cobra v1.0.0
-	github.com/vmware/govmomi v0.23.1
+	github.com/vmware/govmomi v0.24.1-0.20210127152625-854ba4efe87e
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
