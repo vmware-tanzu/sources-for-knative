@@ -160,13 +160,13 @@ func (a *vAdapter) readEvents(ctx context.Context, c *event.HistoryCollector) er
 			// avoid unnecessary K8s API calls
 			skip := lastEvent == nil || lastCheckpointEventKey == lastEvent.GetEvent().Key
 			if !skip {
-				logger.Info("creating checkpoint")
+				logger.Debug("creating checkpoint")
 				if err := a.KVStore.Save(ctx); err != nil {
 					return fmt.Errorf("save checkpoint: %w", err)
 				}
 				lastCheckpointEventKey = lastEvent.GetEvent().Key
 			} else {
-				logger.Info("skipping checkpoint: no new events since last checkpoint")
+				logger.Debug("skipping checkpoint: no new events since last checkpoint")
 			}
 
 		// poll vCenter events
@@ -178,12 +178,12 @@ func (a *vAdapter) readEvents(ctx context.Context, c *event.HistoryCollector) er
 
 			if len(events) == 0 {
 				delay := bOff.Duration()
-				logger.Infow("no new events, backing off", zap.String("delaySeconds", delay.String()))
+				logger.Debugw("no new events, backing off", zap.String("delaySeconds", delay.String()))
 				time.Sleep(delay)
 				continue
 			}
 
-			logger.Infof("got %d events", len(events))
+			logger.Debugf("got %d events", len(events))
 
 			n, err := a.sendEvents(ctx, events)
 			if err != nil {
