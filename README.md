@@ -9,10 +9,12 @@ This repo will be the home for VMware-related event sources compatible with the
 [![codecov](https://codecov.io/gh/vmware-tanzu/sources-for-knative/branch/master/graph/badge.svg?token=QwWjUwiLIN)](undefined)
 
 This repo is under active development to get a Knative compatible Event Source
-for VSphere events, and a Binding to easily access the VSphere API.
+for vSphere events, and a Binding to easily access the VSphere API.
 
-To run these examples, you will need [ko](https://github.com/google/ko)
-installed.
+⚠️ **NOTE:** To run these examples, you will need [ko](https://github.com/google/ko)
+installed or use a
+[release](https://github.com/vmware-tanzu/sources-for-knative/releases) and
+deploy it via `kubectl`.
 
 ## Install Source
 
@@ -33,10 +35,11 @@ To see examples of the Source and Binding in action, check out our
 The `VSphereSource` provides a simple mechanism to enable users to react to
 vSphere events.
 
-In order to receive VSphere events there are two key parts:
+In order to receive events from vSphere (i.e. vCenter) there are **three key parts** in the configuration:
 
-1. The VSphere address and secret information.
-2. Where to send the events.
+1. The vCenter address and secret information.
+1. Where to send the events.
+1. Checkpoint behavior.
 
 ```yaml
 apiVersion: sources.tanzu.vmware.com/v1alpha1
@@ -45,7 +48,7 @@ metadata:
   name: source
 spec:
   # Where to fetch the events, and how to auth.
-  address: https://my-vsphere-endpoint.local
+  address: https://vcenter.corp.local
   skipTLSVerify: true
   secretRef:
     name: vsphere-credentials
@@ -53,6 +56,11 @@ spec:
   # Where to send the events.
   sink:
     uri: http://where.to.send.stuff
+
+  # Adjust checkpointing and event replay behavior
+  checkpointConfig:
+    maxAgeSeconds: 300
+    periodSeconds: 10
 ```
 
 Let's walk through each of these.
@@ -63,7 +71,7 @@ Let's focus on this part of the sample source:
 
 ```yaml
 # Where to fetch the events, and how to auth.
-address: https://my-vsphere-endpoint.local
+address: https://vcenter.corp.local
 skipTLSVerify: true
 secretRef:
   name: vsphere-credentials
@@ -135,6 +143,82 @@ sink:
     name: default
 ```
 
+### Configuring Checkpoint and Event Replay
+
+Let's focus on the last section of the sample source:
+
+```yaml
+# Adjust checkpointing and event replay behavior
+checkpointConfig:
+  maxAgeSeconds: 300
+  periodSeconds: 10
+```
+
+The `Source` controller will periodically checkpoint its progress in the vCenter
+event stream ("history") by using a Kubernetes `ConfigMap` as storage backend.
+The name of the `ConfigMap` is `<name_of_source>-configmap` (see example below).
+
+Upon start, the controller will look for an existing checkpoint (`ConfigMap`)
+and, if a valid one is found, use its last event (timestamp) to start replaying
+the vCenter history stream from that point in time. The default history replay
+window is `5 minutes`, i.e. events within this time window will be replayed and
+sent to the `sink`. By default, checkpoints will be created every `10 seconds`.
+The minimum checkpoint frequency is `1s` but be aware of potential load on the
+Kubernetes API this might cause.
+
+Checkpointing is useful to guarantee **at-least-once** event delivery semantics,
+e.g. to guard against lost events due to controller downtime (maintenance,
+crash, etc.). To influence the checkpointing logic, these parameters are
+available in `spec.checkpointConfig`:
+
+- `periodSeconds`:
+  - Description: how often to save a checkpoint (**RPO**, recovery point
+  objective)
+  - Minimum: `1`
+  - Default (when `0` or unspecified): `10`
+- `maxAgeSeconds`:
+  - Description: the history window when replaying the event history (**RTO**,
+    recovery time objective)
+  - Minimum: `0` (disables event replay, see below)
+  - Default: `n/a` (must be explicitly specified)
+
+⚠️ **IMPORTANT:** Checkpointing itself cannot be disabled and there will be
+exactly zero or one checkpoint per controller. If **at-most-once** event
+delivery is desired, i.e. no event replay upon controller start, simply set
+`maxAgeSeconds: 0`.
+
+To reduce load on the Kubernetes API, a new checkpoint will not be saved under
+the following conditions:
+
+- When **all** events in a batch could not be sent to the `sink` (note: partial
+  success, i.e. successful events in a batch until the first failed event will
+  be checkpointed though)
+- When the vCenter event polling logic does not return any new events (note:
+  fixed backoff logic is applied to reduce load on vCenter)
+
+⚠️ **IMPORTANT:** When a `VSphereSource` is deleted, the corresponding
+checkpoint (`ConfigMap`) will also be **deleted**! Make sure to backup any
+checkpoint before deleting the `VSphereSource` if this is required for
+auditing/compliance reasons.
+
+Here is an example of a JSON-encoded checkpoint for a `VSphereSource` named
+`vc-source`:
+
+```bash
+kubectl get cm vc-source-configmap -o jsonpath='{.data}'
+
+# output edited for better readability
+{
+  "checkpoint": {
+    "vCenter": "10.161.153.226",
+    "lastEventKey": 17208,
+    "lastEventType": "UserLogoutSessionEvent",
+    "lastEventKeyTimestamp": "2021-02-15T19:20:35.598999Z",
+    "createdTimestamp": "2021-02-15T19:20:36.3326551Z"
+  }
+}
+```
+
 ## Basic `VSphereBinding` Example
 
 The `VSphereBinding` provides a simple mechanism for a user application to call
@@ -164,7 +248,7 @@ Now let's take a look at how `VSphereBinding` makes this possible.
 
 In order to bind an application to a vSphere endpoint, there are two key parts:
 
-1. The VSphere address and secret information (identical to Source above!)
+1. The vCenter address and secret information (identical to Source above!)
 2. The application that is being bound (aka the "subject").
 
 ```yaml

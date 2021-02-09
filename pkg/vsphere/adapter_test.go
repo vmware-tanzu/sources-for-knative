@@ -239,24 +239,24 @@ func Test_getBeginFromCheckpoint(t *testing.T) {
 			args: args{
 				vcTime: now,
 				cp:     checkpoint{},
-				maxAge: checkpointDefaultAge,
+				maxAge: CheckpointDefaultAge,
 			},
 			want: now,
 		},
 		{
-			name: "checkpoint too old (use checkpointDefaultAge)",
+			name: "checkpoint too old (use CheckpointDefaultAge)",
 			args: args{
 				vcTime: now,
 				cp: checkpoint{
 					LastEventKey:          1234,
 					LastEventKeyTimestamp: now.Add(time.Hour * -1),
 				},
-				maxAge: checkpointDefaultAge,
+				maxAge: CheckpointDefaultAge,
 			},
-			want: now.Add(checkpointDefaultAge * -1),
+			want: now.Add(CheckpointDefaultAge * -1),
 		},
 		{
-			name: "valid checkpoint within custom checkpointConfig maxAge",
+			name: "valid checkpoint within custom CheckpointConfig maxAge",
 			args: args{
 				vcTime: now,
 				cp: checkpoint{
@@ -290,7 +290,7 @@ func Test_vAdapter_run(t *testing.T) {
 		StatusCodes []int
 		Source      string
 		KVStore     kvstore.Interface
-		CpConfig    checkpointConfig
+		CpConfig    CheckpointConfig
 	}
 	tests := []struct {
 		name              string
@@ -304,8 +304,8 @@ func Test_vAdapter_run(t *testing.T) {
 				StatusCodes: nil, // we don't send any events
 				Source:      source,
 				KVStore:     &fakeKVStore{},
-				CpConfig: checkpointConfig{
-					MaxAge: checkpointDefaultAge,
+				CpConfig: CheckpointConfig{
+					MaxAge: CheckpointDefaultAge,
 					Period: time.Millisecond,
 				},
 			},
@@ -323,7 +323,7 @@ func Test_vAdapter_run(t *testing.T) {
 					},
 					dataChan: make(chan string, 1),
 				},
-				CpConfig: checkpointConfig{
+				CpConfig: CheckpointConfig{
 					MaxAge: time.Hour,
 					Period: time.Millisecond,
 				},
@@ -342,7 +342,7 @@ func Test_vAdapter_run(t *testing.T) {
 					},
 					dataChan: make(chan string, 1),
 				},
-				CpConfig: checkpointConfig{
+				CpConfig: CheckpointConfig{
 					MaxAge: time.Hour,
 					Period: time.Millisecond,
 				},

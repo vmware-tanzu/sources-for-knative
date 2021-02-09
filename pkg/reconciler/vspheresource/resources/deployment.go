@@ -8,6 +8,8 @@ package resources
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -18,9 +20,10 @@ import (
 
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
 )
 
-func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterImage string) *appsv1.Deployment {
+func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterImage string) (*appsv1.Deployment, error) {
 	labels := map[string]string{
 		"vspheresources.sources.tanzu.vmware.com/name": vms.Name,
 	}
@@ -33,6 +36,16 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 		} else if len(co) > 0 {
 			ceOverrides = string(co)
 		}
+	}
+
+	cpconf := vsphere.CheckpointConfig{
+		MaxAge: time.Second * time.Duration(vms.Spec.CheckpointConfig.MaxAgeSeconds),
+		Period: time.Second * time.Duration(vms.Spec.CheckpointConfig.PeriodSeconds),
+	}
+
+	jsonBytes, err := json.Marshal(&cpconf)
+	if err != nil {
+		return nil, fmt.Errorf("marshal checkpoint config: %w", err)
 	}
 
 	return &appsv1.Deployment{
@@ -79,6 +92,9 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 							Name:  "VSPHERE_KVSTORE_CONFIGMAP",
 							Value: names.ConfigMap(vms),
 						}, {
+							Name:  "VSPHERE_CHECKPOINT_CONFIG",
+							Value: string(jsonBytes),
+						}, {
 							Name:  "K_CE_OVERRIDES",
 							Value: ceOverrides,
 						}, {
@@ -89,5 +105,5 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 				},
 			},
 		},
-	}
+	}, nil
 }

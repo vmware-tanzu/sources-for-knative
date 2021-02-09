@@ -7,16 +7,21 @@ package vsphere
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
 const (
 	// replay history from this time by default
-	checkpointDefaultAge = 5 * time.Minute
+	CheckpointDefaultAge = 5 * time.Minute
 	// create checkpoint every frequency but only on changes
-	checkpointDefaultPeriod = 10 * time.Second
-	// key name used in KV store
+	CheckpointDefaultPeriod = 10 * time.Second
+	// key name used in KV store for storing the latest checkpoint
 	checkpointKey = "checkpoint"
+)
+
+var (
+	ErrInvalidInterval = errors.New("invalid checkpoint time interval")
 )
 
 // checkpoint represents a vCenter checkpoint object
@@ -33,10 +38,10 @@ type checkpoint struct {
 	CreatedTimestamp time.Time `json:"createdTimestamp"`
 }
 
-// checkpointConfig influences the checkpoint behavior. It configures the
+// CheckpointConfig influences the checkpoint behavior. It configures the
 // maximum age of the replay (look-back) window when starting the event stream
 // and the period of saving the checkpoint
-type checkpointConfig struct {
+type CheckpointConfig struct {
 	// max replay window
 	MaxAge time.Duration `json:"maxAge"`
 	// create checkpoints at given frequency
@@ -45,10 +50,18 @@ type checkpointConfig struct {
 
 // MarshalJSON defines custom marshalling logic to support human-readable time
 // input on the checkpoint configuration, e.g. "10m" or "1h".
-func (c *checkpointConfig) MarshalJSON() ([]byte, error) {
+func (c *CheckpointConfig) MarshalJSON() ([]byte, error) {
 	var out struct {
 		MaxAge string `json:"maxAge"`
 		Period string `json:"period"`
+	}
+
+	if c.MaxAge < time.Duration(0) {
+		return nil, ErrInvalidInterval
+	}
+
+	if c.Period < time.Duration(0) {
+		return nil, ErrInvalidInterval
 	}
 
 	out.MaxAge = c.MaxAge.String()
@@ -59,7 +72,7 @@ func (c *checkpointConfig) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON defines custom marshalling logic to support human-readable time
 // input on the checkpoint configuration, e.g. "10m" or "1h". Using numbers
 // without time suffix as input will fail encoding/decoding.
-func (c *checkpointConfig) UnmarshalJSON(b []byte) error {
+func (c *CheckpointConfig) UnmarshalJSON(b []byte) error {
 	var in struct {
 		MaxAge string `json:"maxAge"`
 		Period string `json:"period"`
@@ -75,21 +88,28 @@ func (c *checkpointConfig) UnmarshalJSON(b []byte) error {
 	}
 
 	if in.MaxAge == "" {
-		v = time.Duration(0)
+		v = CheckpointDefaultAge
 	} else {
 		v, err = time.ParseDuration(in.MaxAge)
 		if err != nil {
 			return err
 		}
+
+		if v < time.Duration(0) {
+			return ErrInvalidInterval
+		}
 	}
 	c.MaxAge = v
 
 	if in.Period == "" {
-		v = time.Duration(0)
+		v = CheckpointDefaultPeriod
 	} else {
 		v, err = time.ParseDuration(in.Period)
 		if err != nil {
 			return err
+		}
+		if v < time.Duration(0) {
+			return ErrInvalidInterval
 		}
 	}
 	c.Period = v
@@ -100,18 +120,14 @@ func (c *checkpointConfig) UnmarshalJSON(b []byte) error {
 // newCheckpointConfig returns a checkpointConfig for the given JSON-encoded
 // string. If the config is empty defaults for the event history replay window
 // and frequency of saving the checkpoint will be used.
-func newCheckpointConfig(config string) (*checkpointConfig, error) {
-	var c checkpointConfig
+func newCheckpointConfig(config string) (*CheckpointConfig, error) {
+	var c CheckpointConfig
 	if err := json.Unmarshal([]byte(config), &c); err != nil {
 		return nil, err
 	}
 
-	if c.MaxAge == 0 {
-		c.MaxAge = checkpointDefaultAge
-	}
-
 	if c.Period == 0 {
-		c.Period = checkpointDefaultPeriod
+		c.Period = CheckpointDefaultPeriod
 	}
 
 	return &c, nil
