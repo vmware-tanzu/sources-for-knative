@@ -9,7 +9,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
-	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/google/go-cmp v0.5.4
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
 	github.com/jpillora/backoff v1.0.0
@@ -28,9 +27,9 @@ require (
 	k8s.io/client-go v0.19.7
 	k8s.io/code-generator v0.19.7
 	k8s.io/kube-openapi v0.0.0-20200805222855-6aeccd4b50c6
-	knative.dev/eventing v0.20.1-0.20210201175433-d58bd38861b3
-	knative.dev/hack v0.0.0-20210120165453-8d623a0af457
-	knative.dev/pkg v0.0.0-20210130001831-ca02ef752ac6
+	knative.dev/eventing v0.20.1-0.20210209233432-7ce82834b39d
+	knative.dev/hack v0.0.0-20210203173706-8368e1f6eacf
+	knative.dev/pkg v0.0.0-20210208175252-a02dcff9ee26
 )
 
 replace (
