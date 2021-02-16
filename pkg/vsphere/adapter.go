@@ -51,7 +51,7 @@ type vAdapter struct {
 	VClient   *govmomi.Client
 	CEClient  cloudevents.Client
 	KVStore   kvstore.Interface
-	CpConfig  checkpointConfig
+	CpConfig  CheckpointConfig
 }
 
 func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClient cloudevents.Client) adapter.Adapter {
@@ -68,17 +68,23 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 		logger.Fatal("unable to determine vSphere client source: empty host")
 	}
 
+	// setup checkpointing
 	store := kvstore.NewConfigMapKVStore(ctx, env.KVConfigMap, env.Namespace, kubeclient.Get(ctx).CoreV1())
 	if err = store.Init(ctx); err != nil {
-		logger.Fatalf("couldn't initialize kv store: %v", err)
+		logger.Fatalf("could not initialize kv store: %v", err)
 	}
 
 	cpconf, err := newCheckpointConfig(env.CheckpointConfig)
 	if err != nil {
-		logger.Fatalf("couldn't not read checkpoint config: %v", err)
+		logger.Fatalf("could not not read checkpoint config: %v", err)
 	}
+
 	logger.Infow("configuring checkpointing", zap.String("ReplayWindow", cpconf.MaxAge.String()),
 		zap.String("Period", cpconf.Period.String()))
+
+	if cpconf.MaxAge == time.Duration(0) {
+		logger.Warn("disabling event replay: maxAge set to 0s")
+	}
 
 	return &vAdapter{
 		Logger:    logger,

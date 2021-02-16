@@ -68,6 +68,23 @@ func TestVSphereSourceValidation(t *testing.T) {
 			},
 		},
 		want: apis.ErrGeneric("expected at least one, got none", "spec.sink.ref", "spec.sink.uri"),
+	}, {
+		name: "invalid CheckpointConfig",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec: validSourceSpec,
+				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: -10,
+					PeriodSeconds: -5,
+				},
+			},
+		},
+		want: apis.ErrInvalidValue("-10", "spec.checkpointConfig.maxAgeSeconds").Also(apis.ErrInvalidValue("-5",
+			"spec.checkpointConfig.periodSeconds")),
 	}}
 
 	for _, test := range tests {

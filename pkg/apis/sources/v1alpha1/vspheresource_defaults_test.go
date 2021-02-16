@@ -12,6 +12,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
+
+	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
 )
 
 func TestVSphereSourceDefaulting(t *testing.T) {
@@ -37,6 +39,10 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 			Spec: VSphereSourceSpec{
 				SourceSpec: validSourceSpec,
 				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 0,
+					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
+				},
 			},
 		},
 	}, {
@@ -76,6 +82,38 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					},
 				},
 				VAuthSpec: validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 0,
+					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
+				},
+			},
+		},
+	}, {
+		name: "custom checkpoint config",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec: validSourceSpec,
+				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 3600,
+					PeriodSeconds: 60,
+				},
+			},
+		},
+		want: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec: validSourceSpec,
+				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 3600,
+					PeriodSeconds: 60,
+				},
 			},
 		},
 	}}

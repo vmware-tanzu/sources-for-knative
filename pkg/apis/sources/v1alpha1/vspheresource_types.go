@@ -41,7 +41,13 @@ var _ kmeta.OwnerRefable = (*VSphereSource)(nil)
 type VSphereSourceSpec struct {
 	duckv1.SourceSpec `json:",inline"`
 
-	VAuthSpec `json:",inline"`
+	VAuthSpec        `json:",inline"`
+	CheckpointConfig VCheckpointSpec `json:"checkpointConfig"`
+}
+
+type VCheckpointSpec struct {
+	MaxAgeSeconds int64 `json:"maxAgeSeconds"`
+	PeriodSeconds int64 `json:"periodSeconds"`
 }
 
 const (

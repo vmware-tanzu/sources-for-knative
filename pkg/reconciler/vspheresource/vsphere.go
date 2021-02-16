@@ -175,7 +175,11 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 
 	deployment, err := r.deploymentLister.Deployments(ns).Get(deploymentName)
 	if apierrs.IsNotFound(err) {
-		deployment = resources.MakeDeployment(ctx, vms, r.adapterImage)
+		deployment, err = resources.MakeDeployment(ctx, vms, r.adapterImage)
+		if err != nil {
+			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
+		}
+
 		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Create(ctx, deployment, metav1.CreateOptions{})
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
@@ -185,7 +189,11 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 		return fmt.Errorf("failed to get deployment %q: %w", deploymentName, err)
 	} else {
 		// The deployment exists, but make sure that it has the shape that we expect.
-		desiredDeployment := resources.MakeDeployment(ctx, vms, r.adapterImage)
+		desiredDeployment, err := resources.MakeDeployment(ctx, vms, r.adapterImage)
+		if err != nil {
+			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
+		}
+
 		deployment = deployment.DeepCopy()
 		deployment.Spec = desiredDeployment.Spec
 		deployment, err = r.kubeclient.AppsV1().Deployments(ns).Update(ctx, deployment, metav1.UpdateOptions{})

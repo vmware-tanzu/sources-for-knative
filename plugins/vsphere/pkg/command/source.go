@@ -8,9 +8,11 @@ package command
 import (
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,6 +31,9 @@ type SourceOptions struct {
 	SinkAPIVersion string
 	SinkKind       string
 	SinkName       string
+
+	CheckpointMaxAge time.Duration
+	CheckpointPeriod time.Duration
 }
 
 func (so *SourceOptions) AsSinkDestination(namespace string) (*duckv1.Destination, error) {
@@ -76,6 +81,8 @@ func NewSourceCommand(clients *pkg.Clients) *cobra.Command {
 kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
 # Create the source in the specified namespace, sending events to the specified service
 kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
+# Create the source in the specified namespace, sending events to the specified service with custom checkpoint behavior
+kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name --checkpoint-age 1h --checkpoint-period 30s
 `,
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if options.Name == "" {
@@ -134,6 +141,10 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 	flags.StringVar(&options.SinkAPIVersion, "sink-api-version", "", "sink API version")
 	flags.StringVar(&options.SinkKind, "sink-kind", "", "sink kind")
 	flags.StringVar(&options.SinkName, "sink-name", "", "sink name")
+	flags.DurationVar(&options.CheckpointMaxAge, "checkpoint-age", vsphere.CheckpointDefaultAge,
+		"maximum allowed age for replaying events determined by last successful event in checkpoint")
+	flags.DurationVar(&options.CheckpointPeriod, "checkpoint-period", vsphere.CheckpointDefaultPeriod,
+		"period between saving checkpoints")
 	return &result
 }
 
@@ -153,6 +164,11 @@ func newSource(namespace string, sinkDestination *duckv1.Destination, address *u
 				SecretRef: corev1.LocalObjectReference{
 					Name: options.SecretRef,
 				},
+			},
+			CheckpointConfig: v1alpha1.VCheckpointSpec{
+				// rounding errors are ok here
+				MaxAgeSeconds: int64(options.CheckpointMaxAge.Seconds()),
+				PeriodSeconds: int64(options.CheckpointPeriod.Seconds()),
 			},
 		},
 	}

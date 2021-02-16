@@ -70,21 +70,27 @@ Examples:
 kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
 # Create the source in the specified namespace, sending events to the specified service
 kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
+# Create the source in the specified namespace, sending events to the specified service with custom checkpoint behavior
+kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify
+--secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
+--checkpoint-age 1h --checkpoint-period 30s
 
 Usage:
   kn-vsphere source [flags]
 
 Flags:
-  -a, --address string            URL of ESXi or vCenter instance to connect to (same as VC_URL)
-  -h, --help                      help for source
-      --name string               name of the source to create
-  -n, --namespace string          namespace of the source to create (default namespace if omitted)
-  -s, --secret-ref string         reference to the Kubernetes secret for the vSphere credentials needed for the source address
-      --sink-api-version string   sink API version
-      --sink-kind string          sink kind
-      --sink-name string          sink name
-  -u, --sink-uri string           sink URI (can be absolute, or relative to the referred sink resource)
-  -k, --skip-tls-verify           disables certificate verification for the source address (same as VC_INSECURE)
+  -a, --address string               URL of ESXi or vCenter instance to connect to (same as VC_URL)
+      --checkpoint-age duration      maximum allowed age for replaying events determined by last successful event in checkpoint (default 5m0s)
+      --checkpoint-period duration   period between saving checkpoints (default 10s)
+  -h, --help                         help for source
+      --name string                  name of the source to create
+  -n, --namespace string             namespace of the source to create (default namespace if omitted)
+  -s, --secret-ref string            reference to the Kubernetes secret for the vSphere credentials needed for the source address
+      --sink-api-version string      sink API version
+      --sink-kind string             sink kind
+      --sink-name string             sink name
+  -u, --sink-uri string              sink URI (can be absolute, or relative to the referred sink resource)
+  -k, --skip-tls-verify              disables certificate verification for the source address (same as VC_INSECURE)
 ----
 
 ==== `kn vsphere binding`
