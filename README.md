@@ -11,8 +11,8 @@ This repo will be the home for VMware-related event sources compatible with the
 This repo is under active development to get a Knative compatible Event Source
 for vSphere events, and a Binding to easily access the VSphere API.
 
-⚠️ **NOTE:** To run these examples, you will need [ko](https://github.com/google/ko)
-installed or use a
+⚠️ **NOTE:** To run these examples, you will need
+[ko](https://github.com/google/ko) installed or use a
 [release](https://github.com/vmware-tanzu/sources-for-knative/releases) and
 deploy it via `kubectl`.
 
@@ -35,7 +35,8 @@ To see examples of the Source and Binding in action, check out our
 The `VSphereSource` provides a simple mechanism to enable users to react to
 vSphere events.
 
-In order to receive events from vSphere (i.e. vCenter) there are **three key parts** in the configuration:
+In order to receive events from vSphere (i.e. vCenter) there are **three key
+parts** in the configuration:
 
 1. The vCenter address and secret information.
 1. Where to send the events.
@@ -173,7 +174,7 @@ available in `spec.checkpointConfig`:
 
 - `periodSeconds`:
   - Description: how often to save a checkpoint (**RPO**, recovery point
-  objective)
+    objective)
   - Minimum: `1`
   - Default (when `0` or unspecified): `10`
 - `maxAgeSeconds`:
