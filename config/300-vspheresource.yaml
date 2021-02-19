@@ -25,9 +25,12 @@ spec:
   subresources:
     status: {}
   additionalPrinterColumns:
-  - name: Address
+  - name: Source
     type: string
-    JSONPath: .status.address.url
+    JSONPath: .spec.address
+  - name: Sink
+    type: string
+    JSONPath: .status.sinkUri
   - name: Ready
     type: string
     JSONPath: ".status.conditions[?(@.type=='Ready')].status"
