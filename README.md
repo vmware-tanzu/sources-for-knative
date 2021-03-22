@@ -16,7 +16,13 @@ for vSphere events, and a Binding to easily access the VSphere API.
 [release](https://github.com/vmware-tanzu/sources-for-knative/releases) and
 deploy it via `kubectl`.
 
-## Install Source
+## Install Tanzu Sources for Knative
+### Install via Release
+```
+kubectl apply -f https://github.com/vmware-tanzu/sources-for-knative/releases/download/v0.21.0/release.yaml
+```
+
+### Install from Source
 
 Install the CRD providing the control / dataplane for the
 `VSphere{Source,Binding}`:
