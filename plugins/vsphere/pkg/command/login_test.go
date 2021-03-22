@@ -9,9 +9,13 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/url"
 	"strings"
 	"testing"
 
+	"github.com/vmware/govmomi/simulator"
+	"github.com/vmware/govmomi/vim25"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8stesting "k8s.io/client-go/testing"
 	"k8s.io/client-go/tools/clientcmd"
@@ -190,6 +194,75 @@ func TestNewLoginCommand(t *testing.T) {
 		err := loginCommand.Execute()
 
 		assert.ErrorContains(t, err, fmt.Sprintf(`failed to create Secret: secrets "%s" already exists`, secretName))
+	})
+
+	t.Run("fails verification against vCenter due to untrusted certificate", func(t *testing.T) {
+		simulator.Run(func(ctx context.Context, vc *vim25.Client) error {
+			client := fake.NewSimpleClientset()
+			loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
+			loginCommand.SetArgs([]string{
+				"--username", username,
+				"--password", password,
+				"--secret-name", secretName,
+				"--verify-url", vc.URL().String(),
+			})
+
+			err := loginCommand.Execute()
+
+			assert.ErrorContains(t, err, fmt.Sprintf(`failed to authenticate with vCenter: Post %q: x509: certificate signed by unknown authority`, vc.URL().String()))
+			return nil
+		})
+	})
+
+	t.Run("fails verification against vCenter due to incorrect username", func(t *testing.T) {
+		model := simulator.VPX()
+
+		defer model.Remove()
+		err := model.Create()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		model.Service.Listen = &url.URL{
+			User: url.UserPassword("not-my-username", password),
+		}
+
+		simulator.Run(func(ctx context.Context, vc *vim25.Client) error {
+			client := fake.NewSimpleClientset()
+			loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
+			loginCommand.SetArgs([]string{
+				"--username", username,
+				"--password", password,
+				"--secret-name", secretName,
+				"--verify-url", vc.URL().String(),
+				"--verify-insecure", // required to pass against vc simulator
+			})
+
+			err := loginCommand.Execute()
+
+			assert.ErrorContains(t, err, "failed to authenticate with vCenter: ServerFaultCode: Login failure")
+			return nil
+		}, model)
+	})
+
+	t.Run("passes verification against vCenter with insecure flag and logs in default namespace", func(t *testing.T) {
+		simulator.Run(func(ctx context.Context, vc *vim25.Client) error {
+			client := fake.NewSimpleClientset()
+			loginCommand := loginCommand(&pkg.Clients{ClientSet: client, ClientConfig: regularClientConfig()})
+			loginCommand.SetArgs([]string{
+				"--username", username,
+				"--password", password,
+				"--secret-name", secretName,
+				"--verify-url", vc.URL().String(),
+				"--verify-insecure",
+			})
+
+			err := loginCommand.Execute()
+
+			secret := retrieveCreatedSecret(t, err, client, defaultNamespace, secretName)
+			assertSecret(t, secret, username, password)
+			return nil
+		})
 	})
 }
 
