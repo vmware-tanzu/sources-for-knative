@@ -8,6 +8,8 @@ metadata:
   labels:
     sources.tanzu.vmware.com/release: devel
     knative.dev/crd-install: "true"
+    duck.knative.dev/source: "true"
+    eventing.knative.dev/source: "true"
 spec:
   group: sources.tanzu.vmware.com
   version: v1alpha1
@@ -19,6 +21,7 @@ spec:
     - all
     - knative
     - vsphere
+    - sources
     shortNames:
     - vss
   scope: Namespaced
