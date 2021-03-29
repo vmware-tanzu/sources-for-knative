@@ -14,7 +14,7 @@ import (
 func NewRootCommand(clients *pkg.Clients) *cobra.Command {
 	result := cobra.Command{
 		Use:   "kn-vsphere",
-		Short: "Knative plugin to create Knative compatible Event Sources for VSphere events,\nand Bindings to access the VSphere API",
+		Short: "Knative plugin to create Knative compatible Event Sources for VSphere events,\nand Bindings to access the vSphere API",
 	}
 	result.AddCommand(NewLoginCommand(clients))
 	result.AddCommand(NewSourceCommand(clients))

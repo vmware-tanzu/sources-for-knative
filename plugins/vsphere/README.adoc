@@ -6,8 +6,12 @@
 
 // A longer description which also describes the use cases that this plugin solves.
 
-With this plugin, you can create Knative compatible Event Sources for VSphere events,
-and Bindings to easily access the VSphere API.
+With this plugin, you can create Knative compatible Event Sources for vSphere events,
+and Bindings to easily access the vSphere API.
+
+See the `kn` plugins
+https://github.com/knative/client/blob/d44f25d350f115c50206fe18bd8f619ec4f84b79/docs/plugins/README.md[page] for
+details on plugin installation and discovery.
 
 === Usage
 
@@ -18,38 +22,38 @@ and Bindings to easily access the VSphere API.
 // Note that the command should print out the format used when called via `kn`, not directly
 // so, it's "kn hello [command]", not "kn-hello [command]"
 ----
-Knative plugin to create Knative compatible Event Sources for VSphere events,
-and Bindings to access the VSphere API
-
-Usage:
-  kn-vsphere [command]
+Knative plugin to create Knative compatible Event Sources for vSphere events,
+and Bindings to access the vSphere API
 
 Available Commands:
+  binding     Create a vSphere binding to call into the vSphere API
   help        Help about any command
-  login       Create the required VSphere credentials
+  login       Create vSphere credentials
+  source      Create a vSphere source to react to vSphere events
   version     Prints the plugin version
 
 Flags:
-  -h, --help   help for kn vsphere
+  -h, --help   help for kn-vsphere
 
-Use "kn vsphere [command] --help" for more information about a command.
+Use "kn-vsphere [command] --help" for more information about a command.
+
 ----
 
 ==== `kn vsphere login`
 
 ----
-Create the required VSphere credentials
+Create the required vSphere credentials
 
 Examples:
-# Log in the default namespace
+# Create login credentials in the default namespace
 kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials
-# Log in the specified namespace
+# Create login credentials in the default namespace and validate against vCenter before creating the secret
+kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials --verify-url https://myvc.corp.local
+# Create login credentials in the specified namespace
 kn vsphere login --namespace ns --username john-doe --password s3cr3t --secret-name vsphere-credentials
-# Log in the specified namespace with the password retrieved via standard input
+# Create login credentials in the specified namespace with the password retrieved via standard input
 kn vsphere login --namespace ns --username john-doe --password-stdin --secret-name vsphere-credentials
 
-Usage:
-  kn vsphere login [flags]
 
 Flags:
   -h, --help                 help for login
@@ -58,6 +62,8 @@ Flags:
   -i, --password-stdin       read password from standard input
   -s, --secret-name string   name of the Secret created for the credentials
   -u, --username string      username (same as VC_USERNAME)
+      --verify-insecure      Ignore certificate errors during credential verification
+      --verify-url string    vCenter URL to verify specified credentials (optional)
 ----
 
 ==== `kn vsphere source`
@@ -71,12 +77,7 @@ kn vsphere source --name source --address https://my-vsphere-endpoint.local --sk
 # Create the source in the specified namespace, sending events to the specified service
 kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
 # Create the source in the specified namespace, sending events to the specified service with custom checkpoint behavior
-kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify
---secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name
---checkpoint-age 1h --checkpoint-period 30s
-
-Usage:
-  kn-vsphere source [flags]
+kn vsphere source --namespace ns --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-api-version v1 --sink-kind Service --sink-name the-service-name --checkpoint-age 1h --checkpoint-period 30s
 
 Flags:
   -a, --address string               URL of ESXi or vCenter instance to connect to (same as VC_URL)
@@ -97,9 +98,6 @@ Flags:
 
 ----
 Create a vSphere binding to call into the vSphere API
-
-Usage:
-  kn-vsphere binding [flags]
 
 Examples:
 # Create the binding in the default namespace, targeting a Deployment subject
@@ -139,9 +137,8 @@ Flags:
 
 ==== Authenticating with vSphere
 
-Often you want to greet your users with a charming message.
-In this case, you can use the `kn hello print` command.
-The only required argument here is the name of the person to greet.
+In order to connect to the vSphere event stream, the controller uses vSphere credentials which are created as a
+`secret` in Kubernetes.
 
 .Example login in the default namespace
 ====
@@ -150,7 +147,18 @@ $ kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-c
 ----
 ====
 
-This will create a Secret that can be referred by VSphereSource and VSphereBinding.
+This will create a Secret `vsphere-credentials` in the `default` namespace that can be referred by a `VSphereSource`
+or a `VSphereBinding`.
+
+.Example login in the default namespace, verify the credentials and skip TLS errors, before creating the secret
+====
+----
+$ kn vsphere login --username jane-doe --password s3cr3t --secret-name vsphere-credentials --verify-url https://myvc.corp.local --verify-insecure
+----
+====
+
+This will create a Secret `vsphere-credentials` in the `default` namespace that can be referred by a `VSphereSource`
+or a `VSphereBinding`.
 
 ==== Create a basic VSphereSource
 
@@ -160,6 +168,8 @@ This will create a Secret that can be referred by VSphereSource and VSphereBindi
 $ kn vsphere source --name source --address https://my-vsphere-endpoint.local --skip-tls-verify --secret-ref vsphere-credentials --sink-uri http://where.to.send.stuff
 ----
 ====
+This will create a `VSphereSource` with the specified credentials to connect to vSphere and send vSphere events to
+the specified URI.
 
 ==== Create a basic VSphereBinding
 
@@ -170,7 +180,6 @@ $ kn vsphere binding --name binding --address https://my-vsphere-endpoint.local 
 ----
 ====
 
-This will create a VSphereSource that sends VSphere events to the specified URI.
 
 ==== Print out the version of this plugin
 
