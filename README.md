@@ -17,7 +17,9 @@ for vSphere events, and a Binding to easily access the VSphere API.
 deploy it via `kubectl`.
 
 ## Install Tanzu Sources for Knative
+
 ### Install via Release
+
 ```
 kubectl apply -f https://github.com/vmware-tanzu/sources-for-knative/releases/download/v0.21.0/release.yaml
 ```
