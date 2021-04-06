@@ -23,8 +23,10 @@ jobs:
         go-version: 1.15.x
 
     - name: Install Dependencies
+      env:
+        KO_VERSION: 0.8.1
       run: |
-        curl -L https://github.com/google/ko/releases/download/v0.7.0/ko_0.7.0_Linux_x86_64.tar.gz | tar xzf - ko
+        curl -L https://github.com/google/ko/releases/download/v${KO_VERSION}/ko_${KO_VERSION}_Linux_x86_64.tar.gz | tar xzf - ko
         chmod +x ./ko
         sudo mv ko /usr/local/bin
 
@@ -37,7 +39,7 @@ jobs:
     - name: Setup KinD Cluster with VMware sources.
       working-directory: ./src/github.com/${{ github.repository }}
       env:
-        KIND_VERSION: v0.7.0
+        KIND_VERSION: v0.10.0
       run: |
         set -x
 
@@ -69,12 +71,12 @@ jobs:
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
         ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
 
-        # TODO(mattmoor): Probably don't need this anymore, but keep until we
-        # have something that waits for pods to becomes ready.
-        sleep 60
+        kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/webhook
 
         # For debugging.
         kubectl get pods --all-namespaces
+        kubectl -n vmware-sources describe pods
+        kubectl -n vmware-sources get events
 
         # For logstream to work.
         export SYSTEM_NAMESPACE=vmware-sources
