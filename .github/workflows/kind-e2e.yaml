@@ -65,7 +65,7 @@ jobs:
         # Build and Publish our containers to the docker daemon (including test assets)
         export GO111MODULE=on
         export GOFLAGS=-mod=vendor
-        ko apply --platform=all -PRf config/ -f test/config
+        ko apply -PRf config/ -f test/config
 
         # Build Knative plugin and create Secret
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
