@@ -18,7 +18,7 @@ import (
 func main() {
 	ctx := signals.NewContext()
 
-	client, err := cloudevents.NewDefaultClient()
+	client, err := cloudevents.NewClientHTTP()
 	if err != nil {
 		log.Fatal(err.Error())
 	}

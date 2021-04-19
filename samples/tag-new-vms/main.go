@@ -22,7 +22,7 @@ type receiver struct {
 func main() {
 	ctx := context.Background()
 
-	ceclient, err := cloudevents.NewDefaultClient()
+	ceclient, err := cloudevents.NewClientHTTP()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
