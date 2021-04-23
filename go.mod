@@ -20,7 +20,7 @@ require (
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.uber.org/zap v1.16.0
-	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.19.7
 	k8s.io/apimachinery v0.19.7

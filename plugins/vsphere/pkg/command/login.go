@@ -14,7 +14,7 @@ import (
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/soap"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
@@ -140,8 +140,8 @@ func readPassword(cmd *cobra.Command, options *LoginOptions) (string, error) {
 		return options.Password, nil
 	}
 	cmd.Println("Password:")
-	if terminal.IsTerminal(syscall.Stdin) {
-		password, err := terminal.ReadPassword(syscall.Stdin)
+	if term.IsTerminal(syscall.Stdin) {
+		password, err := term.ReadPassword(syscall.Stdin)
 		cmd.Println()
 		if err != nil {
 			return "", err
