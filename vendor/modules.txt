@@ -1036,7 +1036,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/eventing v0.22.1-0.20210428222054-c2d6649ea36d
+# knative.dev/eventing v0.22.1-0.20210506211110-86ef03892eeb
 ## explicit
 knative.dev/eventing/pkg/adapter/v2
 knative.dev/eventing/pkg/adapter/v2/util/crstatusevent
@@ -1054,7 +1054,6 @@ knative.dev/eventing/pkg/apis/messaging/v1
 knative.dev/eventing/pkg/apis/sources
 knative.dev/eventing/pkg/apis/sources/config
 knative.dev/eventing/pkg/apis/sources/v1
-knative.dev/eventing/pkg/apis/sources/v1beta1
 knative.dev/eventing/pkg/apis/sources/v1beta2
 knative.dev/eventing/pkg/client/clientset/versioned
 knative.dev/eventing/pkg/client/clientset/versioned/scheme
@@ -1063,7 +1062,6 @@ knative.dev/eventing/pkg/client/clientset/versioned/typed/eventing/v1beta1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/flows/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/messaging/v1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1
-knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta1
 knative.dev/eventing/pkg/client/clientset/versioned/typed/sources/v1beta2
 knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/kncloudevents
