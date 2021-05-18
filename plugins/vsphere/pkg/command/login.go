@@ -14,7 +14,7 @@ import (
 
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/soap"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"github.com/spf13/cobra"
 	corev1 "k8s.io/api/core/v1"
