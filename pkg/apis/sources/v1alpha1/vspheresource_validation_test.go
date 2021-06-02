@@ -9,6 +9,7 @@ import (
 	"context"
 	"testing"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 
@@ -39,11 +40,38 @@ func TestVSphereSourceValidation(t *testing.T) {
 				Name: "valid",
 			},
 			Spec: VSphereSourceSpec{
-				SourceSpec: validSourceSpec,
-				VAuthSpec:  validVAuthSpec,
+				SourceSpec:      validSourceSpec,
+				VAuthSpec:       validVAuthSpec,
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 		want: nil,
+	}, {
+		name: "valid with JSON payloadEncoding",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec:      validSourceSpec,
+				VAuthSpec:       validVAuthSpec,
+				PayloadEncoding: cloudevents.ApplicationJSON,
+			},
+		},
+		want: nil,
+	}, {
+		name: "invalid payloadEncoding",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec:      validSourceSpec,
+				VAuthSpec:       validVAuthSpec,
+				PayloadEncoding: "application/text",
+			},
+		},
+		want: apis.ErrInvalidValue("application/text", "spec.payloadEncoding"),
 	}, {
 		name: "missing VAuthSpec",
 		c: &VSphereSource{
@@ -53,6 +81,7 @@ func TestVSphereSourceValidation(t *testing.T) {
 			Spec: VSphereSourceSpec{
 				SourceSpec: validSourceSpec,
 				// VAuthSpec:  validVAuthSpec,
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 		want: apis.ErrMissingField("spec.address.host", "spec.secretRef.name"),
@@ -64,7 +93,8 @@ func TestVSphereSourceValidation(t *testing.T) {
 			},
 			Spec: VSphereSourceSpec{
 				// SourceSpec: validSourceSpec,
-				VAuthSpec: validVAuthSpec,
+				VAuthSpec:       validVAuthSpec,
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 		want: apis.ErrGeneric("expected at least one, got none", "spec.sink.ref", "spec.sink.uri"),
@@ -81,6 +111,7 @@ func TestVSphereSourceValidation(t *testing.T) {
 					MaxAgeSeconds: -10,
 					PeriodSeconds: -5,
 				},
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 		want: apis.ErrInvalidValue("-10", "spec.checkpointConfig.maxAgeSeconds").Also(apis.ErrInvalidValue("-5",

@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"testing"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/spf13/cobra"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	vsphere "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
@@ -54,6 +55,7 @@ func TestNewSourceCommand(t *testing.T) {
 		checkFlag(t, sourceCommand, "sink-api-version")
 		checkFlag(t, sourceCommand, "sink-kind")
 		checkFlag(t, sourceCommand, "sink-name")
+		checkFlag(t, sourceCommand, "encoding")
 		assert.Assert(t, sourceCommand.RunE != nil)
 	})
 
@@ -94,6 +96,21 @@ func TestNewSourceCommand(t *testing.T) {
 		err := sourceCommand.Execute()
 
 		assert.ErrorContains(t, err, "requires a nonempty secret reference provided with the --secret-ref option")
+	})
+
+	t.Run("fails to execute with an invalid encoding scheme", func(t *testing.T) {
+		sourceCommand, _ := sourceCommand(regularClientConfig())
+		sourceCommand.SetArgs([]string{
+			"--name", sourceName,
+			"--address", sourceAddress,
+			"--sink-uri", sinkURI,
+			"--secret-ref", secretRef,
+			"--encoding", "invalid",
+		})
+
+		err := sourceCommand.Execute()
+
+		assert.ErrorContains(t, err, "invalid encoding scheme \"invalid\"")
 	})
 
 	invalidSinkMatrix := []struct {
@@ -172,7 +189,25 @@ and with a nonempty name with the --sink-name`)
 		source := retrieveCreatedSource(t, err, vSphereClientSet, defaultNamespace, sourceName)
 		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, false)
 		assert.Equal(t, source.Spec.Sink.URI.String(), sinkURI)
+		assert.Equal(t, source.Spec.PayloadEncoding, cloudevents.ApplicationXML) // assert default
 		assert.Check(t, source.Spec.Sink.Ref == nil)
+	})
+
+	t.Run("creates basic source with JSON payload encoding scheme", func(t *testing.T) {
+		sourceCommand, vSphereClientSet := sourceCommand(regularClientConfig())
+		sourceCommand.SetArgs([]string{
+			"--name", sourceName,
+			"--address", sourceAddress,
+			"--secret-ref", secretRef,
+			"--sink-uri", sinkURI,
+			"--encoding", "JSON", // implicitly verify capitalization is ignored
+		})
+
+		err := sourceCommand.Execute()
+
+		source := retrieveCreatedSource(t, err, vSphereClientSet, defaultNamespace, sourceName)
+		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, false)
+		assert.Equal(t, source.Spec.PayloadEncoding, cloudevents.ApplicationJSON)
 	})
 
 	t.Run("creates insecure source with Service and relative sink URI in explicit namespace", func(t *testing.T) {

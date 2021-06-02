@@ -43,12 +43,13 @@ To see examples of the Source and Binding in action, check out our
 The `VSphereSource` provides a simple mechanism to enable users to react to
 vSphere events.
 
-In order to receive events from vSphere (i.e. vCenter) there are **three key
+In order to receive events from vSphere (i.e. vCenter) these are the **key
 parts** in the configuration:
 
 1. The vCenter address and secret information.
 1. Where to send the events.
 1. Checkpoint behavior.
+1. Payload encoding scheme
 
 ```yaml
 apiVersion: sources.tanzu.vmware.com/v1alpha1
@@ -70,6 +71,9 @@ spec:
   checkpointConfig:
     maxAgeSeconds: 300
     periodSeconds: 10
+
+  # Set the CloudEvent data encoding scheme to JSON
+  payloadEncoding: application/json
 ```
 
 Let's walk through each of these.
@@ -154,7 +158,7 @@ sink:
 
 ### Configuring Checkpoint and Event Replay
 
-Let's focus on the last section of the sample source:
+Let's focus on this section of the sample source:
 
 ```yaml
 # Adjust checkpointing and event replay behavior
@@ -227,6 +231,21 @@ kubectl get cm vc-source-configmap -o jsonpath='{.data}'
   }
 }
 ```
+
+### Configuring CloudEvent Payload Encoding
+
+Let's focus on this section of the sample source:
+
+```yaml
+# Set the CloudEvent data encoding scheme to JSON
+payloadEncoding: application/json
+```
+
+The default CloudEvent payload encoding scheme, i.e.
+[`datacontenttype`](https://github.com/cloudevents/spec/blob/v1.0.1/spec.md#datacontenttype),
+produced by a `VSphereSource` in the `v1alpha1` API is `application/xml`.
+Alternatively, this can be changed to `application/json` as shown in the sample
+above. Other encoding schemes are currently **not implemented**.
 
 ## Basic `VSphereBinding` Example
 

@@ -83,6 +83,7 @@ Flags:
   -a, --address string               URL of ESXi or vCenter instance to connect to (same as VC_URL)
       --checkpoint-age duration      maximum allowed age for replaying events determined by last successful event in checkpoint (default 5m0s)
       --checkpoint-period duration   period between saving checkpoints (default 10s)
+      --encoding string              CloudEvent data encoding scheme (xml or json) (default "xml")
   -h, --help                         help for source
       --name string                  name of the source to create
   -n, --namespace string             namespace of the source to create (default namespace if omitted)

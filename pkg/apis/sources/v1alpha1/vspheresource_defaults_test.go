@@ -9,6 +9,7 @@ import (
 	"context"
 	"testing"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/google/go-cmp/cmp"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
@@ -22,7 +23,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 		c    *VSphereSource
 		want *VSphereSource
 	}{{
-		name: "no change",
+		name: "CheckpointConfig and PayloadEncoding not set",
 		c: &VSphereSource{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "valid",
@@ -43,6 +44,33 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 0,
 					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
 				},
+				PayloadEncoding: cloudevents.ApplicationXML,
+			},
+		},
+	}, {
+		name: "payloadEncoding set to JSON",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec:      validSourceSpec,
+				VAuthSpec:       validVAuthSpec,
+				PayloadEncoding: cloudevents.ApplicationJSON,
+			},
+		},
+		want: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec: validSourceSpec,
+				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 0,
+					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
+				},
+				PayloadEncoding: cloudevents.ApplicationJSON,
 			},
 		},
 	}, {
@@ -86,6 +114,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 0,
 					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
 				},
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 	}, {
@@ -114,6 +143,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 3600,
 					PeriodSeconds: 60,
 				},
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 	}}

@@ -7,7 +7,9 @@ package v1alpha1
 
 import (
 	"context"
+	"strings"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"knative.dev/pkg/apis"
 
 	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
@@ -22,5 +24,12 @@ func (vs *VSphereSource) SetDefaults(ctx context.Context) {
 	// to get at-most-once semantics
 	if vs.Spec.CheckpointConfig.PeriodSeconds == 0 {
 		vs.Spec.CheckpointConfig.PeriodSeconds = int64(vsphere.CheckpointDefaultPeriod.Seconds())
+	}
+
+	// preserve backward-compatibility
+	if vs.Spec.PayloadEncoding == "" {
+		vs.Spec.PayloadEncoding = cloudevents.ApplicationXML
+	} else {
+		vs.Spec.PayloadEncoding = strings.ToLower(vs.Spec.PayloadEncoding)
 	}
 }

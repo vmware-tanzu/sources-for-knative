@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -94,6 +95,9 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 						}, {
 							Name:  "VSPHERE_CHECKPOINT_CONFIG",
 							Value: string(jsonBytes),
+						}, {
+							Name:  "VSPHERE_PAYLOAD_ENCODING",
+							Value: strings.ToLower(vms.Spec.PayloadEncoding),
 						}, {
 							Name:  "K_CE_OVERRIDES",
 							Value: ceOverrides,
