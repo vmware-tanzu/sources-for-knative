@@ -136,7 +136,7 @@ func main() {
 		vsbSelector = psbinding.WithSelector(psbinding.InclusionSelector)
 	}
 
-	sharedmain.WebhookMainWithConfig(ctx, "webhook", sharedmain.ParseAndGetConfigOrDie(),
+	sharedmain.MainWithContext(ctx, "webhook",
 		certificates.NewController,
 		NewDefaultingAdmissionController,
 		NewValidationAdmissionController,
