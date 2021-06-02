@@ -8,16 +8,18 @@ package command
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
+
+	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
 )
 
 type SourceOptions struct {
@@ -34,6 +36,8 @@ type SourceOptions struct {
 
 	CheckpointMaxAge time.Duration
 	CheckpointPeriod time.Duration
+
+	PayloadEncoding string
 }
 
 func (so *SourceOptions) AsSinkDestination(namespace string) (*duckv1.Destination, error) {
@@ -103,6 +107,16 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 					"\nwith a nonempty kind --sink-kind option," +
 					"\nand with a nonempty name with the --sink-name")
 			}
+
+			// verify supported datacontentencoding schemes
+			validEncodings := map[string]struct{}{
+				"xml":  {},
+				"json": {},
+			}
+			if _, ok := validEncodings[strings.ToLower(options.PayloadEncoding)]; !ok {
+				return fmt.Errorf("invalid encoding scheme %q", options.PayloadEncoding)
+			}
+
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -141,6 +155,7 @@ kn vsphere source --namespace ns --name source --address https://my-vsphere-endp
 	flags.StringVar(&options.SinkAPIVersion, "sink-api-version", "", "sink API version")
 	flags.StringVar(&options.SinkKind, "sink-kind", "", "sink kind")
 	flags.StringVar(&options.SinkName, "sink-name", "", "sink name")
+	flags.StringVar(&options.PayloadEncoding, "encoding", "xml", "CloudEvent data encoding scheme (xml or json)")
 	flags.DurationVar(&options.CheckpointMaxAge, "checkpoint-age", vsphere.CheckpointDefaultAge,
 		"maximum allowed age for replaying events determined by last successful event in checkpoint")
 	flags.DurationVar(&options.CheckpointPeriod, "checkpoint-period", vsphere.CheckpointDefaultPeriod,
@@ -170,6 +185,7 @@ func newSource(namespace string, sinkDestination *duckv1.Destination, address *u
 				MaxAgeSeconds: int64(options.CheckpointMaxAge.Seconds()),
 				PeriodSeconds: int64(options.CheckpointPeriod.Seconds()),
 			},
+			PayloadEncoding: fmt.Sprintf("application/%s", strings.ToLower(options.PayloadEncoding)),
 		},
 	}
 }

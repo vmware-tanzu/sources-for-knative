@@ -43,6 +43,7 @@ type VSphereSourceSpec struct {
 
 	VAuthSpec        `json:",inline"`
 	CheckpointConfig VCheckpointSpec `json:"checkpointConfig"`
+	PayloadEncoding  string          `json:"payloadEncoding"`
 }
 
 type VCheckpointSpec struct {

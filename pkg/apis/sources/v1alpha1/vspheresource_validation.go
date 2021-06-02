@@ -7,7 +7,9 @@ package v1alpha1
 
 import (
 	"context"
+	"strings"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"knative.dev/pkg/apis"
 )
 
@@ -18,8 +20,16 @@ func (vs *VSphereSource) Validate(ctx context.Context) *apis.FieldError {
 
 // Validate implements apis.Validatable
 func (vsss *VSphereSourceSpec) Validate(ctx context.Context) *apis.FieldError {
-	return vsss.Sink.Validate(ctx).ViaField("sink").Also(vsss.VAuthSpec.Validate(ctx)).Also(vsss.CheckpointConfig.
-		Validate(ctx))
+	err := vsss.Sink.Validate(ctx).ViaField("sink").
+		Also(vsss.VAuthSpec.Validate(ctx)).
+		Also(vsss.CheckpointConfig.
+			Validate(ctx))
+
+	encoding := strings.ToLower(vsss.PayloadEncoding)
+	if (encoding != cloudevents.ApplicationJSON) && (encoding != cloudevents.ApplicationXML) {
+		err = err.Also(apis.ErrInvalidValue(encoding, "payloadEncoding"))
+	}
+	return err
 }
 
 func (vcs VCheckpointSpec) Validate(ctx context.Context) (err *apis.FieldError) {

@@ -37,6 +37,9 @@ type envConfig struct {
 
 	// CheckpointConfig configures the checkpoint behavior of this controller
 	CheckpointConfig string `envconfig:"VSPHERE_CHECKPOINT_CONFIG" default:"{}"`
+
+	// PayloadEncoding configures the encoding format for the cloud event payload
+	PayloadEncoding string `envconfig:"VSPHERE_PAYLOAD_ENCODING" default:"application/xml"`
 }
 
 func NewEnvConfig() adapter.EnvConfigAccessor {
@@ -45,13 +48,14 @@ func NewEnvConfig() adapter.EnvConfigAccessor {
 
 // vAdapter implements the vSphereSource adapter to trigger a Sink.
 type vAdapter struct {
-	Logger    *zap.SugaredLogger
-	Namespace string
-	Source    string
-	VClient   *govmomi.Client
-	CEClient  cloudevents.Client
-	KVStore   kvstore.Interface
-	CpConfig  CheckpointConfig
+	Logger          *zap.SugaredLogger
+	Namespace       string
+	Source          string
+	VClient         *govmomi.Client
+	CEClient        cloudevents.Client
+	KVStore         kvstore.Interface
+	CpConfig        CheckpointConfig
+	PayloadEncoding string
 }
 
 func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClient cloudevents.Client) adapter.Adapter {
@@ -87,13 +91,14 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 	}
 
 	return &vAdapter{
-		Logger:    logger,
-		Namespace: env.Namespace,
-		Source:    source,
-		VClient:   vClient,
-		CEClient:  ceClient,
-		KVStore:   store,
-		CpConfig:  *cpconf,
+		Logger:          logger,
+		Namespace:       env.Namespace,
+		Source:          source,
+		VClient:         vClient,
+		CEClient:        ceClient,
+		KVStore:         store,
+		CpConfig:        *cpconf,
+		PayloadEncoding: env.PayloadEncoding,
 	}
 }
 
@@ -247,8 +252,7 @@ func (a *vAdapter) sendEvents(ctx context.Context, baseEvents []types.BaseEvent)
 
 		// TODO(mattmoor): Consider setting the subject
 
-		// TODO: make encoding configurable?
-		if err := ev.SetData(cloudevents.ApplicationXML, be); err != nil {
+		if err := ev.SetData(a.PayloadEncoding, be); err != nil {
 			return success, fmt.Errorf("set data on event: %w", err)
 		}
 

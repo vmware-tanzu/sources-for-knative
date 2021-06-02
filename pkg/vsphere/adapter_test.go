@@ -145,7 +145,7 @@ func TestSendEvents(t *testing.T) {
 			}
 			logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
 
-			adapter := vAdapter{Logger: logger.Sugar(), CEClient: c, Source: source}
+			adapter := vAdapter{Logger: logger.Sugar(), CEClient: c, Source: source, PayloadEncoding: cloudevents.ApplicationXML}
 			count, sendResult := adapter.sendEvents(ctx, tc.baseEvents)
 
 			if count != tc.result.count {
