@@ -214,7 +214,7 @@ func createCloudEvent(eventSource string, eventID string, baseEvent types.BaseEv
 	ev.SetTime(eventTime)
 	ev.SetID(eventID)
 	ev.SetSource(eventSource)
-	ev.SetExtension("EventClass", details.Class)
+	ev.SetExtension("eventclass", details.Class)
 	if err := ev.SetData("application/xml", baseEvent); err != nil {
 		panic("Failed to SetData")
 	}

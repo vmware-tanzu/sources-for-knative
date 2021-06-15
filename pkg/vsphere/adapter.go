@@ -242,7 +242,7 @@ func (a *vAdapter) sendEvents(ctx context.Context, baseEvents []types.BaseEvent)
 
 		details := getEventDetails(be)
 		ev.SetType("com.vmware.vsphere." + details.Type)
-		ev.SetExtension("EventClass", details.Class)
+		ev.SetExtension("eventclass", details.Class)
 
 		// TODO: ingestion time?
 		ev.SetTime(be.GetEvent().CreatedTime)
