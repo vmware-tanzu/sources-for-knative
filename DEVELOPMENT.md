@@ -199,3 +199,14 @@ You can then iterate using the standard workflow:
 ```shell
 ko apply -f ./config
 ```
+
+### Pull Requests
+
+To highlight your pull request in the release notes, please include brief notes
+about the change(s) in the corresponding PR using this markdown code block:
+
+````
+```release-note
+<your description>
+```
+````
