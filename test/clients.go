@@ -34,7 +34,7 @@ const (
 )
 
 type Clients struct {
-	KubeClient   *test.KubeClient
+	KubeClient   kubernetes.Interface
 	VMWareClient *VMWareClients
 	// for interop with clients.Clients -- see AsPluginClients
 	clientConfig clientcmd.ClientConfig
@@ -72,7 +72,7 @@ func NewClientsFromConfig(clientConfig clientcmd.ClientConfig, namespace string)
 	if err != nil {
 		return nil, err
 	}
-	result.KubeClient = &test.KubeClient{Interface: kubeClient}
+	result.KubeClient = kubeClient
 	cs, err := versioned.NewForConfig(cfg)
 	if err != nil {
 		return nil, err
