@@ -71,6 +71,11 @@ jobs:
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
         ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
 
+        # DO NOT SUBMIT
+        sleep 10
+        kubectl -n vmware-sources logs `kubectl get pods --selector=app=webhook -n vmware-sources -o jsonpath='{.items[*].metadata.name}'`
+        kubectl -n vmware-sources describe pods
+        
         kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/webhook
 
         # For debugging.
