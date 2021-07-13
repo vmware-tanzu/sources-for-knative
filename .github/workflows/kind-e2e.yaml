@@ -39,7 +39,7 @@ jobs:
     - name: Setup KinD Cluster with VMware sources.
       working-directory: ./src/github.com/${{ github.repository }}
       env:
-        KIND_VERSION: v0.10.0
+        KIND_VERSION: v0.11.1
       run: |
         set -x
 
