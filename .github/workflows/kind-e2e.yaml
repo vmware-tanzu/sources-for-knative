@@ -51,6 +51,18 @@ jobs:
         cat > kind.yaml <<EOF
         apiVersion: kind.x-k8s.io/v1alpha4
         kind: Cluster
+        # This is needed in order to support projected volumes with service account tokens.
+        # See: https://kubernetes.slack.com/archives/CEKK1KTN2/p1600268272383600
+        kubeadmConfigPatches:
+          - |
+            apiVersion: kubeadm.k8s.io/v1beta2
+            kind: ClusterConfiguration
+            metadata:
+              name: config
+            apiServer:
+              extraArgs:
+                "service-account-issuer": "kubernetes.default.svc"
+                "service-account-signing-key-file": "/etc/kubernetes/pki/sa.key"
         nodes:
         - role: control-plane
         - role: worker
@@ -75,7 +87,7 @@ jobs:
         sleep 10
         kubectl -n vmware-sources logs `kubectl get pods --selector=app=webhook -n vmware-sources -o jsonpath='{.items[*].metadata.name}'`
         kubectl -n vmware-sources describe pods
-        
+
         kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/webhook
 
         # For debugging.
