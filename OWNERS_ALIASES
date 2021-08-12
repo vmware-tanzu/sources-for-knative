@@ -19,6 +19,7 @@ aliases:
   client-reviewers:
   - itsmurugappan
   client-wg-leads:
+  - dsimansk
   - navidshaikh
   - rhuss
   client-writers:
@@ -39,9 +40,11 @@ aliases:
   - snneji
   docs-wg-leads: []
   docs-writers:
+  - RichardJJG
   - abrennan89
   - carieshmarie
   - richieescarez
+  - snneji
   eventing-reviewers:
   - aslom
   - tayarani
@@ -54,7 +57,6 @@ aliases:
   eventing-wg-leads:
   - devguyio
   - lionelvillard
-  - vaikas
   eventing-writers:
   - akashrv
   - aliok
@@ -77,14 +79,15 @@ aliases:
   - knative-prow-robot
   - knative-prow-updater-robot
   - knative-test-reporter-robot
+  - lionelvillard
   - markusthoemmes
-  - matzew
   - mbehrendt
   - pmorie
   - rhuss
   - spencerdillard
   - thisisnotapril
   - vaikas
+  - yanweiguo
   knative-milestone-maintainers:
   - ImJasonH
   - ZhiminXiang
@@ -111,8 +114,8 @@ aliases:
   - vaikas
   knative-release-leads:
   - RichieEscarez
-  - dprotaso
-  - matzew
+  - lionelvillard
+  - yanweiguo
   knative-robots:
   - knative-prow-releaser-robot
   - knative-prow-robot
@@ -204,6 +207,7 @@ aliases:
   - yanweiguo
   serving-reviewers:
   - julz
+  - psschwei
   - whaught
   serving-writers:
   - dprotaso
