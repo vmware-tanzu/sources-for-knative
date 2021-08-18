@@ -13,10 +13,11 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"knative.dev/pkg/test"
 
 	// Support running e2e on GKE
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+
+	pkgtest "knative.dev/pkg/test"
 
 	"github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
 	sources "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1"
@@ -48,23 +49,21 @@ type VMWareClients struct {
 }
 
 func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
-	clientConfig := BuildClientConfig(configPath, clusterName)
-	return NewClientsFromConfig(clientConfig, namespace)
+	return NewClientsFromConfig(configPath, clusterName, namespace)
 }
 
 func Setup(t *testing.T) *Clients {
 	t.Helper()
-	result, err := NewClients(test.Flags.Kubeconfig, test.Flags.Cluster, Namespace)
+	result, err := NewClients(pkgtest.Flags.Kubeconfig, pkgtest.Flags.Cluster, Namespace)
 	if err != nil {
 		t.Fatal("Couldn't initialize clients", "error", err.Error())
 	}
 	return result
 }
 
-func NewClientsFromConfig(clientConfig clientcmd.ClientConfig, namespace string) (*Clients, error) {
+func NewClientsFromConfig(configPath, clusterName, namespace string) (*Clients, error) {
 	result := &Clients{}
-	result.clientConfig = clientConfig
-	cfg, err := clientConfig.ClientConfig()
+	cfg, err := pkgtest.BuildClientConfig(configPath, clusterName)
 	if err != nil {
 		return nil, err
 	}
@@ -84,17 +83,6 @@ func NewClientsFromConfig(clientConfig clientcmd.ClientConfig, namespace string)
 	}
 
 	return result, nil
-}
-
-func BuildClientConfig(kubeConfigPath string, clusterName string) clientcmd.ClientConfig {
-	overrides := clientcmd.ConfigOverrides{}
-	// Override the cluster name if provided.
-	if clusterName != "" {
-		overrides.Context.Cluster = clusterName
-	}
-	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeConfigPath},
-		&overrides)
 }
 
 func (c *Clients) AsPluginClients() *clients.Clients {
