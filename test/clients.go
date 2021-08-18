@@ -13,7 +13,6 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"knative.dev/pkg/test"
 
 	// Support running e2e on GKE
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -55,7 +54,7 @@ func NewClients(configPath, clusterName, namespace string) (*Clients, error) {
 
 func Setup(t *testing.T) *Clients {
 	t.Helper()
-	result, err := NewClients(test.Flags.Kubeconfig, test.Flags.Cluster, Namespace)
+	result, err := NewClients(pkgtest.Flags.Kubeconfig, pkgtest.Flags.Cluster, Namespace)
 	if err != nil {
 		t.Fatal("Couldn't initialize clients", "error", err.Error())
 	}
