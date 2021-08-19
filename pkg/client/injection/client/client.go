@@ -9,25 +9,44 @@ package client
 
 import (
 	context "context"
+	json "encoding/json"
+	errors "errors"
+	fmt "fmt"
 
+	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	versioned "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
+	typedsourcesv1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/typed/sources/v1alpha1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	runtime "k8s.io/apimachinery/pkg/runtime"
+	schema "k8s.io/apimachinery/pkg/runtime/schema"
+	types "k8s.io/apimachinery/pkg/types"
+	watch "k8s.io/apimachinery/pkg/watch"
+	discovery "k8s.io/client-go/discovery"
+	dynamic "k8s.io/client-go/dynamic"
 	rest "k8s.io/client-go/rest"
 	injection "knative.dev/pkg/injection"
+	dynamicclient "knative.dev/pkg/injection/clients/dynamicclient"
 	logging "knative.dev/pkg/logging"
 )
 
 func init() {
-	injection.Default.RegisterClient(withClient)
+	injection.Default.RegisterClient(withClientFromConfig)
 	injection.Default.RegisterClientFetcher(func(ctx context.Context) interface{} {
 		return Get(ctx)
 	})
+	injection.Dynamic.RegisterDynamicClient(withClientFromDynamic)
 }
 
 // Key is used as the key for associating information with a context.Context.
 type Key struct{}
 
-func withClient(ctx context.Context, cfg *rest.Config) context.Context {
+func withClientFromConfig(ctx context.Context, cfg *rest.Config) context.Context {
 	return context.WithValue(ctx, Key{}, versioned.NewForConfigOrDie(cfg))
+}
+
+func withClientFromDynamic(ctx context.Context) context.Context {
+	return context.WithValue(ctx, Key{}, &wrapClient{dyn: dynamicclient.Get(ctx)})
 }
 
 // Get extracts the versioned.Interface client from the context.
@@ -43,4 +62,302 @@ func Get(ctx context.Context) versioned.Interface {
 		}
 	}
 	return untyped.(versioned.Interface)
+}
+
+type wrapClient struct {
+	dyn dynamic.Interface
+}
+
+var _ versioned.Interface = (*wrapClient)(nil)
+
+func (w *wrapClient) Discovery() discovery.DiscoveryInterface {
+	panic("Discovery called on dynamic client!")
+}
+
+func convert(from interface{}, to runtime.Object) error {
+	bs, err := json.Marshal(from)
+	if err != nil {
+		return fmt.Errorf("Marshal() = %w", err)
+	}
+	if err := json.Unmarshal(bs, to); err != nil {
+		return fmt.Errorf("Unmarshal() = %w", err)
+	}
+	return nil
+}
+
+// SourcesV1alpha1 retrieves the SourcesV1alpha1Client
+func (w *wrapClient) SourcesV1alpha1() typedsourcesv1alpha1.SourcesV1alpha1Interface {
+	return &wrapSourcesV1alpha1{
+		dyn: w.dyn,
+	}
+}
+
+type wrapSourcesV1alpha1 struct {
+	dyn dynamic.Interface
+}
+
+func (w *wrapSourcesV1alpha1) RESTClient() rest.Interface {
+	panic("RESTClient called on dynamic client!")
+}
+
+func (w *wrapSourcesV1alpha1) VSphereBindings(namespace string) typedsourcesv1alpha1.VSphereBindingInterface {
+	return &wrapSourcesV1alpha1VSphereBindingImpl{
+		dyn: w.dyn.Resource(schema.GroupVersionResource{
+			Group:    "sources.tanzu.vmware.com",
+			Version:  "v1alpha1",
+			Resource: "vspherebindings",
+		}),
+
+		namespace: namespace,
+	}
+}
+
+type wrapSourcesV1alpha1VSphereBindingImpl struct {
+	dyn dynamic.NamespaceableResourceInterface
+
+	namespace string
+}
+
+var _ typedsourcesv1alpha1.VSphereBindingInterface = (*wrapSourcesV1alpha1VSphereBindingImpl)(nil)
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Create(ctx context.Context, in *v1alpha1.VSphereBinding, opts v1.CreateOptions) (*v1alpha1.VSphereBinding, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereBinding",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Create(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBinding{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.VSphereBinding, error) {
+	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBinding{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.VSphereBindingList, error) {
+	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBindingList{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VSphereBinding, err error) {
+	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBinding{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Update(ctx context.Context, in *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (*v1alpha1.VSphereBinding, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereBinding",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Update(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBinding{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) UpdateStatus(ctx context.Context, in *v1alpha1.VSphereBinding, opts v1.UpdateOptions) (*v1alpha1.VSphereBinding, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereBinding",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).UpdateStatus(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereBinding{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereBindingImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+	return nil, errors.New("NYI: Watch")
+}
+
+func (w *wrapSourcesV1alpha1) VSphereSources(namespace string) typedsourcesv1alpha1.VSphereSourceInterface {
+	return &wrapSourcesV1alpha1VSphereSourceImpl{
+		dyn: w.dyn.Resource(schema.GroupVersionResource{
+			Group:    "sources.tanzu.vmware.com",
+			Version:  "v1alpha1",
+			Resource: "vspheresources",
+		}),
+
+		namespace: namespace,
+	}
+}
+
+type wrapSourcesV1alpha1VSphereSourceImpl struct {
+	dyn dynamic.NamespaceableResourceInterface
+
+	namespace string
+}
+
+var _ typedsourcesv1alpha1.VSphereSourceInterface = (*wrapSourcesV1alpha1VSphereSourceImpl)(nil)
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Create(ctx context.Context, in *v1alpha1.VSphereSource, opts v1.CreateOptions) (*v1alpha1.VSphereSource, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereSource",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Create(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSource{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
+	return w.dyn.Namespace(w.namespace).Delete(ctx, name, opts)
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
+	return w.dyn.Namespace(w.namespace).DeleteCollection(ctx, opts, listOpts)
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.VSphereSource, error) {
+	uo, err := w.dyn.Namespace(w.namespace).Get(ctx, name, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSource{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.VSphereSourceList, error) {
+	uo, err := w.dyn.Namespace(w.namespace).List(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSourceList{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.VSphereSource, err error) {
+	uo, err := w.dyn.Namespace(w.namespace).Patch(ctx, name, pt, data, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSource{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Update(ctx context.Context, in *v1alpha1.VSphereSource, opts v1.UpdateOptions) (*v1alpha1.VSphereSource, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereSource",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).Update(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSource{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) UpdateStatus(ctx context.Context, in *v1alpha1.VSphereSource, opts v1.UpdateOptions) (*v1alpha1.VSphereSource, error) {
+	in.SetGroupVersionKind(schema.GroupVersionKind{
+		Group:   "sources.tanzu.vmware.com",
+		Version: "v1alpha1",
+		Kind:    "VSphereSource",
+	})
+	uo := &unstructured.Unstructured{}
+	if err := convert(in, uo); err != nil {
+		return nil, err
+	}
+	uo, err := w.dyn.Namespace(w.namespace).UpdateStatus(ctx, uo, opts)
+	if err != nil {
+		return nil, err
+	}
+	out := &v1alpha1.VSphereSource{}
+	if err := convert(uo, out); err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (w *wrapSourcesV1alpha1VSphereSourceImpl) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
+	return nil, errors.New("NYI: Watch")
 }
