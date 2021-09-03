@@ -19,17 +19,17 @@ require (
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
-	go.uber.org/zap v1.18.1
-	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1
+	go.uber.org/zap v1.19.0
+	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.20.7
-	k8s.io/apimachinery v0.20.7
-	k8s.io/client-go v0.20.7
-	k8s.io/code-generator v0.20.7
-	k8s.io/kube-openapi v0.0.0-20201113171705-d219536bb9fd
-	knative.dev/eventing v0.25.1-0.20210819160604-19fcdf4b2aed
+	k8s.io/api v0.21.4
+	k8s.io/apimachinery v0.21.4
+	k8s.io/client-go v0.21.4
+	k8s.io/code-generator v0.21.4
+	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
+	knative.dev/eventing v0.25.1-0.20210903113057-4a55e519013e
 	knative.dev/hack v0.0.0-20210806075220-815cd312d65c
-	knative.dev/pkg v0.0.0-20210820063207-44fc07491946
+	knative.dev/pkg v0.0.0-20210903055557-dec98b426132
 )
 
 replace (
