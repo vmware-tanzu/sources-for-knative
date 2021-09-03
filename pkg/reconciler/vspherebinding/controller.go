@@ -70,7 +70,7 @@ func NewController(
 			scheme.Scheme, corev1.EventSource{Component: controllerAgentName}),
 		NamespaceLister: namespaceInformer.Lister(),
 	}
-	impl := controller.NewImpl(c, logger, "VSphereBindings")
+	impl := controller.NewContext(ctx, c, controller.ControllerOptions{WorkQueueName: "VSphereBindings", Logger: logger})
 
 	logger.Info("Setting up event handlers")
 

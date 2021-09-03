@@ -13,6 +13,7 @@ import (
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/resolver"
+	"knative.dev/pkg/tracker"
 
 	"github.com/kelseyhightower/envconfig"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
@@ -91,7 +92,7 @@ func NewController(
 		Handler:    controller.HandleAll(impl.EnqueueControllerOf),
 	})
 
-	r.resolver = resolver.NewURIResolver(ctx, impl.EnqueueKey)
+	r.resolver = resolver.NewURIResolverFromTracker(ctx, tracker.New(impl.EnqueueKey, controller.GetTrackerLease(ctx)))
 
 	return impl
 }
