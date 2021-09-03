@@ -27,9 +27,9 @@ require (
 	k8s.io/client-go v0.20.7
 	k8s.io/code-generator v0.20.7
 	k8s.io/kube-openapi v0.0.0-20201113171705-d219536bb9fd
-	knative.dev/eventing v0.24.0
+	knative.dev/eventing v0.24.2
 	knative.dev/hack v0.0.0-20210622141627-e28525d8d260
-	knative.dev/pkg v0.0.0-20210622173328-dd0db4b05c80
+	knative.dev/pkg v0.0.0-20210902173607-953af0138c75
 )
 
 replace (
