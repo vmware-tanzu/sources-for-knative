@@ -20,7 +20,7 @@ click `"create branch: <release-name>"`.
 ## Creating a `tag`
 
 We use `tags` to drive the creation of the releases. This is handled by release
-workflow in [release.yaml](../.github/workflows/release.yaml).
+workflow in [release.yaml](.github/workflows/release.yaml).
 
 `Tags` need to be pushed directly to upstream, so typical PR workflow will not
 work. Here's one example workflow (assuming of course you have rights to
