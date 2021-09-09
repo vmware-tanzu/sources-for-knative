@@ -24,7 +24,7 @@ jobs:
 
     - name: Install Dependencies
       env:
-        KO_VERSION: 0.8.1
+        KO_VERSION: 0.8.3
       run: |
         curl -L https://github.com/google/ko/releases/download/v${KO_VERSION}/ko_${KO_VERSION}_Linux_x86_64.tar.gz | tar xzf - ko
         chmod +x ./ko
@@ -33,7 +33,6 @@ jobs:
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
       with:
-        fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
     - name: Setup KinD Cluster with VMware sources.
