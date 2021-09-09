@@ -15,19 +15,19 @@ jobs:
       KO_DOCKER_REPO: docker.io/vmware
 
     steps:
-    - name: Set up Go 1.15.x
+    - name: Set up Go 1.16.x
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15.x
+        go-version: 1.16.x
 
     # Setup gcloud CLI
-    - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+    - uses: google-github-actions/setup-gcloud@master
       with:
         service_account_key: ${{ secrets.GOOGLE_JSON_KEY }}
 
     - name: Setup ko
       run: |
-        curl -L https://github.com/google/ko/releases/download/v0.7.0/ko_0.7.0_Linux_x86_64.tar.gz | tar xzf - ko
+        curl -L https://github.com/google/ko/releases/download/v0.8.3/ko_0.8.3_Linux_x86_64.tar.gz | tar xzf - ko
         chmod +x ./ko
         sudo mv ko /usr/local/bin
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -35,7 +35,6 @@ jobs:
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
       with:
-        fetch-depth: 1
         path: ./src/github.com/${{ github.repository }}
 
     - name: Build and Publish images, Produce release artifact.
