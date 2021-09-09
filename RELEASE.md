@@ -43,6 +43,8 @@ git tag -a v0.24.0 -m "Release v0.24.0"
 git push origin v0.24.0
 ```
 
+**Note:** To trigger the release workflow you cannot push more than 2 tags at a time.
+
 ## Release Notes
 
 Release notes can be generated via the corresponding Github Actions
