@@ -210,7 +210,7 @@ func createCloudEvent(eventSource string, eventID string, baseEvent types.BaseEv
 
 	ev := cloudevents.NewEvent(cloudevents.VersionV1)
 
-	ev.SetType("com.vmware.vsphere." + details.Type)
+	ev.SetType(fmt.Sprintf(eventTypeFormat, details.Type))
 	ev.SetTime(eventTime)
 	ev.SetID(eventID)
 	ev.SetSource(eventSource)

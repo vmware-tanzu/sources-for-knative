@@ -25,6 +25,8 @@ import (
 )
 
 const (
+	// signal unstable event API for converting vSphere events to CE
+	eventTypeFormat = "com.vmware.vsphere.%s.v0"
 	// read up to max events per iteration
 	maxEventsBatch = 100
 )
@@ -241,7 +243,8 @@ func (a *vAdapter) sendEvents(ctx context.Context, baseEvents []types.BaseEvent)
 		ev.SetSource(a.Source)
 
 		details := getEventDetails(be)
-		ev.SetType("com.vmware.vsphere." + details.Type)
+
+		ev.SetType(fmt.Sprintf(eventTypeFormat, details.Type))
 		ev.SetExtension("eventclass", details.Class)
 
 		// TODO: ingestion time?
