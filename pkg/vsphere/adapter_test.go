@@ -145,20 +145,26 @@ func TestSendEvents(t *testing.T) {
 			}
 			logger := zaptest.NewLogger(t, zaptest.WrapOptions(zap.AddCaller()))
 
-			adapter := vAdapter{Logger: logger.Sugar(), CEClient: c, Source: source, PayloadEncoding: cloudevents.ApplicationXML}
-			count, sendResult := adapter.sendEvents(ctx, tc.baseEvents)
+			adapter := vAdapter{
+				Logger:          logger.Sugar(),
+				CEClient:        c,
+				Source:          source,
+				PayloadEncoding: cloudevents.ApplicationXML,
+				VAPIVersion:     "6.7.0",
+			}
+			count, result := adapter.sendEvents(ctx, tc.baseEvents)
 
 			if count != tc.result.count {
 				t.Errorf("Unexpected event count from sendEvents, expected %v got %v", tc.result.count, count)
 			}
 
-			if tc.result.err == nil && sendResult != nil {
-				t.Error("Unexpected result from sendEvents, wanted no error got ", sendResult)
-			} else if tc.result.err != nil && sendResult == nil {
+			if tc.result.err == nil && result != nil {
+				t.Error("Unexpected result from sendEvents, wanted no error got ", result)
+			} else if tc.result.err != nil && result == nil {
 				t.Error("Unexpected result from sendEvents, did not get expected error ", tc.result.err)
-			} else if tc.result.err != nil && sendResult != nil {
-				if sendResult.Error() != tc.result.err.Error() {
-					t.Errorf("Unexpected result from sendEvents, expected %v got %v", tc.result, sendResult)
+			} else if tc.result.err != nil && result != nil {
+				if result.Error() != tc.result.err.Error() {
+					t.Errorf("Unexpected result from sendEvents, expected %v got %v", tc.result, result)
 				}
 			}
 
@@ -176,7 +182,7 @@ type testEvents struct {
 	ceEvents []*event.Event
 }
 
-func createTestEvents(count int, source string, created time.Time) testEvents {
+func createTestEvents(count int, source string, createTime time.Time) testEvents {
 	const (
 		keyBegin = 1000
 	)
@@ -188,8 +194,8 @@ func createTestEvents(count int, source string, created time.Time) testEvents {
 
 	for i := 0; i < count; i++ {
 		id := keyBegin + i
-		be := createBaseEvent(id, created)
-		ce := createCloudEvent(source, strconv.Itoa(id), be, created)
+		be := createBaseEvent(id, createTime)
+		ce := createCloudEvent(source, strconv.Itoa(id), be, createTime)
 		te.vEvents[i] = be
 		te.ceEvents[i] = ce
 	}
@@ -214,7 +220,8 @@ func createCloudEvent(eventSource string, eventID string, baseEvent types.BaseEv
 	ev.SetTime(eventTime)
 	ev.SetID(eventID)
 	ev.SetSource(eventSource)
-	ev.SetExtension("eventclass", details.Class)
+	ev.SetExtension(ceVSphereEventClass, details.Class)
+	ev.SetExtension(ceVSphereAPIKey, "6.7.0")
 	if err := ev.SetData("application/xml", baseEvent); err != nil {
 		panic("Failed to SetData")
 	}
