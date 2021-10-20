@@ -27,6 +27,9 @@ import (
 const (
 	// signal unstable event API for converting vSphere events to CE
 	eventTypeFormat = "com.vmware.vsphere.%s.v0"
+	// extended attribute to filter on vSphere API version/class
+	ceVSphereAPIKey     = "vsphereapiversion"
+	ceVSphereEventClass = "eventclass"
 	// read up to max events per iteration
 	maxEventsBatch = 100
 )
@@ -54,6 +57,7 @@ type vAdapter struct {
 	Namespace       string
 	Source          string
 	VClient         *govmomi.Client
+	VAPIVersion     string
 	CEClient        cloudevents.Client
 	KVStore         kvstore.Interface
 	CpConfig        CheckpointConfig
@@ -97,6 +101,7 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 		Namespace:       env.Namespace,
 		Source:          source,
 		VClient:         vClient,
+		VAPIVersion:     vClient.ServiceContent.About.ApiVersion,
 		CEClient:        ceClient,
 		KVStore:         store,
 		CpConfig:        *cpconf,
@@ -244,16 +249,12 @@ func (a *vAdapter) sendEvents(ctx context.Context, baseEvents []types.BaseEvent)
 
 		details := getEventDetails(be)
 
-		ev.SetType(fmt.Sprintf(eventTypeFormat, details.Type))
-		ev.SetExtension("eventclass", details.Class)
-
-		// TODO: ingestion time?
-		ev.SetTime(be.GetEvent().CreatedTime)
-
-		// TODO: UUID?
+		// CE envelop
 		ev.SetID(fmt.Sprintf("%d", be.GetEvent().Key))
-
-		// TODO(mattmoor): Consider setting the subject
+		ev.SetType(fmt.Sprintf(eventTypeFormat, details.Type))
+		ev.SetTime(be.GetEvent().CreatedTime)
+		ev.SetExtension(ceVSphereEventClass, details.Class)
+		ev.SetExtension(ceVSphereAPIKey, a.VAPIVersion)
 
 		if err := ev.SetData(a.PayloadEncoding, be); err != nil {
 			return success, fmt.Errorf("set data on event: %w", err)
