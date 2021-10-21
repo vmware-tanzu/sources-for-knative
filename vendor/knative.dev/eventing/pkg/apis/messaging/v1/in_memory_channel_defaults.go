@@ -19,8 +19,6 @@ package v1
 import (
 	"context"
 
-	"knative.dev/pkg/apis"
-
 	"knative.dev/eventing/pkg/apis/messaging"
 )
 
@@ -37,10 +35,9 @@ func (imc *InMemoryChannel) SetDefaults(ctx context.Context) {
 		imc.Annotations[messaging.SubscribableDuckVersionAnnotation] = "v1"
 	}
 
-	ctx = apis.WithinParent(ctx, imc.ObjectMeta)
 	imc.Spec.SetDefaults(ctx)
 }
 
 func (imcs *InMemoryChannelSpec) SetDefaults(ctx context.Context) {
-	imcs.Delivery.SetDefaults(ctx)
+	// TODO: Nothing to default here...
 }

@@ -3,6 +3,7 @@ module github.com/vmware-tanzu/sources-for-knative
 go 1.15
 
 require (
+	cloud.google.com/go v0.97.0 // indirect
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
 	github.com/cloudevents/sdk-go/v2 v2.4.1
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
@@ -14,22 +15,31 @@ require (
 	github.com/jpillora/backoff v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/kr/pty v1.1.8 // indirect
+	github.com/prometheus/common v0.31.1 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/vmware/govmomi v0.24.1-0.20210127152625-854ba4efe87e
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.uber.org/zap v1.19.1
+	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
+	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1 // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
+	golang.org/x/tools v0.1.7 // indirect
+	google.golang.org/api v0.58.0 // indirect
+	google.golang.org/genproto v0.0.0-20211016002631-37fc39342514 // indirect
+	google.golang.org/grpc v1.41.0 // indirect
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.21.4
 	k8s.io/apimachinery v0.21.4
 	k8s.io/client-go v0.21.4
 	k8s.io/code-generator v0.21.4
+	k8s.io/gengo v0.0.0-20210915205010-39e73c8a59cd // indirect
 	k8s.io/kube-openapi v0.0.0-20210305001622-591a79e4bda7
-	knative.dev/eventing v0.26.1-0.20211019092333-7af98bbb4491
-	knative.dev/hack v0.0.0-20211019034732-ced8ce706528
-	knative.dev/pkg v0.0.0-20211019132235-ba2b2b1bf268
+	knative.dev/eventing v0.26.1
+	knative.dev/hack v0.0.0-20210806075220-815cd312d65c
+	knative.dev/pkg v0.0.0-20210919202233-5ae482141474
+	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 replace (

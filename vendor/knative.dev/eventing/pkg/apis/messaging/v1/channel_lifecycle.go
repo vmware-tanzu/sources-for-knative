@@ -24,11 +24,7 @@ import (
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
 
-var chCondSet = apis.NewLivingConditionSet(
-	ChannelConditionBackingChannelReady,
-	ChannelConditionAddressable,
-	ChannelConditionDeadLetterSinkResolved,
-)
+var chCondSet = apis.NewLivingConditionSet(ChannelConditionBackingChannelReady, ChannelConditionAddressable)
 
 const (
 	// ChannelConditionReady has status True when all subconditions below have been set to True.
@@ -40,10 +36,6 @@ const (
 	// ChannelConditionAddressable has status true when this Channel meets
 	// the Addressable contract and has a non-empty hostname.
 	ChannelConditionAddressable apis.ConditionType = "Addressable"
-
-	// ChannelConditionDeadLetterSinkResolved has status True when there is a Dead Letter Sink ref or URI
-	// defined in the Spec.Delivery, is a valid destination and its correctly resolved into a valid URI
-	ChannelConditionDeadLetterSinkResolved apis.ConditionType = "DeadLetterSinkResolved"
 )
 
 // GetConditionSet retrieves the condition set for this resource. Implements the KRShaped interface.
@@ -129,19 +121,4 @@ func (cs *ChannelStatus) PropagateStatuses(chs *eventingduck.ChannelableStatus) 
 	cs.SetAddress(chs.AddressStatus.Address)
 	// Set the subscribable status.
 	cs.SubscribableStatus = chs.SubscribableStatus
-}
-
-func (cs *ChannelStatus) MarkDeadLetterSinkResolvedSucceeded(deadLetterSinkURI *apis.URL) {
-	cs.DeliveryStatus.DeadLetterSinkURI = deadLetterSinkURI
-	chCondSet.Manage(cs).MarkTrue(ChannelConditionDeadLetterSinkResolved)
-}
-
-func (cs *ChannelStatus) MarkDeadLetterSinkNotConfigured() {
-	cs.DeadLetterSinkURI = nil
-	chCondSet.Manage(cs).MarkTrueWithReason(ChannelConditionDeadLetterSinkResolved, "DeadLetterSinkNotConfigured", "No dead letter sink is configured.")
-}
-
-func (cs *ChannelStatus) MarkDeadLetterSinkResolvedFailed(reason, messageFormat string, messageA ...interface{}) {
-	cs.DeadLetterSinkURI = nil
-	chCondSet.Manage(cs).MarkFalse(ChannelConditionDeadLetterSinkResolved, reason, messageFormat, messageA...)
 }
