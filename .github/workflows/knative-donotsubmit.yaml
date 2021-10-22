@@ -56,6 +56,6 @@ jobs:
                 -reporter="github-pr-check" \
                 -filter-mode="added" \
                 -fail-on-error="true" \
-                -level="info"
+                -level="error"
 
           echo '::endgroup::'
