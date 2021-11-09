@@ -14,8 +14,6 @@ export GOFLAGS=-mod=
 
 echo "=== Update Codegen for $MODULE_NAME"
 
-echo "GOPATH=$GOPATH"
-
 group "Kubernetes Codegen"
 
 # generate the code with:
