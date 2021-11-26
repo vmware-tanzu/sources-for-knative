@@ -1086,7 +1086,7 @@ k8s.io/utils/buffer
 k8s.io/utils/integer
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/eventing v0.27.1-0.20211118083529-11a40c649d54
+# knative.dev/eventing v0.27.1-0.20211123205351-820db20be4b2
 ## explicit; go 1.16
 knative.dev/eventing/pkg/adapter/v2
 knative.dev/eventing/pkg/adapter/v2/util/crstatusevent
@@ -1118,10 +1118,10 @@ knative.dev/eventing/pkg/client/injection/client
 knative.dev/eventing/pkg/kncloudevents
 knative.dev/eventing/pkg/metrics
 knative.dev/eventing/pkg/metrics/source
-# knative.dev/hack v0.0.0-20211117134436-69a2295d54ce
+# knative.dev/hack v0.0.0-20211122162614-813559cefdda
 ## explicit; go 1.14
 knative.dev/hack
-# knative.dev/pkg v0.0.0-20211117215328-5708c4c44232
+# knative.dev/pkg v0.0.0-20211125172117-608fc877e946
 ## explicit; go 1.14
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
@@ -1156,6 +1156,7 @@ knative.dev/pkg/injection/clients/dynamicclient
 knative.dev/pkg/injection/clients/namespacedkube/informers/core/v1/secret
 knative.dev/pkg/injection/clients/namespacedkube/informers/factory
 knative.dev/pkg/injection/sharedmain
+knative.dev/pkg/kmap
 knative.dev/pkg/kmeta
 knative.dev/pkg/kmp
 knative.dev/pkg/kvstore
