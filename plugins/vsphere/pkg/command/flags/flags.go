@@ -3,7 +3,7 @@ Copyright 2020 VMware, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package command
+package flags
 
 func MutuallyExclusiveStringFlags(value1, value2 string, rest ...string) bool {
 	nonEmpty := 0

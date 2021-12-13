@@ -3,113 +3,108 @@ Copyright 2020 VMware, Inc.
 SPDX-License-Identifier: Apache-2.0
 */
 
-package command_test
+package source_test
 
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"net/url"
 	"strconv"
 	"testing"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
-	"github.com/spf13/cobra"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
-	vsphere "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
-	vspherefake "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned/fake"
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
-	"gotest.tools/assert"
+	"gotest.tools/v3/assert"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	k8sfake "k8s.io/client-go/kubernetes/fake"
 	k8stesting "k8s.io/client-go/testing"
-	"k8s.io/client-go/tools/clientcmd"
-	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
+
+	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	vsphere "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/source"
 )
 
-func TestNewSourceCommand(t *testing.T) {
-
-	const sourceName = "spring"
-	const secretRef = "street-creds"
-	const sourceAddress = "https://my-vsphere-endpoint.example.com"
-	const sinkURI = "https://sink.example.com"
+func TestNewSourceCreateCommand(t *testing.T) {
+	const (
+		sourceName    = "spring"
+		secretRef     = "street-creds"
+		sourceAddress = "https://my-vsphere-endpoint.example.com"
+		sinkURI       = "https://sink.example.com"
+	)
 
 	t.Run("defines basic metadata", func(t *testing.T) {
-		sourceCommand, _ := sourceCommand(regularClientConfig())
+		cmd := source.NewSourceCreateCommand(&pkg.Clients{}, &source.Options{})
 
-		assert.Equal(t, sourceCommand.Use, "source")
-		assert.Check(t, len(sourceCommand.Short) > 0,
+		assert.Equal(t, cmd.Use, "create")
+		assert.Check(t, len(cmd.Short) > 0,
 			"command should have a nonempty short description")
-		assert.Check(t, len(sourceCommand.Long) > 0,
+		assert.Check(t, len(cmd.Long) > 0,
 			"command should have a nonempty long description")
-		checkFlag(t, sourceCommand, "namespace")
-		checkFlag(t, sourceCommand, "name")
-		checkFlag(t, sourceCommand, "address")
-		checkFlag(t, sourceCommand, "skip-tls-verify")
-		checkFlag(t, sourceCommand, "secret-ref")
-		checkFlag(t, sourceCommand, "sink-uri")
-		checkFlag(t, sourceCommand, "sink-api-version")
-		checkFlag(t, sourceCommand, "sink-kind")
-		checkFlag(t, sourceCommand, "sink-name")
-		checkFlag(t, sourceCommand, "encoding")
-		assert.Assert(t, sourceCommand.RunE != nil)
+		command.CheckFlag(t, cmd, "name")
+		command.CheckFlag(t, cmd, "vc-address")
+		command.CheckFlag(t, cmd, "skip-tls-verify")
+		command.CheckFlag(t, cmd, "secret-ref")
+		command.CheckFlag(t, cmd, "sink-uri")
+		command.CheckFlag(t, cmd, "sink-api-version")
+		command.CheckFlag(t, cmd, "sink-kind")
+		command.CheckFlag(t, cmd, "sink-name")
+		command.CheckFlag(t, cmd, "encoding")
+		assert.Assert(t, cmd.RunE != nil)
 	})
 
 	t.Run("fails to execute with an empty name", func(t *testing.T) {
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
-			"--address", sourceAddress,
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "requires a nonempty name provided with the --name option")
 	})
 
 	t.Run("fails to execute with an empty address", func(t *testing.T) {
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
-		assert.ErrorContains(t, err, "requires a nonempty address provided with the --address option")
+		err := cmd.Execute()
+		assert.ErrorContains(t, err, "requires a nonempty address provided with the --vc-address option")
 	})
 
 	t.Run("fails to execute with an empty secret reference", func(t *testing.T) {
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "requires a nonempty secret reference provided with the --secret-ref option")
 	})
 
 	t.Run("fails to execute with an invalid encoding scheme", func(t *testing.T) {
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--sink-uri", sinkURI,
 			"--secret-ref", secretRef,
 			"--encoding", "invalid",
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "invalid encoding scheme \"invalid\"")
 	})
 
@@ -159,15 +154,15 @@ func TestNewSourceCommand(t *testing.T) {
 	}
 	for _, sinkTestCase := range invalidSinkMatrix {
 		t.Run(fmt.Sprintf("fails to execute with %s sink flags set", sinkTestCase.description), func(t *testing.T) {
-			sourceCommand, _ := sourceCommand(regularClientConfig())
-			sourceCommand.SetArgs(append([]string{
+			cmd, _ := sourceTestCommand(command.RegularClientConfig())
+			cmd.SetArgs(append([]string{
+				"create",
 				"--name", sourceName,
-				"--address", sourceAddress,
+				"--vc-address", sourceAddress,
 				"--secret-ref", secretRef,
 			}, sinkTestCase.args...))
 
-			err := sourceCommand.Execute()
-
+			err := cmd.Execute()
 			assert.ErrorContains(t, err, `sink requires an URI
 and/or a nonempty API version --sink-api-version option,
 with a nonempty kind --sink-kind option,
@@ -176,52 +171,55 @@ and with a nonempty name with the --sink-name`)
 	}
 
 	t.Run("creates basic source with sink URI in default namespace", func(t *testing.T) {
-		sourceCommand, vSphereClientSet := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, vSphereClientSet := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
+		err := cmd.Execute()
 
-		source := retrieveCreatedSource(t, err, vSphereClientSet, defaultNamespace, sourceName)
-		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, false)
-		assert.Equal(t, source.Spec.Sink.URI.String(), sinkURI)
-		assert.Equal(t, source.Spec.PayloadEncoding, cloudevents.ApplicationXML) // assert default
-		assert.Check(t, source.Spec.Sink.Ref == nil)
+		src := retrieveCreatedSource(t, err, vSphereClientSet, command.DefaultNamespace, sourceName)
+		assertBasicSource(t, &src.Spec, sourceAddress, secretRef, false)
+		assert.Equal(t, src.Spec.Sink.URI.String(), sinkURI)
+		assert.Equal(t, src.Spec.PayloadEncoding, cloudevents.ApplicationXML) // assert default
+		assert.Check(t, src.Spec.Sink.Ref == nil)
 	})
 
 	t.Run("creates basic source with JSON payload encoding scheme", func(t *testing.T) {
-		sourceCommand, vSphereClientSet := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, vSphereClientSet := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 			"--encoding", "JSON", // implicitly verify capitalization is ignored
 		})
 
-		err := sourceCommand.Execute()
+		err := cmd.Execute()
 
-		source := retrieveCreatedSource(t, err, vSphereClientSet, defaultNamespace, sourceName)
-		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, false)
-		assert.Equal(t, source.Spec.PayloadEncoding, cloudevents.ApplicationJSON)
+		src := retrieveCreatedSource(t, err, vSphereClientSet, command.DefaultNamespace, sourceName)
+		assertBasicSource(t, &src.Spec, sourceAddress, secretRef, false)
+		assert.Equal(t, src.Spec.PayloadEncoding, cloudevents.ApplicationJSON)
 	})
 
 	t.Run("creates insecure source with Service and relative sink URI in explicit namespace", func(t *testing.T) {
 		namespace := "ns"
 		sinkURI := "/relative/uri"
-		sourceCommand, vSphereClientSet := sourceCommand(regularClientConfig())
+		cmd, vSphereClientSet := sourceTestCommand(command.RegularClientConfig())
 		skipTLSVerify := true
 		sinkAPIVersion := "v1"
 		sinkKind := "Service"
 		sinkName := "some-service"
-		sourceCommand.SetArgs([]string{
+		cmd.SetArgs([]string{
+			"create",
 			"--namespace", namespace,
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--skip-tls-verify", strconv.FormatBool(skipTLSVerify),
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
@@ -230,112 +228,100 @@ and with a nonempty name with the --sink-name`)
 			"--sink-name", sinkName,
 		})
 
-		err := sourceCommand.Execute()
+		err := cmd.Execute()
 
-		source := retrieveCreatedSource(t, err, vSphereClientSet, namespace, sourceName)
-		assertBasicSource(t, &source.Spec, sourceAddress, secretRef, skipTLSVerify)
-		assert.Equal(t, source.Spec.Sink.URI.String(), sinkURI)
-		assertSinkReference(t, source.Spec.Sink.Ref, sinkAPIVersion, sinkKind, namespace, sinkName)
+		src := retrieveCreatedSource(t, err, vSphereClientSet, namespace, sourceName)
+		assertBasicSource(t, &src.Spec, sourceAddress, secretRef, skipTLSVerify)
+		assert.Equal(t, src.Spec.Sink.URI.String(), sinkURI)
+		assertSinkReference(t, src.Spec.Sink.Ref, sinkAPIVersion, sinkKind, namespace, sinkName)
 	})
 
 	t.Run("fails to execute when default namespace retrieval fails", func(t *testing.T) {
 		namespaceError := fmt.Errorf("no default namespace, oops")
-		sourceCommand, _ := sourceCommand(failingClientConfig(namespaceError))
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.FailingClientConfig(namespaceError))
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "failed to get namespace")
 	})
 
 	t.Run("fails to execute with an invalid source URI", func(t *testing.T) {
 		invalidSourceAddress := "more cow\x07"
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", invalidSourceAddress,
+			"--vc-address", invalidSourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "invalid control character in URL")
 	})
 
 	t.Run("fails to execute with an invalid source URI", func(t *testing.T) {
 		invalidSinkAddress := "more cow\x07"
-		sourceCommand, _ := sourceCommand(regularClientConfig())
-		sourceCommand.SetArgs([]string{
+		cmd, _ := sourceTestCommand(command.RegularClientConfig())
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", invalidSinkAddress,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, "invalid control character in URL")
 	})
 
 	t.Run("fails to execute when the source creation fails", func(t *testing.T) {
 		sourceCreationErrorMsg := "cannot create source"
-		sourceCommand, vSphereSourcesClient := sourceCommand(regularClientConfig())
+		cmd, vSphereSourcesClient := sourceTestCommand(command.RegularClientConfig())
 		vSphereSourcesClient.PrependReactor("create", "vspheresources", func(a k8stesting.Action) (bool, runtime.Object, error) {
 			return true, nil, fmt.Errorf(sourceCreationErrorMsg)
 		})
-		sourceCommand.SetArgs([]string{
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, fmt.Sprintf("failed to create source: %s", sourceCreationErrorMsg))
 	})
 
 	t.Run("fails to execute when trying to create a duplicate source", func(t *testing.T) {
-		existingSource := newSource(t, defaultNamespace, sourceName, sourceAddress, secretRef, sinkURI)
-		sourceCommand, _ := sourceCommand(regularClientConfig(), existingSource)
-		sourceCommand.SetArgs([]string{
+		existingSource := newSource(t, command.DefaultNamespace, sourceName, sourceAddress, secretRef, sinkURI)
+		cmd, _ := sourceTestCommand(command.RegularClientConfig(), existingSource)
+		cmd.SetArgs([]string{
+			"create",
 			"--name", sourceName,
-			"--address", sourceAddress,
+			"--vc-address", sourceAddress,
 			"--secret-ref", secretRef,
 			"--sink-uri", sinkURI,
 		})
 
-		err := sourceCommand.Execute()
-
+		err := cmd.Execute()
 		assert.ErrorContains(t, err, fmt.Sprintf(`"%s" already exists`, sourceName))
 	})
 }
 
-func sourceCommand(clientConfig clientcmd.ClientConfig, objects ...runtime.Object) (*cobra.Command, *vspherefake.Clientset) {
-	vSphereSourcesClient := vspherefake.NewSimpleClientset(objects...)
-	sourceCommand := command.NewSourceCommand(&pkg.Clients{
-		ClientSet:        k8sfake.NewSimpleClientset(),
-		ClientConfig:     clientConfig,
-		VSphereClientSet: vSphereSourcesClient,
-	})
-	sourceCommand.SetErr(ioutil.Discard)
-	sourceCommand.SetOut(ioutil.Discard)
-	return sourceCommand, vSphereSourcesClient
-}
-
 func retrieveCreatedSource(t *testing.T, err error, vSphereClientSet vsphere.Interface, namespace, sourceName string) *v1alpha1.VSphereSource {
 	assert.NilError(t, err)
-	source, err := vSphereClientSet.SourcesV1alpha1().
+	src, err := vSphereClientSet.SourcesV1alpha1().
 		VSphereSources(namespace).
 		Get(context.Background(), sourceName, metav1.GetOptions{})
 	assert.NilError(t, err)
-	return source
+	return src
 }
 
 func assertBasicSource(t *testing.T, sourceSpec *v1alpha1.VSphereSourceSpec, sourceAddress string, secretRef string, skipTLSVerify bool) {
@@ -352,7 +338,7 @@ func assertSinkReference(t *testing.T, sinkRef *duckv1.KReference, apiVersion, k
 }
 
 func newSource(t *testing.T, namespace, name, address, secretRef, sinkURI string) runtime.Object {
-	sourceAddress := parseURI(t, address)
+	sourceAddress := command.ParseURI(t, address)
 	return &v1alpha1.VSphereSource{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
@@ -365,7 +351,7 @@ func newSource(t *testing.T, namespace, name, address, secretRef, sinkURI string
 				},
 			},
 			VAuthSpec: v1alpha1.VAuthSpec{
-				Address:       parseURI(t, sinkURI),
+				Address:       command.ParseURI(t, sinkURI),
 				SkipTLSVerify: false,
 				SecretRef: corev1.LocalObjectReference{
 					Name: secretRef,
@@ -373,10 +359,4 @@ func newSource(t *testing.T, namespace, name, address, secretRef, sinkURI string
 			},
 		},
 	}
-}
-
-func parseURI(t *testing.T, uri string) apis.URL {
-	result, err := url.Parse(uri)
-	assert.NilError(t, err)
-	return apis.URL(*result)
 }

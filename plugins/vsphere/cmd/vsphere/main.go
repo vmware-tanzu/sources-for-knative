@@ -10,7 +10,7 @@ import (
 	"os"
 
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg"
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
 
 	// load credential helpers
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -24,7 +24,7 @@ func main() {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}
-	if err := command.NewRootCommand(clients).Execute(); err != nil {
+	if err = root.NewRootCommand(clients).Execute(); err != nil {
 		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}
