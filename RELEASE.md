@@ -27,7 +27,7 @@ work. Here's one example workflow (assuming of course you have rights to
 directly push to the upstream repo).
 
 Create a temporary clone of the repo, e.g. to `/tmp`. Then create the `tag` and
-push to origin. Since knative 1.0 the releases in this repo still are versioned in the `0.x.y` format, and the tags corresponds to the knative tags `knative-v1.x`. This starts from `v0.27.0` == `knative-v1.0` and so on. For example, to create a release called `v0.27.0`, you would run the following commands:
+push to origin. Since knative 1.0 the releases in this repo still are versioned in the `v0.x.y` format, and the tags corresponds to the knative tags `knative-v1.x.y`. This starts from `v0.27.0` == `knative-v1.0.0` and so on. For example, to create a release called `v0.27.0`, you would run the following commands:
 
 ```shell
 cd /tmp
