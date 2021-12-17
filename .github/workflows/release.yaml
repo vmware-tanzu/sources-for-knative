@@ -46,7 +46,8 @@ jobs:
 
     - name: Setup ko
       uses: imjasonh/setup-ko@v0.4
-      run: |
+    
+    - run: |
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Check out code onto GOPATH
