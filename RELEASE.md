@@ -61,7 +61,7 @@ git push origin v0.27.0
 git push origin knative-v1.0.0
 ```
 
-**Notes:** 
+**Notes:**
 - To trigger the release workflow you cannot push more than 2 tags at a time.
 - After this process finish, don't forget to go to the [Release Section](https://github.com/vmware-tanzu/sources-for-knative/releases), edit the latest release and deselect the `this is a pre-release` option.
 
