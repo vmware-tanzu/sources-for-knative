@@ -41,7 +41,7 @@ PATCH versions are ignored in the branch name. In case a release version MUST be
 | release-v1.3 | `v0.30.0`    | `knative-v1.3.x` |
 and so on...
 
-A practical example to create a release called `v0.27.0`, you would run the following commands:
+As a practical example, to create a release called `v0.27.0` you would run the following commands:
 
 ```shell
 cd /tmp
