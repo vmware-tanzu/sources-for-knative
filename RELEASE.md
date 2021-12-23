@@ -69,5 +69,5 @@ git push origin knative-v1.0.0
 ## Release Notes
 
 Release notes can be generated via the corresponding Github Actions
-[Workflow](.github/workflows/knative-release-notes.yaml). The workflow can be
+[workflow](.github/workflows/knative-release-notes.yaml). The workflow can be
 triggered via manual invocation (`workflow_dispatch`) [here](https://github.com/vmware-tanzu/sources-for-knative/actions/workflows/knative-release-notes.yaml).
