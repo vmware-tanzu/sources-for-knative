@@ -27,7 +27,7 @@ work. Here's one example workflow (assuming of course you have rights to
 directly push to the upstream repo).
 
 Create a temporary clone of the repo, e.g. to `/tmp`. Then create the `tag` and
-push to origin. Since knative 1.0 the releases in this repo still are versioned in the `v0.x.y` format, and the tags corresponds to the knative tags `knative-v1.x.y`.
+push to origin. Despite Knative 1.0, the release tags in this repo are still versioned in the `v0.x.y` format and correspond to the Knative tags `knative-v1.x.y`.
 This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition in the knative-v1.x tag corresponds to the same addition on the 0.x tag.
 
 PATCH versions are ignored in the branch name, in case a release version MUST be patched, just redo the release in the same release branch pointing to the correct commit and with the correct tag, i.e:
