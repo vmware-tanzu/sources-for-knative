@@ -53,6 +53,7 @@ git checkout release-1.0
 
 # associate the tag with the branch
 git tag -a v0.27.0 -m "Release v0.27.0"
+
 # since knative version 1.0 we need to create an aditional tag that matches the
 # knative-v1.x.y tag format
 git tag -a knative-v1.0.0 -m "Release knative-v1.0.0"
