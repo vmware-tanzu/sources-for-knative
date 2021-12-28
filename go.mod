@@ -3,24 +3,16 @@ module github.com/vmware-tanzu/sources-for-knative
 go 1.17
 
 require (
-	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
 	github.com/cloudevents/sdk-go/v2 v2.4.1
-	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
-	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
-	github.com/fatih/structs v1.1.0 // indirect
 	github.com/google/go-cmp v0.5.6
-	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 //indirect
+	github.com/hashicorp/go-cleanhttp v0.5.1
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/jpillora/backoff v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/kr/pty v1.1.8 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/vmware/govmomi v0.24.1-0.20210127152625-854ba4efe87e
 	github.com/yudai/gotty v1.0.1
-	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
-	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.uber.org/zap v1.19.1
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	gotest.tools v2.2.0+incompatible
@@ -44,13 +36,17 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
+	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.4.1 // indirect
+	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/creack/pty v1.1.11 // indirect
+	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/evanphx/json-patch v4.9.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-kit/log v0.1.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.0 // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
@@ -67,13 +63,15 @@ require (
 	github.com/googleapis/gnostic v0.4.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
-	github.com/hashicorp/errwrap v1.1.0 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
+	github.com/hashicorp/go-multierror v1.0.0 // indirect
+	github.com/hashicorp/go-retryablehttp v0.6.7 // indirect
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
+	github.com/kr/pty v1.1.8 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
@@ -90,6 +88,8 @@ require (
 	github.com/rickb777/plural v1.2.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
+	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/automaxprocs v1.4.0 // indirect
