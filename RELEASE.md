@@ -32,13 +32,13 @@ This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition i
 
 PATCH versions are ignored in the branch name, in case a release version MUST be patched, just redo the release in the same release branch pointing to the correct commit and with the correct tag, i.e:
 
-| Branch       | Knative Tag  | Normal Tag       |
-|--------------|--------------|------------------|
-| release-v1.1 | `v0.27.0`    | `knative-v1.0.x` |
-| release-v1.1 | `v0.28.0`    | `knative-v1.1.x` |
-| release-v1.1 | `v0.28.1`    | `knative-v1.1.x` |
-| release-v1.2 | `v0.29.0`    | `knative-v1.2.x` |
-| release-v1.3 | `v0.30.0`    | `knative-v1.3.x` |
+| Branch      | Knative Tag  | Normal Tag       |
+|-------------|--------------|------------------|
+| release-1.1 | `v0.27.0`    | `knative-v1.0.x` |
+| release-1.1 | `v0.28.0`    | `knative-v1.1.x` |
+| release-1.1 | `v0.28.1`    | `knative-v1.1.x` |
+| release-1.2 | `v0.29.0`    | `knative-v1.2.x` |
+| release-1.3 | `v0.30.0`    | `knative-v1.3.x` |
 and so on...
 
 A practical example to create a release called `v0.27.0`, you would run the following commands:
