@@ -34,7 +34,7 @@ PATCH versions are ignored in the branch name. In case a release version MUST be
 
 | Branch      | Normal Tag  | Knative Tag      |
 |-------------|-------------|------------------|
-| release-1.1 | `v0.27.0`   | `knative-v1.0.x` |
+| release-1.0 | `v0.27.0`   | `knative-v1.0.x` |
 | release-1.1 | `v0.28.0`   | `knative-v1.1.x` |
 | release-1.1 | `v0.28.1`   | `knative-v1.1.x` |
 | release-1.2 | `v0.29.0`   | `knative-v1.2.x` |
