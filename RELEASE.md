@@ -27,10 +27,10 @@ work. Here's one example workflow (assuming of course you have rights to
 directly push to the upstream repo).
 
 Create a temporary clone of the repo, e.g. to `/tmp`. Then create the `tag` and
-push to origin. Since knative 1.0 the releases in this repo still are versioned in the `v0.x.y` format, and the tags corresponds to the knative tags `knative-v1.x.y`.
-This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition in the knative-v1.x tag corresponds to the same addition on the 0.x tag.
+push to origin. Despite Knative 1.0, the release tags in this repo are still versioned in the `v0.x.y` format and correspond to the Knative tags `knative-v1.x.y`.
+This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition in the `knative-v1.x` tag corresponds to the same addition on the `0.x` tag.
 
-PATCH versions are ignored in the branch name, in case a release version MUST be patched, just redo the release in the same release branch pointing to the correct commit and with the correct tag, i.e:
+PATCH versions are ignored in the branch name. In case a release version MUST be patched, just redo the release in the same release branch pointing to the correct commit and with the correct tag, i.e:
 
 | Branch      | Knative Tag  | Normal Tag       |
 |-------------|--------------|------------------|
@@ -41,7 +41,7 @@ PATCH versions are ignored in the branch name, in case a release version MUST be
 | release-1.3 | `v0.30.0`    | `knative-v1.3.x` |
 and so on...
 
-A practical example to create a release called `v0.27.0`, you would run the following commands:
+As a practical example, to create a release called `v0.27.0` you would run the following commands:
 
 ```shell
 cd /tmp
@@ -53,6 +53,7 @@ git checkout release-1.0
 
 # associate the tag with the branch
 git tag -a v0.27.0 -m "Release v0.27.0"
+
 # since knative version 1.0 we need to create an aditional tag that matches the
 # knative-v1.x.y tag format
 git tag -a knative-v1.0.0 -m "Release knative-v1.0.0"
@@ -68,5 +69,5 @@ git push origin knative-v1.0.0
 ## Release Notes
 
 Release notes can be generated via the corresponding Github Actions
-[Workflow](.github/workflows/knative-release-notes.yaml). The workflow can be
+[workflow](.github/workflows/knative-release-notes.yaml). The workflow can be
 triggered via manual invocation (`workflow_dispatch`) [here](https://github.com/vmware-tanzu/sources-for-knative/actions/workflows/knative-release-notes.yaml).
