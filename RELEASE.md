@@ -28,17 +28,17 @@ directly push to the upstream repo).
 
 Create a temporary clone of the repo, e.g. to `/tmp`. Then create the `tag` and
 push to origin. Despite Knative 1.0, the release tags in this repo are still versioned in the `v0.x.y` format and correspond to the Knative tags `knative-v1.x.y`.
-This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition in the `knative-v1.x` tag corresponds to the same addition on the `0.x` tag.
+This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition in the `knative-v1.x.y` tag corresponds to the same addition on the `0.x.z` tag.
 
 PATCH versions are ignored in the branch name. In case a release version MUST be patched, just redo the release in the same release branch pointing to the correct commit and with the correct tag, i.e:
 
-| Branch      | Knative Tag  | Normal Tag       |
-|-------------|--------------|------------------|
-| release-1.1 | `v0.27.0`    | `knative-v1.0.x` |
-| release-1.1 | `v0.28.0`    | `knative-v1.1.x` |
-| release-1.1 | `v0.28.1`    | `knative-v1.1.x` |
-| release-1.2 | `v0.29.0`    | `knative-v1.2.x` |
-| release-1.3 | `v0.30.0`    | `knative-v1.3.x` |
+| Branch      | Normal Tag  | Knative Tag      |
+|-------------|-------------|------------------|
+| release-1.1 | `v0.27.0`   | `knative-v1.0.x` |
+| release-1.1 | `v0.28.0`   | `knative-v1.1.x` |
+| release-1.1 | `v0.28.1`   | `knative-v1.1.x` |
+| release-1.2 | `v0.29.0`   | `knative-v1.2.x` |
+| release-1.3 | `v0.30.0`   | `knative-v1.3.x` |
 and so on...
 
 As a practical example, to create a release called `v0.27.0` you would run the following commands:
