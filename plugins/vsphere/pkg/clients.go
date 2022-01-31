@@ -16,6 +16,12 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+type Clients struct {
+	ClientConfig     clientcmd.ClientConfig
+	ClientSet        kubernetes.Interface
+	VSphereClientSet vsphere.Interface
+}
+
 func NewClients(kubeConfigPath string) (*Clients, error) {
 	clientConfig, err := getClientConfig(kubeConfigPath)
 	if err != nil {
@@ -39,12 +45,6 @@ func NewClients(kubeConfigPath string) (*Clients, error) {
 		ClientConfig:     clientConfig,
 		VSphereClientSet: vSphereConfig,
 	}, nil
-}
-
-type Clients struct {
-	ClientConfig     clientcmd.ClientConfig
-	ClientSet        kubernetes.Interface
-	VSphereClientSet vsphere.Interface
 }
 
 func (c *Clients) GetExplicitOrDefaultNamespace(ns string) (string, error) {

@@ -9,10 +9,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/vmware-tanzu/sources-for-knative/test"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -22,6 +21,8 @@ import (
 	"knative.dev/pkg/apis"
 	pkgtest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/helpers"
+
+	"github.com/vmware-tanzu/sources-for-knative/test"
 )
 
 func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, context.CancelFunc) {
@@ -32,12 +33,13 @@ func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, c
 		"job-name": name,
 	}
 
-	knativePlugin := command.NewRootCommand(clients.AsPluginClients())
+	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"binding",
+		"create",
 		"--namespace", test.Namespace,
 		"--name", name,
-		"--address", "https://vcsim.default.svc.cluster.local",
+		"--vc-address", "https://vcsim.default.svc.cluster.local",
 		"--skip-tls-verify", "true",
 		"--secret-ref", "vsphere-credentials",
 		"--subject-api-version", "batch/v1",
@@ -277,12 +279,13 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 func CreateSource(t *testing.T, clients *test.Clients, name string) context.CancelFunc {
 	t.Helper()
 
-	knativePlugin := command.NewRootCommand(clients.AsPluginClients())
+	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"source",
+		"create",
 		"--namespace", test.Namespace,
 		"--name", name,
-		"--address", "https://vcsim.default.svc.cluster.local",
+		"--vc-address", "https://vcsim.default.svc.cluster.local",
 		"--skip-tls-verify", "true",
 		"--secret-ref", "vsphere-credentials",
 		"--sink-api-version", "v1",

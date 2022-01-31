@@ -63,7 +63,7 @@ jobs:
 
         # Build Knative plugin and create Secret
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
-        ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
+        ./kn-vsphere auth create --name vsphere-credentials --username user --password pass
 
         kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/webhook
 
