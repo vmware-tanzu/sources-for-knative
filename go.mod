@@ -28,15 +28,15 @@ require (
 	k8s.io/client-go v0.22.5
 	k8s.io/code-generator v0.22.5
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65
-	knative.dev/eventing v0.29.0
-	knative.dev/hack v0.0.0-20220118141833-9b2ed8471e30
-	knative.dev/pkg v0.0.0-20220118160532-77555ea48cd4
+	knative.dev/eventing v0.29.1-0.20220201083031-25bf6fe36dfe
+	knative.dev/hack v0.0.0-20220201013531-82bfca153560
+	knative.dev/pkg v0.0.0-20220201132031-8681fe2035b9
 )
 
 require (
 	github.com/hashicorp/hcl v1.0.0
 	gotest.tools/v3 v3.0.3
-	knative.dev/client v0.29.0
+	knative.dev/client v0.29.1-0.20220201105238-8a5e349f97fa
 )
 
 require (
