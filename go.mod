@@ -28,15 +28,15 @@ require (
 	k8s.io/client-go v0.22.5
 	k8s.io/code-generator v0.22.5
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65
-	knative.dev/eventing v0.29.1-0.20220201083031-25bf6fe36dfe
+	knative.dev/eventing v0.29.1-0.20220203104220-17487954d41a
 	knative.dev/hack v0.0.0-20220201013531-82bfca153560
-	knative.dev/pkg v0.0.0-20220201132031-8681fe2035b9
+	knative.dev/pkg v0.0.0-20220203020920-51be315ed160
 )
 
 require (
 	github.com/hashicorp/hcl v1.0.0
 	gotest.tools/v3 v3.0.3
-	knative.dev/client v0.29.1-0.20220201105238-8a5e349f97fa
+	knative.dev/client v0.29.1-0.20220201152332-677276ae0ab3
 )
 
 require (
@@ -146,8 +146,8 @@ require (
 	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185 // indirect
 	k8s.io/klog/v2 v2.40.1 // indirect
 	k8s.io/utils v0.0.0-20211208161948-7d6a63dca704 // indirect
-	knative.dev/networking v0.0.0-20220120043934-ec785540a732 // indirect
-	knative.dev/serving v0.29.0 // indirect
+	knative.dev/networking v0.0.0-20220131174231-d23a06807e6c // indirect
+	knative.dev/serving v0.29.1-0.20220131194631-770b91180d43 // indirect
 	sigs.k8s.io/kustomize/api v0.8.11 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.11.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
