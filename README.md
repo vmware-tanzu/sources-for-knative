@@ -170,14 +170,20 @@ checkpointConfig:
 The `Source` controller will periodically checkpoint its progress in the vCenter
 event stream ("history") by using a Kubernetes `ConfigMap` as storage backend.
 The name of the `ConfigMap` is `<name_of_source>-configmap` (see example below).
+By default, checkpoints will be created every `10 seconds`. The minimum
+checkpoint frequency is `1s` but be aware of potential load on the Kubernetes
+API this might cause.
 
-Upon start, the controller will look for an existing checkpoint (`ConfigMap`)
-and, if a valid one is found, use its last event (timestamp) to start replaying
-the vCenter history stream from that point in time. The default history replay
-window is `5 minutes`, i.e. events within this time window will be replayed and
-sent to the `sink`. By default, checkpoints will be created every `10 seconds`.
-The minimum checkpoint frequency is `1s` but be aware of potential load on the
-Kubernetes API this might cause.
+Upon start, the controller will look for an existing checkpoint (`ConfigMap`).
+If a valid one is found, and if it is within the history replay window
+(`maxAgeSeconds`, see below), it will start replaying the vCenter event stream
+from the timestamp specified in the checkpoint's `"lastEventKeyTimestamp"` key.
+If the timestamp is older than `maxAgeSeconds`, the controller will start
+replaying from `maxAgeSeconds` before the current vCenter time (UTC).  If there
+is no existing checkpoint, the controller will not replay any events, regardless
+of what value is in `maxAgeSeconds`. This is to ensure that when upgrading from
+an earlier version of the controller where checkpointing was not implemented, no
+events will be accidentally replayed.
 
 Checkpointing is useful to guarantee **at-least-once** event delivery semantics,
 e.g. to guard against lost events due to controller downtime (maintenance,
@@ -193,7 +199,7 @@ available in `spec.checkpointConfig`:
   - Description: the history window when replaying the event history (**RTO**,
     recovery time objective)
   - Minimum: `0` (disables event replay, see below)
-  - Default: `n/a` (must be explicitly specified)
+  - Default: `300`
 
 ⚠️ **IMPORTANT:** Checkpointing itself cannot be disabled and there will be
 exactly zero or one checkpoint per controller. If **at-most-once** event
