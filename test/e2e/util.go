@@ -33,7 +33,6 @@ const (
 	vcsim        = "vcsim"
 	ns           = "default"
 	vsphereCreds = "vsphere-credentials"
-	mountPath    = "/var/bindings/vsphere"
 	user         = "user"
 	password     = "password"
 )
