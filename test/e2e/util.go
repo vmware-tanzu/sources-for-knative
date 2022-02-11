@@ -7,22 +7,35 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
 
 	"github.com/davecgh/go-spew/spew"
+	appsv1 "k8s.io/api/apps/v1"
 	batchv1 "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/utils/pointer"
 	"knative.dev/pkg/apis"
 	pkgtest "knative.dev/pkg/test"
 	"knative.dev/pkg/test/helpers"
 
 	"github.com/vmware-tanzu/sources-for-knative/test"
+)
+
+const (
+	vcsim        = "vcsim"
+	ns           = "default"
+	vsphereCreds = "vsphere-credentials"
+	mountPath    = "/var/bindings/vsphere"
+	user         = "user"
+	password     = "password"
 )
 
 func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, context.CancelFunc) {
@@ -319,5 +332,150 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		if err != nil {
 			t.Errorf("Error cleaning up source %s", name)
 		}
+		err = clients.KubeClient.CoreV1().ConfigMaps(ns).Delete(context.Background(), checkpointConfigmap.Name, metav1.DeleteOptions{})
+		if err != nil {
+			t.Errorf("Error cleaning up configmap %s", name)
+		}
+	}
+}
+
+func CreateSimulator(t *testing.T, clients *test.Clients) context.CancelFunc {
+	simDeployment, simService := newSimulator(ns)
+	simSecret := newVCSecret(ns, vsphereCreds, user, password)
+
+	pkgtest.CleanupOnInterrupt(func() {
+		clients.KubeClient.AppsV1().Deployments(simDeployment.Namespace).Delete(context.Background(), simDeployment.Name, metav1.DeleteOptions{})
+		clients.KubeClient.CoreV1().Services(simService.Namespace).Delete(context.Background(), simService.Name, metav1.DeleteOptions{})
+		clients.KubeClient.CoreV1().Secrets(simSecret.Namespace).Delete(context.Background(), simSecret.Name, metav1.DeleteOptions{})
+	}, t.Logf)
+	secret, err := clients.KubeClient.CoreV1().Secrets(simSecret.Namespace).Create(context.Background(), simSecret, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("Error creating Secret: %v", err)
+	}
+	deployment, err := clients.KubeClient.AppsV1().Deployments(simDeployment.Namespace).Create(context.Background(), simDeployment, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("Error creating VCSIM Deployment: %v", err)
+	}
+	service, err := clients.KubeClient.CoreV1().Services(simService.Namespace).Create(context.Background(), simService, metav1.CreateOptions{})
+	if err != nil {
+		t.Fatalf("Error creating VCSIM Service: %v", err)
+	}
+
+	cancel := func() {
+		err := clients.KubeClient.AppsV1().Deployments(deployment.Namespace).Delete(context.Background(), deployment.Name, metav1.DeleteOptions{})
+		if err != nil {
+			t.Errorf("Error cleaning up Deployment %s", deployment.Name)
+		}
+		err = clients.KubeClient.CoreV1().Services(service.Namespace).Delete(context.Background(), service.Name, metav1.DeleteOptions{})
+		if err != nil {
+			t.Errorf("Error cleaning up Service %s", service.Name)
+		}
+		err = clients.KubeClient.CoreV1().Secrets(secret.Namespace).Delete(context.Background(), secret.Name, metav1.DeleteOptions{})
+		if err != nil {
+			t.Errorf("Error cleaning up Secret %s", secret.Name)
+		}
+	}
+
+	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
+		depl, err := clients.KubeClient.AppsV1().Deployments(ns).Get(context.Background(), simDeployment.Name, metav1.GetOptions{})
+		if err != nil {
+			return false, err
+		}
+
+		status := depl.Status
+		for i := range status.Conditions {
+			c := status.Conditions[i]
+			if c.Type == appsv1.DeploymentAvailable && c.Status == corev1.ConditionTrue {
+				return true, nil
+			}
+		}
+		return false, nil
+	})
+	if waitErr != nil {
+		cancel()
+		t.Fatalf("Error waiting for VCSIM deployment to be ready: %v", waitErr)
+	}
+
+	t.Log("vcsim ready")
+
+	return cancel
+}
+
+func newSimulator(namespace string) (*appsv1.Deployment, *corev1.Service) {
+	l := map[string]string{
+		"app": vcsim,
+	}
+
+	sim := appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      vcsim,
+			Namespace: namespace,
+			Labels:    l,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Replicas: pointer.Int32(1),
+			Selector: &metav1.LabelSelector{
+				MatchLabels: l,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: l,
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{{
+						Name:  vcsim,
+						Image: "vmware/vcsim:latest",
+						Args: []string{
+							"/vcsim",
+							"-l",
+							":8989",
+						},
+						ImagePullPolicy: corev1.PullIfNotPresent,
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "https",
+								ContainerPort: 8989,
+							},
+						},
+					}},
+				},
+			},
+		},
+	}
+
+	svc := corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      vcsim,
+			Namespace: namespace,
+			Labels:    l,
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Name: "https",
+					Port: 443,
+					TargetPort: intstr.IntOrString{
+						IntVal: 8989,
+					},
+				},
+			},
+			Selector: l,
+		},
+	}
+
+	return &sim, &svc
+}
+
+func newVCSecret(namespace, name, username, password string) *corev1.Secret {
+	return &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      name,
+			Namespace: namespace,
+		},
+		Data: map[string][]byte{
+			corev1.BasicAuthUsernameKey: []byte(username),
+			corev1.BasicAuthPasswordKey: []byte(password),
+		},
+		Type: corev1.SecretTypeBasicAuth,
 	}
 }
