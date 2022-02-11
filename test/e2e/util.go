@@ -292,6 +292,21 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 func CreateSource(t *testing.T, clients *test.Clients, name string) context.CancelFunc {
 	t.Helper()
 
+	//Set a checkpoint in the past in case test creates events before vsphere source is ready
+	checkpointTime := time.Now().Add(time.Minute * -9)
+	checkpointConfigmap, err := clients.KubeClient.CoreV1().ConfigMaps(ns).Create(
+		context.Background(),
+		&corev1.ConfigMap{
+			ObjectMeta: metav1.ObjectMeta{Name: fmt.Sprintf("%s-configmap", name)},
+			Data:       map[string]string{"checkpoint": fmt.Sprintf(`{"lastEventKeyTimestamp": "%s"}`, checkpointTime.UTC().Format(time.RFC3339))},
+		},
+		metav1.CreateOptions{},
+	)
+
+	if err != nil {
+		t.Fatalf("Error creating Configmap: %v", err)
+	}
+
 	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"source",
@@ -304,9 +319,14 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--sink-api-version", "v1",
 		"--sink-kind", "Service",
 		"--sink-name", name,
+		"--checkpoint-age", "10m",
 	})
 
-	pkgtest.CleanupOnInterrupt(func() { clients.VMWareClient.Sources.Delete(context.Background(), name, metav1.DeleteOptions{}) }, t.Logf)
+	pkgtest.CleanupOnInterrupt(func() {
+		clients.VMWareClient.Sources.Delete(context.Background(), name, metav1.DeleteOptions{})
+		clients.KubeClient.CoreV1().ConfigMaps(ns).Delete(context.Background(), checkpointConfigmap.Name, metav1.DeleteOptions{})
+	}, t.Logf)
+
 	if err := knativePlugin.Execute(); err != nil {
 		t.Fatalf("Error creating source: %v", err)
 	}
