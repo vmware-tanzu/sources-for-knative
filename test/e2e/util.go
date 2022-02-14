@@ -35,6 +35,7 @@ const (
 	vsphereCreds = "vsphere-credentials"
 	user         = "user"
 	password     = "password"
+	jobNameKey   = "job-name"
 )
 
 func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, context.CancelFunc) {
@@ -135,6 +136,10 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 		if err != nil {
 			t.Errorf("Error cleaning up Job %s", job.Name)
 		}
+		err = clients.KubeClient.CoreV1().Pods(job.Namespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", jobNameKey, job.Name)})
+		if err != nil {
+			t.Errorf("Error cleaning up pod for Job %s", job.Name)
+		}
 	}()
 
 	// Wait for the Job to report a successful execution.
@@ -212,6 +217,10 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 		err := clients.KubeClient.BatchV1().Jobs(job.Namespace).Delete(context.Background(), job.Name, metav1.DeleteOptions{})
 		if err != nil {
 			t.Errorf("Error cleaning up Job %s", job.Name)
+		}
+		err = clients.KubeClient.CoreV1().Pods(job.Namespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", jobNameKey, name)})
+		if err != nil {
+			t.Errorf("Error cleaning up pod for Job %s", job.Name)
 		}
 	}
 	waiter := func() {
