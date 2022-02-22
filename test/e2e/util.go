@@ -54,7 +54,7 @@ func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, c
 		"--name", name,
 		"--vc-address", "https://vcsim.default.svc.cluster.local",
 		"--skip-tls-verify", "true",
-		"--secret-ref", "vsphere-credentials",
+		"--secret-ref", vsphereCreds,
 		"--subject-api-version", "batch/v1",
 		"--subject-kind", "Job",
 		"--subject-selector", metav1.FormatLabelSelector(&metav1.LabelSelector{MatchLabels: selector}),
@@ -138,7 +138,7 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 		}
 		err = clients.KubeClient.CoreV1().Pods(job.Namespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", jobNameKey, job.Name)})
 		if err != nil {
-			t.Errorf("Error cleaning up pod for Job %s", job.Name)
+			t.Errorf("Error cleaning up pods for Job %s", job.Name)
 		}
 	}()
 
@@ -220,7 +220,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 		}
 		err = clients.KubeClient.CoreV1().Pods(job.Namespace).DeleteCollection(context.Background(), metav1.DeleteOptions{}, metav1.ListOptions{LabelSelector: fmt.Sprintf("%s=%s", jobNameKey, name)})
 		if err != nil {
-			t.Errorf("Error cleaning up pod for Job %s", job.Name)
+			t.Errorf("Error cleaning up pods for Job %s", job.Name)
 		}
 	}
 	waiter := func() {
@@ -323,7 +323,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--name", name,
 		"--vc-address", "https://vcsim.default.svc.cluster.local",
 		"--skip-tls-verify", "true",
-		"--secret-ref", "vsphere-credentials",
+		"--secret-ref", vsphereCreds,
 		"--sink-api-version", "v1",
 		"--sink-kind", "Service",
 		"--sink-name", name,
