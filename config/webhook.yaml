@@ -62,7 +62,8 @@ spec:
           value: webhook
 
         readinessProbe: &probe
-          periodSeconds: 1
+          failureThreshold: 6
+          initialDelaySeconds: 20
           httpGet:
             scheme: HTTPS
             port: 8443
