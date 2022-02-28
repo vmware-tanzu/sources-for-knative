@@ -26,6 +26,10 @@ func TestBindingGOVC(t *testing.T) {
 
 	clients := test.Setup(t)
 
+	//create vcsim
+	cleanupVcsim := CreateSimulator(t, clients)
+	defer cleanupVcsim()
+
 	selector, cancel := CreateJobBinding(t, clients)
 	defer cancel()
 
@@ -49,6 +53,10 @@ func TestBindingPowerCLICore(t *testing.T) {
 	defer logstream.Start(t)()
 
 	clients := test.Setup(t)
+
+	//create vcsim
+	cleanupVcsim := CreateSimulator(t, clients)
+	defer cleanupVcsim()
 
 	selector, cancel := CreateJobBinding(t, clients)
 	defer cancel()

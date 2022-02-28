@@ -36,6 +36,7 @@ require (
 require (
 	github.com/hashicorp/hcl v1.0.0
 	gotest.tools/v3 v3.0.3
+	k8s.io/utils v0.0.0-20211208161948-7d6a63dca704
 	knative.dev/client v0.29.1-0.20220201152332-677276ae0ab3
 )
 
@@ -145,7 +146,6 @@ require (
 	k8s.io/cli-runtime v0.22.5 // indirect
 	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185 // indirect
 	k8s.io/klog/v2 v2.40.1 // indirect
-	k8s.io/utils v0.0.0-20211208161948-7d6a63dca704 // indirect
 	knative.dev/networking v0.0.0-20220131174231-d23a06807e6c // indirect
 	knative.dev/serving v0.29.1-0.20220131194631-770b91180d43 // indirect
 	sigs.k8s.io/kustomize/api v0.8.11 // indirect
