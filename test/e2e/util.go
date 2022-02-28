@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
+	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/vmware-tanzu/sources-for-knative/test"
@@ -317,7 +317,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		t.Fatalf("Error creating Configmap: %v", err)
 	}
 
-	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
+	knativePlugin := command.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"source",
 		"--namespace", test.Namespace,
