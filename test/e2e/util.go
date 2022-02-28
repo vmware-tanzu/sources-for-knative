@@ -443,7 +443,7 @@ func newSimulator(namespace string) (*appsv1.Deployment, *corev1.Service) {
 			Labels:    l,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: pointer.Int32(1),
+			Replicas: pointer.Int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: l,
 			},
