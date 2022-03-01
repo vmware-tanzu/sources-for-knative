@@ -2,9 +2,9 @@ name: KinD e2e tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, test ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, test ]
 
 jobs:
 
