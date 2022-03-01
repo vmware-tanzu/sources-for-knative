@@ -64,11 +64,10 @@ jobs:
         # Build and Publish our containers to the docker daemon (including test assets)
         export GO111MODULE=on
         export GOFLAGS=-mod=vendor
-        ko apply -PRf config/ -f test/config
+        ko apply -PRf config/
 
-        # Build Knative plugin and create Secret
+        # Build Knative plugin
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
-        ./kn-vsphere login --secret-name vsphere-credentials --username user --password pass
 
         kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/webhook
 

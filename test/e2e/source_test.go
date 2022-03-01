@@ -25,6 +25,10 @@ func TestSource(t *testing.T) {
 
 	clients := test.Setup(t)
 
+	//create vcsim
+	cleanupVcsim := CreateSimulator(t, clients)
+	defer cleanupVcsim()
+
 	// Create a job/svc that listens for events and then quits N seconds after the first is received.
 	name, wait, cancelListener := RunJobListener(t, clients)
 	defer cancelListener()
