@@ -28,16 +28,16 @@ require (
 	k8s.io/client-go v0.22.5
 	k8s.io/code-generator v0.22.5
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65
-	knative.dev/eventing v0.29.1-0.20220228193110-f2045b0d65b7
+	knative.dev/eventing v0.29.1-0.20220301172142-fdaca85f6361
 	knative.dev/hack v0.0.0-20220224013837-e1785985d364
-	knative.dev/pkg v0.0.0-20220228195509-fe264173447b
+	knative.dev/pkg v0.0.0-20220301181942-2fdd5f232e77
 )
 
 require (
 	github.com/hashicorp/hcl v1.0.0
 	gotest.tools/v3 v3.0.3
 	k8s.io/utils v0.0.0-20211208161948-7d6a63dca704
-	knative.dev/client v0.29.1-0.20220301132542-587a4a8cb789
+	knative.dev/client v0.29.1-0.20220302114843-ad863f3f37eb
 )
 
 require (
@@ -146,7 +146,7 @@ require (
 	k8s.io/cli-runtime v0.22.5 // indirect
 	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185 // indirect
 	k8s.io/klog/v2 v2.40.1 // indirect
-	knative.dev/networking v0.0.0-20220221080803-193442233437 // indirect
+	knative.dev/networking v0.0.0-20220301031941-6f27842e45ca // indirect
 	knative.dev/serving v0.29.1-0.20220227211007-7f681da66b28 // indirect
 	sigs.k8s.io/kustomize/api v0.8.11 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.11.0 // indirect
