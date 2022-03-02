@@ -62,7 +62,11 @@ spec:
           value: webhook
 
         readinessProbe: &probe
-          periodSeconds: 1
+          # Increasing the failure threshold and adding an initial delay
+          # avoids the situation where failing probes cause the webhook to restart before it can
+          # finish setup. See https://github.com/vmware-tanzu/sources-for-knative/issues/356
+          failureThreshold: 6
+          initialDelaySeconds: 20
           httpGet:
             scheme: HTTPS
             port: 8443
