@@ -46,7 +46,7 @@ jobs:
     - name: Setup ko
       uses: imjasonh/setup-ko@v0.4
       with:
-        version: v0.10.x
+        version: v0.10
       run: |
         docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
     

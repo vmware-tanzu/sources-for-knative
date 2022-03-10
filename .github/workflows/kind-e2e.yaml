@@ -25,7 +25,7 @@ jobs:
     - name: Setup ko
       uses: imjasonh/setup-ko@v0.4
       with:
-        version: v0.10.x
+        version: v0.10
 
     - name: Check out code onto GOPATH
       uses: actions/checkout@v2
