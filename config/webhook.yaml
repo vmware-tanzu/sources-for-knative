@@ -37,7 +37,7 @@ spec:
       - name: webhook
         # This is the Go import path for the binary that is containerized
         # and substituted here.
-        image: ko://github.com/vmware-tanzu/sources-for-knative/cmd/sources-for-knative-controller
+        image: ko://github.com/vmware-tanzu/sources-for-knative/cmd/vsphere-controller
         resources:
           # Request 2x what we saw running e2e
           requests:
@@ -49,7 +49,7 @@ spec:
             memory: 200Mi
         env:
         - name: VSPHERE_ADAPTER
-          value: ko://github.com/vmware-tanzu/sources-for-knative/cmd/sources-for-knative-adapter
+          value: ko://github.com/vmware-tanzu/sources-for-knative/cmd/vsphere-adapter
         - name: SYSTEM_NAMESPACE
           valueFrom:
             fieldRef:
