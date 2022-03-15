@@ -73,6 +73,11 @@ jobs:
         kubectl -n vmware-sources describe pods
         kubectl -n vmware-sources get events
 
+    - name: Build vcsim image
+      working-directory: ./src/github.com/${{ github.repository }}
+      run: |
+        echo "VCSIM_IMAGE=$(ko publish -B vendor/github.com/vmware/govmomi/vcsim)" >> $GITHUB_ENV
+
     - name: Run E2E tests
       working-directory: ./src/github.com/${{ github.repository }}
       run: |
