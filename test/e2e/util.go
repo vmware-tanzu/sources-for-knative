@@ -31,12 +31,13 @@ import (
 )
 
 const (
-	vcsim        = "vcsim"
-	ns           = "default"
-	vsphereCreds = "vsphere-credentials"
-	user         = "user"
-	password     = "password"
-	jobNameKey   = "job-name"
+	vcsim             = "vcsim"
+	ns                = "default"
+	vsphereCreds      = "vsphere-credentials"
+	user              = "user"
+	password          = "password"
+	jobNameKey        = "job-name"
+	DefaultVcsimImage = "vmware/vcsim:latest"
 )
 
 type envConfig struct {
@@ -450,6 +451,11 @@ func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service)
 	l := map[string]string{
 		"app": vcsim,
 	}
+	args := []string{"-l", ":8989"}
+	if image == DefaultVcsimImage {
+		//vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
+		args = append([]string{"vcsim"}, args...)
+	}
 
 	sim := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -468,13 +474,9 @@ func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service)
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Name:  vcsim,
-						Image: image,
-						Args: []string{
-							"/vcsim",
-							"-l",
-							":8989",
-						},
+						Name:            vcsim,
+						Image:           image,
+						Args:            args,
 						ImagePullPolicy: corev1.PullIfNotPresent,
 						Ports: []corev1.ContainerPort{
 							{
