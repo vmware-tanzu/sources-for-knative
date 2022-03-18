@@ -169,7 +169,7 @@ func RunJobScript(t *testing.T, clients *test.Clients, image string, command []s
 	}
 }
 
-func RunJobListener(t *testing.T, clients *test.Clients) (string, context.CancelFunc, context.CancelFunc) {
+func RunJobListener(t *testing.T, clients *test.Clients, eventType, eventCount string) (string, context.CancelFunc, context.CancelFunc) {
 	ctx := context.Background()
 	name := helpers.ObjectNameForTest(t)
 
@@ -193,10 +193,20 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 							Name:          "http",
 							ContainerPort: 8080,
 						}},
-						Env: []corev1.EnvVar{{
-							Name:  "PORT",
-							Value: "8080",
-						}},
+						Env: []corev1.EnvVar{
+							{
+								Name:  "PORT",
+								Value: "8080",
+							},
+							{
+								Name:  "EVENT_COUNT",
+								Value: eventCount,
+							},
+							{
+								Name:  "EVENT_TYPE",
+								Value: eventType,
+							},
+						},
 						ReadinessProbe: &corev1.Probe{
 							ProbeHandler: corev1.ProbeHandler{
 								TCPSocket: &corev1.TCPSocketAction{

@@ -8,10 +8,11 @@ package main
 import (
 	"context"
 	"log"
+	"strconv"
 	"sync/atomic"
-	"time"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
+	"github.com/kelseyhightower/envconfig"
 	"knative.dev/pkg/logging"
 	"knative.dev/pkg/signals"
 )
@@ -20,6 +21,11 @@ const (
 	ceVSphereAPIKey     = "vsphereapiversion"
 	ceVSphereEventClass = "eventclass"
 )
+
+type envConfig struct {
+	ExpectedEventType  string `envconfig:"EVENT_TYPE"`
+	ExpectedEventCount string `envconfig:"EVENT_COUNT"`
+}
 
 func main() {
 	ctx := signals.NewContext()
@@ -32,18 +38,22 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	// Launch a go routine to avoid blocking
-	go func() {
-		timeout := 10 * time.Second
-		<-time.After(timeout)
-		logging.FromContext(ctx).Infow("cancelling context: timeout reached", "timeout", timeout)
-		cancel()
-	}()
+	var env envConfig
+	if err := envconfig.Process("", &env); err != nil {
+		log.Fatalf("Unable to read environment config: %v", err)
+	}
+
+	numExpectedEvents, err := strconv.Atoi(env.ExpectedEventCount)
+	if err != nil {
+		log.Fatalf("Invalid value for EVENT_COUNT (%v): %v", env.ExpectedEventCount, err)
+	}
 
 	var count int32
 	if err = client.StartReceiver(ctx, func(ctx context.Context, event cloudevents.Event) {
 		logging.FromContext(ctx).Infof("Received event: %s", event.String())
-		atomic.AddInt32(&count, 1)
+		if event.Type() == env.ExpectedEventType {
+			atomic.AddInt32(&count, 1)
+		}
 
 		// assert required CE extension attributes are always present
 		if event.Extensions()[ceVSphereEventClass] == "" {
@@ -52,6 +62,12 @@ func main() {
 		if event.Extensions()[ceVSphereAPIKey] == "" {
 			logging.FromContext(ctx).Fatalf("CloudEvent extension %q not set", ceVSphereAPIKey)
 		}
+
+		if count == int32(numExpectedEvents) {
+			logging.FromContext(ctx).Infow("cancelling context: Received expected number of events")
+			cancel()
+		}
+
 	}); err != nil {
 		logging.FromContext(ctx).Fatalf("receiving events: %v", err)
 	}

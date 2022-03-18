@@ -26,8 +26,11 @@ func TestSource(t *testing.T) {
 	cleanupVcsim := CreateSimulator(t, clients)
 	defer cleanupVcsim()
 
-	// Create a job/svc that listens for events and then quits N seconds after the first is received.
-	name, wait, cancelListener := RunJobListener(t, clients)
+	// Create a job/svc that listens for expectedCount of events of expectedType
+	// It will quit after meeting those criteria, or be cleaned up by cancelListener
+	expectedType := "com.vmware.vsphere.VmPoweredOffEvent.v0"
+	expectedCount := "2"
+	name, wait, cancelListener := RunJobListener(t, clients, expectedType, expectedCount)
 	defer cancelListener()
 
 	// Create a source that emits events from the vcsim.
