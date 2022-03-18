@@ -26,15 +26,21 @@ func TestSource(t *testing.T) {
 	cleanupVcsim := CreateSimulator(t, clients)
 	defer cleanupVcsim()
 
-	// Create a job/svc that listens for events and then quits N seconds after the first is received.
-	name, wait, cancelListener := RunJobListener(t, clients)
+	// Create a job/svc that listens for expectedCount of events of expectedType
+	// It will quit after meeting those criteria, or be cleaned up by cancelListener
+	expectedType := "com.vmware.vsphere.VmPoweredOffEvent.v0"
+	expectedCount := "2"
+
+	t.Log("creating event listener")
+	name, wait, cancelListener := RunJobListener(t, clients, expectedType, expectedCount)
 	defer cancelListener()
 
 	// Create a source that emits events from the vcsim.
+	t.Log("creating event source")
 	cancelSource := CreateSource(t, clients, name)
 	defer cancelSource()
 
-	// trigger events
+	t.Log("creating source binding")
 	selector, cancelTrigger := CreateJobBinding(t, clients)
 	defer cancelTrigger()
 
@@ -48,7 +54,8 @@ func TestSource(t *testing.T) {
 		"govc vm.power -off /DC0/vm/DC0_H0_VM1 && sleep 3",
 	}, "\n")
 
-	// Run a simple script as a Job on the cluster.
+	// Run a simple script as a Job on the cluster to trigger events
+	t.Log("creating job to trigger events")
 	RunBashJob(t, clients, pkgtest.ImagePath("govc"), script, selector)
 
 	// Wait for the job to complete, and then cleanup.

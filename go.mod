@@ -35,6 +35,7 @@ require (
 
 require (
 	github.com/hashicorp/hcl v1.0.0
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gotest.tools/v3 v3.0.3
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
 	knative.dev/client v0.30.2-0.20220329090315-1bab8209ceab
@@ -126,7 +127,6 @@ require (
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20220227234510-4e6760a101f9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect

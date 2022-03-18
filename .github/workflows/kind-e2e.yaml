@@ -87,5 +87,5 @@ jobs:
         # For logstream to work.
         export SYSTEM_NAMESPACE=vmware-sources
         # Run the tests tagged as e2e on the KinD cluster.
-        go test -v -race -timeout=3m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
+        go test -v -race -timeout=10m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
 
