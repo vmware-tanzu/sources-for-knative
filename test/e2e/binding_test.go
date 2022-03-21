@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	pkgtest "knative.dev/pkg/test"
-	"knative.dev/pkg/test/logstream"
 
 	"github.com/vmware-tanzu/sources-for-knative/test"
 )
@@ -22,11 +21,9 @@ import (
 // run to completion successfully.
 func TestBindingGOVC(t *testing.T) {
 	// t.Parallel()
-	defer logstream.Start(t)()
-
 	clients := test.Setup(t)
 
-	//create vcsim
+	// create vcsim
 	cleanupVcsim := CreateSimulator(t, clients)
 	defer cleanupVcsim()
 
@@ -50,11 +47,9 @@ func TestBindingGOVC(t *testing.T) {
 // and run to completion successfully.
 func TestBindingPowerCLICore(t *testing.T) {
 	// t.Parallel()
-	defer logstream.Start(t)()
-
 	clients := test.Setup(t)
 
-	//create vcsim
+	// create vcsim
 	cleanupVcsim := CreateSimulator(t, clients)
 	defer cleanupVcsim()
 

@@ -28,7 +28,7 @@ func MakeRoleBinding(ctx context.Context, vms *v1alpha1.VSphereSource) *rbacv1.R
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     "receive-adapter-cm",
+			Name:     "vsphere-receive-adapter-cm",
 		},
 		Subjects: []rbacv1.Subject{{
 			Kind:      "ServiceAccount",

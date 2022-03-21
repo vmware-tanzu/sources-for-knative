@@ -13,7 +13,6 @@ import (
 	"testing"
 
 	pkgtest "knative.dev/pkg/test"
-	"knative.dev/pkg/test/logstream"
 
 	"github.com/vmware-tanzu/sources-for-knative/test"
 )
@@ -21,11 +20,9 @@ import (
 // TestSource creates a Job that completes after receiving events, and a Source targeting that job.
 func TestSource(t *testing.T) {
 	// t.Parallel()
-	defer logstream.Start(t)()
-
 	clients := test.Setup(t)
 
-	//create vcsim
+	// create vcsim
 	cleanupVcsim := CreateSimulator(t, clients)
 	defer cleanupVcsim()
 

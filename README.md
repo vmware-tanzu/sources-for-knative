@@ -1,39 +1,50 @@
 # VMware Tanzu Sources for Knative
 
-This repo will be the home for VMware-related event sources compatible with the
-[Knative](https://knative.dev) project.
-
 [![GoDoc](https://godoc.org/github.com/vmware-tanzu/sources-for-knative?status.svg)](https://godoc.org/github.com/vmware-tanzu/sources-for-knative)
 [![Go Report Card](https://goreportcard.com/badge/vmware-tanzu/sources-for-knative)](https://goreportcard.com/report/vmware-tanzu/sources-for-knative)
 [![Slack Status](https://img.shields.io/badge/slack-join_chat-white.svg?logo=slack&style=social)](https://knative.slack.com)
 [![codecov](https://codecov.io/gh/vmware-tanzu/sources-for-knative/branch/master/graph/badge.svg?token=QwWjUwiLIN)](undefined)
 
-This repo is under active development to get a Knative compatible Event Source
-for vSphere events, and a Binding to easily access the VSphere API.
+This repo is the home for VMware-related event sources compatible with the
+[Knative](https://knative.dev) project.
+
+
+This repo is under active development to get a Knative compatible Event `Source`
+for VMware events, e.g. VMware vSphere incl. a `Binding` to easily access the
+vSphere API from Kubernetes objects, e.g. a `Job`.
 
 ⚠️ **NOTE:** To run these examples, you will need
 [ko](https://github.com/google/ko) installed or use a
-[release](https://github.com/vmware-tanzu/sources-for-knative/releases) and
-deploy it via `kubectl`.
+[release](https://github.com/vmware-tanzu/sources-for-knative/releases)
+(preferred) and deploy it via `kubectl`.
+
+## Available `Sources` and `Bindings`
+
+- `VSphereSource` to create VMware vSphere (vCenter) event sources
+- `VSphereBinding` to inject VMware vSphere (vCenter) credentials
 
 ## Install Tanzu Sources for Knative
 
-### Install via Release
+### Install via Release (`latest`)
 
 ```
-kubectl apply -f https://github.com/vmware-tanzu/sources-for-knative/releases/download/v0.21.0/release.yaml
+kubectl apply -f https://github.com/vmware-tanzu/sources-for-knative/releases/latest/download/release.yaml
 ```
 
 ### Install from Source
 
-Install the CRD providing the control / dataplane for the
-`VSphere{Source,Binding}`:
+Install the CRD providing the control / dataplane for the various `Sources` and
+`Bindings`:
 
 ```shell
-ko apply -f config
+# define environment variables accordingly, e.g. when using kind
+# export KIND_CLUSTER_NAME=horizon
+# export KO_DOCKER_REPO=kind.local
+
+ko apply -BRf config
 ```
 
-## Samples
+## Examples
 
 To see examples of the Source and Binding in action, check out our
 [samples](./samples/README.md) directory.

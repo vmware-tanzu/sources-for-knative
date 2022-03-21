@@ -36,11 +36,13 @@ var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{
 	v1alpha1.SchemeGroupVersion.WithKind("VSphereBinding"): &v1alpha1.VSphereBinding{},
 }
 
+const admissionWebhookName = "vsphere-source-webhook"
+
 func NewDefaultingAdmissionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	return defaulting.NewAdmissionController(ctx,
 
 		// Name of the resource webhook.
-		"defaulting.webhook.sources.tanzu.vmware.com",
+		"defaulting.webhook.vsphere.sources.tanzu.vmware.com",
 
 		// The path on which to serve the webhook.
 		"/defaulting",
@@ -64,7 +66,7 @@ func NewValidationAdmissionController(ctx context.Context, cmw configmap.Watcher
 	return validation.NewAdmissionController(ctx,
 
 		// Name of the resource webhook.
-		"validation.webhook.sources.tanzu.vmware.com",
+		"validation.webhook.vsphere.sources.tanzu.vmware.com",
 
 		// The path on which to serve the webhook.
 		"/resource-validation",
@@ -88,7 +90,7 @@ func NewConfigValidationController(ctx context.Context, cmw configmap.Watcher) *
 	return configmaps.NewAdmissionController(ctx,
 
 		// Name of the configmap webhook.
-		"config.webhook.sources.tanzu.vmware.com",
+		"config.webhook.vsphere.sources.tanzu.vmware.com",
 
 		// The path on which to serve the webhook.
 		"/config-validation",
@@ -105,7 +107,7 @@ func NewVSphereBindingWebhook(opts ...psbinding.ReconcilerOption) injection.Cont
 	return func(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 		return psbinding.NewAdmissionController(ctx,
 			// Name of the resource webhook.
-			"vspherebindings.webhook.sources.tanzu.vmware.com",
+			"vspherebindings.webhook.vsphere.sources.tanzu.vmware.com",
 
 			// The path on which to serve the webhook.
 			"/vspherebindings",
@@ -126,9 +128,9 @@ func NewVSphereBindingWebhook(opts ...psbinding.ReconcilerOption) injection.Cont
 
 func main() {
 	ctx := webhook.WithOptions(signals.NewContext(), webhook.Options{
-		ServiceName: "webhook",
+		ServiceName: admissionWebhookName,
 		Port:        8443,
-		SecretName:  "webhook-certs",
+		SecretName:  "vsphere-webhook-certs",
 	})
 
 	vsbSelector := psbinding.WithSelector(psbinding.ExclusionSelector)
@@ -136,7 +138,7 @@ func main() {
 		vsbSelector = psbinding.WithSelector(psbinding.InclusionSelector)
 	}
 
-	sharedmain.MainWithContext(ctx, "webhook",
+	sharedmain.MainWithContext(ctx, admissionWebhookName,
 		certificates.NewController,
 		NewDefaultingAdmissionController,
 		NewValidationAdmissionController,

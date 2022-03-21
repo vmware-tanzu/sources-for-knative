@@ -6,4 +6,5 @@ kind: Namespace
 metadata:
   name: vmware-sources
   labels:
+    istio-injection: enabled
     sources.tanzu.vmware.com/release: devel
