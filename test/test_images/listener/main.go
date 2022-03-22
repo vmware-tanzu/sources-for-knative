@@ -7,6 +7,7 @@ package main
 
 import (
 	"context"
+	"encoding/xml"
 	"log"
 	"strconv"
 	"sync/atomic"
@@ -25,6 +26,11 @@ const (
 type envConfig struct {
 	ExpectedEventType  string `envconfig:"EVENT_TYPE"`
 	ExpectedEventCount string `envconfig:"EVENT_COUNT"`
+}
+
+type VmPoweredOffEvent struct {
+	XMLName xml.Name `xml:"VmPoweredOffEvent"`
+	Message string   `xml:"fullFormattedMessage"`
 }
 
 func main() {
@@ -51,8 +57,14 @@ func main() {
 	var count int32
 	if err = client.StartReceiver(ctx, func(ctx context.Context, event cloudevents.Event) {
 		logging.FromContext(ctx).Infof("Received event: %s", event.String())
+
 		if event.Type() == env.ExpectedEventType {
 			atomic.AddInt32(&count, 1)
+
+			eventData := &VmPoweredOffEvent{}
+			if err := xml.Unmarshal(event.Data(), eventData); err != nil {
+				logging.FromContext(ctx).Fatalf("Failed to unmarshal CloudEvent xml data: ", err)
+			}
 		}
 
 		// assert required CE extension attributes are always present
