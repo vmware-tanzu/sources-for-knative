@@ -1,5 +1,8 @@
 ## Binary names
 
-The binaries in this directory are prefixed with `sources-for-knative-{foo}` so
-that when published via `KO_DOCKER_REPO=docker.io/vmware ko apply -Bf config`
-the resulting images are named `vmware/sources-for-knative-{foo}`.
+The binaries in this directory are grouped by and prefixed with the
+corresponding VMware product name, e.g. `vsphere` or `horizon`.
+
+When published via `KO_DOCKER_REPO=<registry>/vmware ko apply -BRf config` the
+resulting images are named `<registry>/vmware/<product>-{adapter|controller}`,
+e.g. `docker.io/vmware/vsphere-adapter`

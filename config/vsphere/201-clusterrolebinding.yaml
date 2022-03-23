@@ -9,7 +9,7 @@ metadata:
     sources.tanzu.vmware.com/release: devel
 subjects:
   - kind: ServiceAccount
-    name: controller
+    name: vsphere-controller
     namespace: vmware-sources
 roleRef:
   kind: ClusterRole
@@ -25,7 +25,7 @@ metadata:
     sources.tanzu.vmware.com/release: devel
 subjects:
   - kind: ServiceAccount
-    name: controller
+    name: vsphere-controller
     namespace: vmware-sources
 roleRef:
   kind: ClusterRole
@@ -38,7 +38,7 @@ metadata:
   name: vmware-sources-webhook-addressable-resolver-binding
 subjects:
 - kind: ServiceAccount
-  name: controller
+  name: vsphere-controller
   namespace: vmware-sources
 roleRef:
   kind: ClusterRole
