@@ -7,6 +7,8 @@ Before you begin, make sure you have your `KO_DOCKER_REPO` env var set to whatev
 
 To run the test, you'll need to upload the test images to a registry. This can be done by running `upload-test-images.sh`.
 
+This document assumes you have already installed the Tanzu Sources, as described [here](/README.md)
+
 #### vCenter Simulator Image
 
 By default, the tests use the vCenter Simulator image `vmware/vcsim:latest`, which is hosted on Dockerhub.
