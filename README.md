@@ -264,6 +264,137 @@ produced by a `VSphereSource` in the `v1alpha1` API is `application/xml`.
 Alternatively, this can be changed to `application/json` as shown in the sample
 above. Other encoding schemes are currently **not implemented**.
 
+#### Example Event Structure
+
+Events received by the `VSphereSource` adapter from a VMware vSphere environment
+are wrapped into a standardized event format using the
+[`CloudEvent`](https://cloudevents.io/) specification.
+
+Events are delivered over HTTP using binary encoding. Hence, `CloudEvent`
+metadata, such as `subject`, `source`, etc. are represented in HTTP headers. The
+actual `data` (payload), i.e. vSphere event, is encoded in the body, using the
+configured [payload encoding](#configuring-cloudevent-payload-encoding) in the
+`VSphereSource` `spec` field.
+
+The following example shows a
+[`VmPoweredOffEvent`](https://vdc-repo.vmware.com/vmwb-repository/dcr-public/b525fb12-61bb-4ede-b9e3-c4a1f8171510/99ba073a-60e9-4933-8690-149860ce8754/doc/vim.event.VmPoweredOffEvent.html)
+encoded as `CloudEvent` using HTTP binary transport mode.
+
+<details>
+  <summary markdown="span">CloudEvent HTTP Headers</summary>
+
+```json
+{
+  "Accept-Encoding": [
+    "gzip"
+  ],
+  "Ce-Eventclass": [
+    "event"
+  ],
+  "Ce-Id": [
+    "41"
+  ],
+  "Ce-Knativearrivaltime": [
+    "2022-03-21T16:35:41.2552037Z"
+  ],
+  "Ce-Source": [
+    "vcsim.default.svc.cluster.local"
+  ],
+  "Ce-Specversion": [
+    "1.0"
+  ],
+  "Ce-Time": [
+    "2022-03-21T16:35:39.3101747Z"
+  ],
+  "Ce-Type": [
+    "com.vmware.vsphere.VmPoweredOffEvent.v0"
+  ],
+  "Ce-Vsphereapiversion": [
+    "6.5"
+  ],
+  "Content-Length": [
+    "560"
+  ],
+  "Content-Type": [
+    "application/json"
+  ],
+  "Forwarded": [
+    "for=10.244.0.6;proto=http"
+  ],
+  "K-Proxy-Request": [
+    "activator"
+  ],
+  "Prefer": [
+    "reply"
+  ],
+  "Traceparent": [
+    "00-9a162bdbd2eeb4f551625dbaf38fc850-b0c91e957c0d55a4-00"
+  ],
+  "User-Agent": [
+    "Go-http-client/1.1"
+  ],
+  "X-Forwarded-For": [
+    "10.244.0.6, 10.244.0.2"
+  ],
+  "X-Forwarded-Proto": [
+    "http"
+  ],
+  "X-Request-Id": [
+    "111a8255-1dec-4495-9aff-6300c27e7154"
+  ]
+}
+```
+
+</details>
+
+<details>
+  <summary markdown="span">CloudEvent HTTP body (Payload) using JSON encoding</summary>
+
+```json
+{
+  "Key": 41,
+  "ChainId": 41,
+  "CreatedTime": "2022-03-21T16:35:39.3101747Z",
+  "UserName": "user",
+  "Datacenter": {
+    "Name": "DC0",
+    "Datacenter": {
+      "Type": "Datacenter",
+      "Value": "datacenter-2"
+    }
+  },
+  "ComputeResource": {
+    "Name": "DC0_H0",
+    "ComputeResource": {
+      "Type": "ComputeResource",
+      "Value": "computeresource-23"
+    }
+  },
+  "Host": {
+    "Name": "DC0_H0",
+    "Host": {
+      "Type": "HostSystem",
+      "Value": "host-21"
+    }
+  },
+  "Vm": {
+    "Name": "DC0_H0_VM0",
+    "Vm": {
+      "Type": "VirtualMachine",
+      "Value": "vm-57"
+    }
+  },
+  "Ds": null,
+  "Net": null,
+  "Dvs": null,
+  "FullFormattedMessage": "DC0_H0_VM0 on DC0_H0 in DC0 is powered off",
+  "ChangeTag": "",
+  "Template": false
+}
+```
+
+</details>
+
 ## Basic `VSphereBinding` Example
 
 The `VSphereBinding` provides a simple mechanism for a user application to call
