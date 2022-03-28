@@ -65,6 +65,7 @@ func main() {
 			if err := xml.Unmarshal(event.Data(), eventData); err != nil {
 				logging.FromContext(ctx).Fatalf("Failed to unmarshal CloudEvent xml data: ", err)
 			}
+			logging.FromContext(ctx).Infof("Raw Message: %s", eventData.Message)
 		}
 
 		// assert required CE extension attributes are always present
