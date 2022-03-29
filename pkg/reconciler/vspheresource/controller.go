@@ -12,21 +12,23 @@ import (
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/metrics"
 	"knative.dev/pkg/resolver"
 	"knative.dev/pkg/tracker"
 
 	"github.com/kelseyhightower/envconfig"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client"
-	vspherebindinginformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding"
-	vsphereinformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspheresource"
-	vspherereconciler "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource"
 	eventingclient "knative.dev/eventing/pkg/client/injection/client"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
 	deploymentinformer "knative.dev/pkg/client/injection/kube/informers/apps/v1/deployment"
 	cminformer "knative.dev/pkg/client/injection/kube/informers/core/v1/configmap"
 	sainformer "knative.dev/pkg/client/injection/kube/informers/core/v1/serviceaccount"
 	rbacinformer "knative.dev/pkg/client/injection/kube/informers/rbac/v1/rolebinding"
+
+	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/client"
+	vspherebindinginformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspherebinding"
+	vsphereinformer "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/informers/sources/v1alpha1/vspheresource"
+	vspherereconciler "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource"
 )
 
 type envConfig struct {
@@ -53,15 +55,16 @@ func NewController(
 	}
 
 	r := &Reconciler{
-		adapterImage:         env.VSphereAdapter,
 		kubeclient:           kubeclient.Get(ctx),
 		eventingclient:       eventingclient.Get(ctx),
 		client:               client.Get(ctx),
 		deploymentLister:     deploymentInformer.Lister(),
 		vspherebindingLister: vspherebindingInformer.Lister(),
-		cmLister:             cmInformer.Lister(),
 		rbacLister:           rbacInformer.Lister(),
+		cmLister:             cmInformer.Lister(),
 		saLister:             saInformer.Lister(),
+		adapterImage:         env.VSphereAdapter,
+		loggingContext:       ctx,
 	}
 	impl := vspherereconciler.NewImpl(ctx, r)
 
@@ -93,6 +96,9 @@ func NewController(
 	})
 
 	r.resolver = resolver.NewURIResolverFromTracker(ctx, tracker.New(impl.EnqueueKey, controller.GetTrackerLease(ctx)))
+
+	cmw.Watch(logging.ConfigMapName(), r.UpdateFromLoggingConfigMap)
+	cmw.Watch(metrics.ConfigMapName(), r.UpdateFromMetricsConfigMap)
 
 	return impl
 }

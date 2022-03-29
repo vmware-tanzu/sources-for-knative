@@ -37,3 +37,4 @@ data:
   # For all components changes are be picked up immediately.
   loglevel.controller: "info"
   loglevel.webhook: "info"
+  loglevel.vsphere-source-webhook: "info"

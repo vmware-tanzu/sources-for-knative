@@ -369,3 +369,148 @@ This has been tested with:
 - `Job`
 - `DaemonSet`
 - `StatefulSet`
+
+## Changing Log Levels
+
+All components follow Knative logging convention and use the
+[zap](https://pkg.go.dev/go.uber.org/zap) structured logging library. The log
+level (`debug`, `info`, `error`,
+[etc.](https://github.com/uber-go/zap/blob/6f34060764b5ea1367eecda380ba8a9a0de3f0e6/zapcore/level.go#L138))
+is configurable per component, e.g. `vsphere-source-webhook`, `VSphereSource`
+`adapter`, etc.
+
+The default logging level is `info`. The following sections describe how to
+change the individual component log levels.
+
+### `Source` Adapter Log Level
+
+The log level for adapters, e.g. a particular `VSphereSource` `deployment` can
+be changed at runtime via the `config-logging` `ConfigMap` which is
+[created](./config/config-logging.yaml) when deploying the Tanzu Sources for
+Knative manifests in this repository.
+
+⚠️ **Note:** These settings will affect **all adapter** deployments. Changes to
+a particular adapter deployment are currently not possible.
+
+```
+kubectl -n vmware-sources edit cm config-logging
+```
+
+An interactive editor opens. Change the settings in the JSON object under the
+`zap-logger-config` key. For example, to change the log level from `info` to
+`debug` use this configuration in the editor:
+
+```yaml
+apiVersion: v1
+data:
+  # details omitted
+  zap-logger-config: |
+    {
+      "level": "debug"
+      "development": false,
+      "outputPaths": ["stdout"],
+      "errorOutputPaths": ["stderr"],
+      "encoding": "json",
+      "encoderConfig": {
+        "timeKey": "ts",
+        "levelKey": "level",
+        "nameKey": "logger",
+        "callerKey": "caller",
+        "messageKey": "msg",
+        "stacktraceKey": "stacktrace",
+        "lineEnding": "",
+        "levelEncoder": "",
+        "timeEncoder": "iso8601",
+        "durationEncoder": "",
+        "callerEncoder": ""
+      }
+    }
+```
+
+Save and leave the interactive editor to apply the `ConfigMap` changes.
+Kubernetes will validate and confirm the changes:
+
+```
+configmap/config-logging edited
+```
+
+To verify that the `Source` adapter owners (e.g. `vsphere-source-webhook` for a
+`VSphereSource`) have noticed the desired change, inspect the log messages of
+the owner (here: `vsphere-source-webhook`) `Pod`:
+
+```
+vsphere-source-webhook-f7d8ffbc9-4xfwl vsphere-source-webhook {"level":"info","ts":"2022-03-29T12:25:20.622Z","logger":"vsphere-source-webhook","caller":"vspheresource/vsphere.go:250","msg":"update from logging ConfigMap{snip...}
+```
+
+⚠️ **Note:** To avoid unwanted disruption during event retrieval/delivery, the
+changes are **not applied** automatically to deployed adapters, i.e.
+`VSphereSource` adapter, etc.
+
+To make the changes take affect for existing adapter `Deployments`, an operator
+needs to manually scale a particular adapter `Deployment` to `--replicas 0`. The
+`Source` controller will react to this change by creating a new instance (`Pod`)
+with the desired log level changes and setting `replicas` to the default count
+(`1`) again.
+
+```
+kubectl get vspheresource
+NAME                SOURCE                     SINK                                                                              READY   REASON
+example-vc-source   https://my-vc.corp.local   http://broker-ingress.knative-eventing.svc.cluster.local/default/example-broker   True
+
+kubectl scale deployment --replicas 0 example-vc-source-deployment
+deployment.apps/example-vc-source-deployment scaled
+```
+
+⚠️ **Note:** To avoid losing events due to this (brief) downtime, use the
+[Checkpointing](#configuring-checkpoint-and-event-replay) capability.
+
+### `Controller` and `Webhook` Log Level
+
+Each of the available Tanzu Sources for Knative is backed by at least a
+particular `webhook`, e.g. `vsphere-source-webhook` and optionally a
+`controller`. 
+
+💡 **Note:** The `VSphereSource` and `VSphereBinding` implementation uses a
+combined [deployment](./config/vsphere/webhook.yaml) `vsphere-source-webhook`
+for the `webhook` and `controller`
+
+Just like with the adapter `Deployment`, the log level for `webhook` and
+`controller` instances can be changed at runtime.
+
+```
+kubectl -n vmware-sources edit cm config-logging
+```
+
+An interactive editor opens. Change the corresponding component log level under
+the respective component `key`. The following example shows how to change the
+log level for the combined `VSphereSource` `webhook` and `controller` component
+from `info` to `debug`:
+
+```yaml
+apiVersion: v1
+data:
+  loglevel.controller: info # generic knative settings, ignore this
+  loglevel.webhook: info # generic knative settings, ignore this
+  loglevel.vsphere-source-webhook: debug # <- changed from info to debug
+  zap-logger-config: |
+    {
+      "level": "info",
+      "development": false,
+      "outputPaths": ["stdout"],
+      "errorOutputPaths": ["stderr"],
+    # details omitted
+```
+
+Save and leave the interactive editor to apply the `ConfigMap` changes.
+Kubernetes will validate and confirm the changes:
+
+```
+configmap/config-logging edited
+```
+
+To verify the changes, inspect the log messages of the `vsphere-source-webhook`
+`Pod`:
+
+```
+vsphere-source-webhook-f7d8ffbc9-4xfwl vsphere-source-webhook {"level":"info","ts":"2022-03-29T12:22:25.630Z","logger":"vsphere-source-webhook","caller":"logging/config.go:209","msg":"Updating logging level for vsphere-source-webhook from info to debug.","commit":"26d67c5"}
+```

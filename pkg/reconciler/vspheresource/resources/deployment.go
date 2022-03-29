@@ -24,7 +24,13 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
 )
 
-func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterImage string) (*appsv1.Deployment, error) {
+type AdapterArgs struct {
+	Image         string
+	LoggingConfig string
+	MetricsConfig string
+}
+
+func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args AdapterArgs) (*appsv1.Deployment, error) {
 	labels := map[string]string{
 		"vspheresources.sources.tanzu.vmware.com/name": vms.Name,
 	}
@@ -68,7 +74,7 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 					ServiceAccountName: names.ServiceAccount(vms),
 					Containers: []corev1.Container{{
 						Name:  "adapter",
-						Image: adapterImage,
+						Image: args.Image,
 						Env: []corev1.EnvVar{{
 							Name: "NAMESPACE",
 							ValueFrom: &corev1.EnvVarSource{
@@ -85,10 +91,10 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 							},
 						}, {
 							Name:  "K_METRICS_CONFIG",
-							Value: `{"Domain":"tanzu.vmware.com/sources","Component":"source"}`,
+							Value: args.MetricsConfig,
 						}, {
 							Name:  "K_LOGGING_CONFIG",
-							Value: "{}",
+							Value: args.LoggingConfig,
 						}, {
 							Name:  "VSPHERE_KVSTORE_CONFIGMAP",
 							Value: names.ConfigMap(vms),
@@ -107,6 +113,9 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, adapterIma
 						}},
 					}},
 				},
+			},
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RecreateDeploymentStrategyType,
 			},
 		},
 	}, nil
