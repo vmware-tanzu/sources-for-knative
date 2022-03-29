@@ -106,7 +106,7 @@ func (c *FakeVSphereSources) UpdateStatus(ctx context.Context, vSphereSource *v1
 // Delete takes name of the vSphereSource and deletes it. Returns an error if one occurs.
 func (c *FakeVSphereSources) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(vspheresourcesResource, c.ns, name), &v1alpha1.VSphereSource{})
+		Invokes(testing.NewDeleteActionWithOptions(vspheresourcesResource, c.ns, name, opts), &v1alpha1.VSphereSource{})
 
 	return err
 }
