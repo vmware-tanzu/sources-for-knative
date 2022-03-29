@@ -13,6 +13,10 @@ mirror the standard Knative development workflow.
 1. Set up your [shell environment](#environment-setup)
 1. [Create and checkout a repo fork](#checkout-your-fork)
 
+⚠️ **Note:** For general instructions how to use `git`(hub) to contribute to an
+open source project, please see this blog post: [Git rebase, squash...oh
+my!](https://www.mgasch.com/2021/05/git-basics/)
+
 ### Requirements
 
 You must install these tools:
@@ -40,6 +44,8 @@ adding them to your `.bashrc`):
 
 1. `KO_DOCKER_REPO`: This should be set to an authenticated Docker repo where
    you can publish container images during development, e.g. `docker.io/${USER}`
+   or [`kind.local`](https://github.com/google/ko#local-publishing-options) when
+   developing with [`kind`](https://kind.sigs.k8s.io/)
 
 `.bashrc` example:
 
@@ -82,14 +88,14 @@ described below.
 To deploy to the active `kubectl` context, run the following:
 
 ```shell
-ko apply -f config
+ko apply -BRf config
 ```
 
 This will build all of the Go binaries into containers, publish them to your
 `KO_DOCKER_REPO` and deploy them to the active `kubectl` context.
 
 > **Note:** The dependency on an external container registry can be avoided if
-> you run `ko` in a `kind` environment , as described
+> you run `ko` in a `kind` environment, as described
 > [here](https://github.com/google/ko#with-kind).
 
 ### Code Generation
@@ -107,10 +113,13 @@ diffs.
 
 ### Running the adapter on your local machine
 
-Sometimes you might want to develop against a VSphere server that is not
-accessible from your development cluster. So you can run the receive adapter
-(the data plane for the events) locally like so. Note that you will still need a
-kubernetes cluster to use for the ConfigMap-based bookmarking
+Sometimes you might want to develop against a VMware vSphere environment that is
+not accessible from your development cluster. You can run the receive adapter
+(the data plane for the events) locally in such cases (as opposed to running it
+within a Kubernetes environment). 
+
+⚠️ Note that you will still need a Kubernetes cluster to use for the
+`ConfigMap`-based bookmarking
 ([issue](https://github.com/vmware-tanzu-private/sources-for-knative/issues/16)).
 
 Store the credentials on the filesystem in a custom path:
@@ -153,7 +162,8 @@ line in `cmd/adapter/main.go`:
 // _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 ```
 
-And then finally run the receive adapter, pointing to your kubeconfig file
+And then finally run the receive adapter, which will use the settings from your
+`.kubeconfig` file:
 
 ```shell
 go run ./cmd/sources-for-knative-adapter/main.go
@@ -161,13 +171,13 @@ go run ./cmd/sources-for-knative-adapter/main.go
 
 ### Local development notes with KinD
 
-This section describes how to develop with KinD as your Kubernetes cluster, you
-will have to have Docker running.
+This section describes how to develop with [KinD](https://kind.sigs.k8s.io/) as
+your Kubernetes cluster (requires Docker).
 
 First install KinD, and create a cluster:
 
 ```shell
-GO111MODULE="on" go get sigs.k8s.io/kind@v0.9.0 && kind create cluster
+GO111MODULE="on" go install sigs.k8s.io/kind@latest && kind create cluster
 ```
 
 Make sure the KinD cluster is your active `kubectl` context:
@@ -176,12 +186,12 @@ Make sure the KinD cluster is your active `kubectl` context:
 kubectl config use-context kind-kind
 ```
 
-Then install knative/eventing on it following
-[the standard instructions](https://knative.dev/docs/install/any-kubernetes-cluster/#installing-the-eventing-component).
+Then install Knative Serving/Eventing on it following [the standard
+instructions](https://knative.dev/docs/install/).
 
-**If you are using a private registry for development** you will need to grant
-the ServiceAccount access to your private repository. For GKE you would do it
-like so:
+⚠️ **Note:** If you are using a private registry for development you will need
+to grant the ServiceAccount access to your private repository. For GKE you would
+do it like so:
 
 ```shell
 SA_EMAIL=$(gcloud iam service-accounts --format='value(email)' create k8s-gcr-auth-ro)
@@ -190,23 +200,12 @@ gcloud iam service-accounts keys create k8s-gcr-auth-ro.json --iam-account=$SA_E
 PROJECT=$(gcloud config list core/project --format='value(core.project)')
 gcloud projects add-iam-policy-binding $PROJECT --member serviceAccount:$SA_EMAIL --role roles/storage.objectViewer
 
-kubectl --context kind-kind -n vmware-sources create secret docker-registry image-secrets   --docker-server=https://gcr.io   --docker-username=_json_key   --docker-email=user@example.com   --docker-password="$(cat k8s-gcr-auth-ro.json)"
+kubectl --context kind-kind -n vmware-sources create secret docker-registry image-secrets --docker-server=https://gcr.io   --docker-username=_json_key --docker-email=user@example.com --docker-password="$(cat k8s-gcr-auth-ro.json)"
 kubectl --context kind-kind -n vmware-sources patch serviceaccount controller -p "{\"imagePullSecrets\": [{\"name\": \"image-secrets\"}]}"
 ```
 
-You can then iterate using the standard workflow:
+You can then iterate using the standard workflow as described above:
 
 ```shell
-ko apply -f ./config
+ko apply -BRf ./config
 ```
-
-### Pull Requests
-
-To highlight your pull request in the release notes, please include brief notes
-about the change(s) in the corresponding PR using this markdown code block:
-
-````
-```release-note
-<your description>
-```
-````
