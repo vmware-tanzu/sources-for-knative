@@ -23,21 +23,21 @@ require (
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.uber.org/zap v1.19.1
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
-	k8s.io/api v0.22.5
-	k8s.io/apimachinery v0.22.5
-	k8s.io/client-go v0.22.5
-	k8s.io/code-generator v0.22.5
+	k8s.io/api v0.23.5
+	k8s.io/apimachinery v0.23.5
+	k8s.io/client-go v0.23.5
+	k8s.io/code-generator v0.23.5
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65
-	knative.dev/eventing v0.30.0
-	knative.dev/hack v0.0.0-20220224013837-e1785985d364
-	knative.dev/pkg v0.0.0-20220310195447-38af013b30ff
+	knative.dev/eventing v0.30.1-0.20220329130015-3890b39ff3d5
+	knative.dev/hack v0.0.0-20220328133751-f06773764ce3
+	knative.dev/pkg v0.0.0-20220325200448-1f7514acd0c2
 )
 
 require (
 	github.com/hashicorp/hcl v1.0.0
 	gotest.tools/v3 v3.0.3
-	k8s.io/utils v0.0.0-20211208161948-7d6a63dca704
-	knative.dev/client v0.30.0
+	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
+	knative.dev/client v0.30.2-0.20220329090315-1bab8209ceab
 )
 
 require (
@@ -142,15 +142,16 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
-	k8s.io/apiextensions-apiserver v0.22.5 // indirect
-	k8s.io/cli-runtime v0.22.5 // indirect
-	k8s.io/gengo v0.0.0-20211129171323-c02415ce4185 // indirect
-	k8s.io/klog/v2 v2.40.1 // indirect
-	knative.dev/networking v0.0.0-20220302134042-e8b2eb995165 // indirect
-	knative.dev/serving v0.30.0 // indirect
-	sigs.k8s.io/kustomize/api v0.8.11 // indirect
-	sigs.k8s.io/kustomize/kyaml v0.11.0 // indirect
-	sigs.k8s.io/structured-merge-diff/v4 v4.1.2 // indirect
+	k8s.io/apiextensions-apiserver v0.23.4 // indirect
+	k8s.io/cli-runtime v0.23.4 // indirect
+	k8s.io/gengo v0.0.0-20220307231824-4627b89bbf1b // indirect
+	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
+	knative.dev/networking v0.0.0-20220323170318-55757e9c20d6 // indirect
+	knative.dev/serving v0.30.1-0.20220328163451-15f7a4e393cc // indirect
+	sigs.k8s.io/json v0.0.0-20211020170558-c049b76a60c6 // indirect
+	sigs.k8s.io/kustomize/api v0.10.1 // indirect
+	sigs.k8s.io/kustomize/kyaml v0.13.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 

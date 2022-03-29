@@ -106,7 +106,7 @@ func (c *FakeVSphereBindings) UpdateStatus(ctx context.Context, vSphereBinding *
 // Delete takes name of the vSphereBinding and deletes it. Returns an error if one occurs.
 func (c *FakeVSphereBindings) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewDeleteAction(vspherebindingsResource, c.ns, name), &v1alpha1.VSphereBinding{})
+		Invokes(testing.NewDeleteActionWithOptions(vspherebindingsResource, c.ns, name, opts), &v1alpha1.VSphereBinding{})
 
 	return err
 }
