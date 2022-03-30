@@ -116,7 +116,7 @@ diffs.
 Sometimes you might want to develop against a VMware vSphere environment that is
 not accessible from your development cluster. You can run the receive adapter
 (the data plane for the events) locally in such cases (as opposed to running it
-within a Kubernetes environment). 
+within a Kubernetes environment).
 
 ⚠️ Note that you will still need a Kubernetes cluster to use for the
 `ConfigMap`-based bookmarking
