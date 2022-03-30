@@ -28,7 +28,7 @@ type envConfig struct {
 	ExpectedEventCount string `envconfig:"EVENT_COUNT"`
 }
 
-type VmPoweredOffEvent struct {
+type VMPoweredOffEvent struct {
 	XMLName xml.Name `xml:"VmPoweredOffEvent"`
 	Message string   `xml:"fullFormattedMessage"`
 }
@@ -61,7 +61,7 @@ func main() {
 		if event.Type() == env.ExpectedEventType {
 			atomic.AddInt32(&count, 1)
 
-			eventData := &VmPoweredOffEvent{}
+			eventData := &VMPoweredOffEvent{}
 			if err := xml.Unmarshal(event.Data(), eventData); err != nil {
 				logging.FromContext(ctx).Fatalf("Failed to unmarshal CloudEvent xml data: ", err)
 			}
