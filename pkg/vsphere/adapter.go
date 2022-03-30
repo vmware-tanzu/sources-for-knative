@@ -178,13 +178,12 @@ func (a *vAdapter) readEvents(ctx context.Context, c *event.HistoryCollector) er
 			skip := lastEvent == nil || lastCheckpointEventKey == lastEvent.GetEvent().Key
 			if !skip {
 				var current checkpoint
-				err := a.KVStore.Get(ctx, checkpointKey, &current)
-				if err != nil {
+				if err := a.KVStore.Get(ctx, checkpointKey, &current); err != nil {
 					return fmt.Errorf("retrieve current checkpoint: %w", err)
 				}
 
 				logger.Debugw("creating checkpoint", zap.Any("checkpoint", current))
-				if err = a.KVStore.Save(ctx); err != nil {
+				if err := a.KVStore.Save(ctx); err != nil {
 					return fmt.Errorf("save checkpoint: %w", err)
 				}
 				lastCheckpointEventKey = lastEvent.GetEvent().Key

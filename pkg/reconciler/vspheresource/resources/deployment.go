@@ -115,6 +115,9 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args Adapt
 				},
 			},
 			Strategy: appsv1.DeploymentStrategy{
+				// terminate existing instance before creating a new one to reduce chance of
+				// multiple source adapters sending events when changing log levels and running
+				// kubectl rollout restart
 				Type: appsv1.RecreateDeploymentStrategyType,
 			},
 		},

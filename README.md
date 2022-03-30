@@ -377,7 +377,7 @@ All components follow Knative logging convention and use the
 level (`debug`, `info`, `error`,
 [etc.](https://github.com/uber-go/zap/blob/6f34060764b5ea1367eecda380ba8a9a0de3f0e6/zapcore/level.go#L138))
 is configurable per component, e.g. `vsphere-source-webhook`, `VSphereSource`
-`adapter`, etc.
+adapter, etc.
 
 The default logging level is `info`. The following sections describe how to
 change the individual component log levels.
@@ -444,25 +444,25 @@ vsphere-source-webhook-f7d8ffbc9-4xfwl vsphere-source-webhook {"level":"info","t
 
 ⚠️ **Note:** To avoid unwanted disruption during event retrieval/delivery, the
 changes are **not applied** automatically to deployed adapters, i.e.
-`VSphereSource` adapter, etc.
+`VSphereSource` adapter, etc. The operator is in full control over the lifecycle
+(downtime) of the affected `Deployment(s)`.
 
-To make the changes take affect for existing adapter `Deployments`, an operator
-needs to manually scale a particular adapter `Deployment` to `--replicas 0`. The
-`Source` controller will react to this change by creating a new instance (`Pod`)
-with the desired log level changes and setting `replicas` to the default count
-(`1`) again.
+To make the changes take affect for existing adapter `Deployment`, an operator
+needs to manually perform a rolling upgrade. The existing adapter `Pod` will be
+terminated and a new instanced created with the desired log level changes.
 
 ```
 kubectl get vspheresource
 NAME                SOURCE                     SINK                                                                              READY   REASON
 example-vc-source   https://my-vc.corp.local   http://broker-ingress.knative-eventing.svc.cluster.local/default/example-broker   True
 
-kubectl scale deployment --replicas 0 example-vc-source-deployment
-deployment.apps/example-vc-source-deployment scaled
+kubectl rollout restart deployment/example-vc-source-deployment
+deployment.apps/example-vc-source-deployment restarted
 ```
 
-⚠️ **Note:** To avoid losing events due to this (brief) downtime, use the
-[Checkpointing](#configuring-checkpoint-and-event-replay) capability.
+⚠️ **Note:** To avoid losing events due to this (brief) downtime, consider
+enabling the [Checkpointing](#configuring-checkpoint-and-event-replay)
+capability.
 
 ### `Controller` and `Webhook` Log Level
 
