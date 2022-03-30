@@ -73,7 +73,19 @@ jobs:
         kubectl -n vmware-sources describe pods
         kubectl -n vmware-sources get events
 
+    - name: Build vcsim image
+      working-directory: ./src/github.com/${{ github.repository }}
+      run: |
+        export GO111MODULE=on
+        echo "VCSIM_IMAGE=$(ko publish -B github.com/vmware/govmomi/vcsim)" >> $GITHUB_ENV
+
+    - name: Run E2E tests
+      working-directory: ./src/github.com/${{ github.repository }}
+      run: |
+        set -x
+
         # For logstream to work.
         export SYSTEM_NAMESPACE=vmware-sources
         # Run the tests tagged as e2e on the KinD cluster.
         go test -v -race -timeout=3m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
+

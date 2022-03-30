@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
 
 	"github.com/davecgh/go-spew/spew"
@@ -30,13 +31,18 @@ import (
 )
 
 const (
-	vcsim        = "vcsim"
-	ns           = "default"
-	vsphereCreds = "vsphere-credentials"
-	user         = "user"
-	password     = "password"
-	jobNameKey   = "job-name"
+	vcsim             = "vcsim"
+	ns                = "default"
+	vsphereCreds      = "vsphere-credentials"
+	user              = "user"
+	password          = "password"
+	jobNameKey        = "job-name"
+	defaultVcsimImage = "vmware/vcsim:latest"
 )
+
+type envConfig struct {
+	VcsimImage string `envconfig:"VCSIM_IMAGE" default:"vmware/vcsim:latest"`
+}
 
 func CreateJobBinding(t *testing.T, clients *test.Clients) (map[string]string, context.CancelFunc) {
 	ctx := context.Background()
@@ -373,7 +379,13 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 
 func CreateSimulator(t *testing.T, clients *test.Clients) context.CancelFunc {
 	ctx := context.Background()
-	simDeployment, simService := newSimulator(ns)
+
+	var env envConfig
+	if err := envconfig.Process("", &env); err != nil {
+		t.Fatalf("Unable to read environment config: %v", err)
+	}
+
+	simDeployment, simService := newSimulator(ns, env.VcsimImage)
 	simSecret := newVCSecret(ns, vsphereCreds, user, password)
 
 	pkgtest.CleanupOnInterrupt(func() {
@@ -434,9 +446,14 @@ func CreateSimulator(t *testing.T, clients *test.Clients) context.CancelFunc {
 	return cancel
 }
 
-func newSimulator(namespace string) (*appsv1.Deployment, *corev1.Service) {
+func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service) {
 	l := map[string]string{
 		"app": vcsim,
+	}
+	args := []string{"-l", ":8989"}
+	if image == defaultVcsimImage {
+		//vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
+		args = append([]string{"vcsim"}, args...)
 	}
 
 	sim := appsv1.Deployment{
@@ -456,13 +473,9 @@ func newSimulator(namespace string) (*appsv1.Deployment, *corev1.Service) {
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Name:  vcsim,
-						Image: "vmware/vcsim:latest",
-						Args: []string{
-							"/vcsim",
-							"-l",
-							":8989",
-						},
+						Name:            vcsim,
+						Image:           image,
+						Args:            args,
 						ImagePullPolicy: corev1.PullIfNotPresent,
 						Ports: []corev1.ContainerPort{
 							{
