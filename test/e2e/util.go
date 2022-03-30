@@ -37,7 +37,7 @@ const (
 	user              = "user"
 	password          = "password"
 	jobNameKey        = "job-name"
-	DefaultVcsimImage = "vmware/vcsim:latest"
+	defaultVcsimImage = "vmware/vcsim:latest"
 )
 
 type envConfig struct {
@@ -447,12 +447,11 @@ func CreateSimulator(t *testing.T, clients *test.Clients) context.CancelFunc {
 }
 
 func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service) {
-
 	l := map[string]string{
 		"app": vcsim,
 	}
 	args := []string{"-l", ":8989"}
-	if image == DefaultVcsimImage {
+	if image == defaultVcsimImage {
 		//vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
 		args = append([]string{"vcsim"}, args...)
 	}
