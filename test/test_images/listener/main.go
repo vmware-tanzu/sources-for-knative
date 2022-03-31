@@ -10,7 +10,6 @@ import (
 	"encoding/xml"
 	"log"
 	"strconv"
-	"sync/atomic"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	"github.com/kelseyhightower/envconfig"
@@ -54,19 +53,27 @@ func main() {
 		log.Fatalf("Invalid value for EVENT_COUNT (%v): %v", env.ExpectedEventCount, err)
 	}
 
-	var count int32
-	if err = client.StartReceiver(ctx, func(ctx context.Context, event cloudevents.Event) {
-		logging.FromContext(ctx).Infof("Received event: %s", event.String())
-
-		if event.Type() == env.ExpectedEventType {
-			atomic.AddInt32(&count, 1)
-
-			eventData := &VMPoweredOffEvent{}
-			if err := xml.Unmarshal(event.Data(), eventData); err != nil {
-				logging.FromContext(ctx).Fatalf("Failed to unmarshal CloudEvent xml data: ", err)
+	events := make(chan cloudevents.Event, numExpectedEvents)
+	// receive events, putting them into the channel only if they meet the type we are expecting
+	go func() {
+		if err = client.StartReceiver(ctx, func(event cloudevents.Event) {
+			logging.FromContext(ctx).Infof("Received event: %s", event.String())
+			if event.Type() == env.ExpectedEventType {
+				events <- event
 			}
-			logging.FromContext(ctx).Infof("Raw Message: %s", eventData.Message)
+		}); err != nil {
+			logging.FromContext(ctx).Fatalf("receiving events: %v", err)
 		}
+	}()
+
+	count := 0
+	// Process events one by one, keeping count. Exit when count is reached, and cancel the start receiver
+	for event := range events {
+		eventData := &VMPoweredOffEvent{}
+		if err := xml.Unmarshal(event.Data(), eventData); err != nil {
+			logging.FromContext(ctx).Fatalf("Failed to unmarshal CloudEvent xml data: ", err)
+		}
+		logging.FromContext(ctx).Infof("Raw Message: %s", eventData.Message)
 
 		// assert required CE extension attributes are always present
 		if event.Extensions()[ceVSphereEventClass] == "" {
@@ -76,13 +83,13 @@ func main() {
 			logging.FromContext(ctx).Fatalf("CloudEvent extension %q not set", ceVSphereAPIKey)
 		}
 
-		if count == int32(numExpectedEvents) {
+		count += 1
+
+		if count == numExpectedEvents {
 			logging.FromContext(ctx).Infow("cancelling context: Received expected number of events")
 			cancel()
+			break
 		}
-
-	}); err != nil {
-		logging.FromContext(ctx).Fatalf("receiving events: %v", err)
 	}
 
 	if count == 0 {
