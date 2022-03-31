@@ -9,12 +9,8 @@ import (
 	"context"
 	"fmt"
 
-	sourcesv1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
-	clientset "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
-	vspherereconciler "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource"
-	v1alpha1lister "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources"
-	resourcenames "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
+	"go.uber.org/zap"
+	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -23,15 +19,25 @@ import (
 	rbacv1listers "k8s.io/client-go/listers/rbac/v1"
 	eventingclientset "knative.dev/eventing/pkg/client/clientset/versioned"
 	"knative.dev/pkg/logging"
+	"knative.dev/pkg/metrics"
 	"knative.dev/pkg/reconciler"
 	"knative.dev/pkg/resolver"
+
+	sourcesv1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	clientset "github.com/vmware-tanzu/sources-for-knative/pkg/client/clientset/versioned"
+	vspherereconciler "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource"
+	v1alpha1lister "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources"
+	resourcenames "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 )
 
-// Reconciler implements vspherereconciler.Interface for
-// VSphereSource resources.
-type Reconciler struct {
-	adapterImage string
+const (
+	component = "vspheresource"
+)
 
+// Reconciler implements vspherereconciler.Interface for VSphereSource
+// resources.
+type Reconciler struct {
 	resolver *resolver.URIResolver
 
 	kubeclient     kubernetes.Interface
@@ -43,6 +49,11 @@ type Reconciler struct {
 	rbacLister           rbacv1listers.RoleBindingLister
 	cmLister             corev1Listers.ConfigMapLister
 	saLister             corev1Listers.ServiceAccountLister
+
+	loggingContext context.Context
+	adapterImage   string
+	loggingConfig  *logging.Config
+	metricsConfig  *metrics.ExporterOptions
 }
 
 // Check that our Reconciler implements Interface
@@ -73,7 +84,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, vms *sourcesv1alpha1.VSp
 	}
 	vms.Status.SinkURI = uri
 
-	if err := r.reconcileDeployment(ctx, vms); err != nil {
+	if err = r.reconcileDeployment(ctx, vms); err != nil {
 		return err
 	}
 
@@ -173,9 +184,25 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 	ns := vms.Namespace
 	deploymentName := resourcenames.Deployment(vms)
 
+	loggingConfig, err := logging.ConfigToJSON(r.loggingConfig)
+	if err != nil {
+		return fmt.Errorf("marshal logging config to JSON: %w", err)
+	}
+
+	metricsConfig, err := metrics.OptionsToJSON(r.metricsConfig)
+	if err != nil {
+		return fmt.Errorf("marshal metrics config to JSON: %w", err)
+	}
+
+	args := resources.AdapterArgs{
+		Image:         r.adapterImage,
+		LoggingConfig: loggingConfig,
+		MetricsConfig: metricsConfig,
+	}
+
 	deployment, err := r.deploymentLister.Deployments(ns).Get(deploymentName)
 	if apierrs.IsNotFound(err) {
-		deployment, err = resources.MakeDeployment(ctx, vms, r.adapterImage)
+		deployment, err = resources.MakeDeployment(ctx, vms, args)
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
 		}
@@ -189,7 +216,7 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 		return fmt.Errorf("failed to get deployment %q: %w", deploymentName, err)
 	} else {
 		// The deployment exists, but make sure that it has the shape that we expect.
-		desiredDeployment, err := resources.MakeDeployment(ctx, vms, r.adapterImage)
+		desiredDeployment, err := resources.MakeDeployment(ctx, vms, args)
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
 		}
@@ -206,4 +233,32 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 	vms.Status.PropagateAdapterStatus(deployment.Status)
 
 	return nil
+}
+
+func (r *Reconciler) UpdateFromLoggingConfigMap(cfg *corev1.ConfigMap) {
+	if cfg != nil {
+		delete(cfg.Data, "_example")
+	}
+
+	logcfg, err := logging.NewConfigFromConfigMap(cfg)
+	if err != nil {
+		logging.FromContext(r.loggingContext).Warn("failed to create logging config from configmap", zap.String("cfg.Name", cfg.Name))
+		return
+	}
+
+	r.loggingConfig = logcfg
+	logging.FromContext(r.loggingContext).Info("update from logging ConfigMap", zap.Any("ConfigMap", cfg))
+}
+
+func (r *Reconciler) UpdateFromMetricsConfigMap(cfg *corev1.ConfigMap) {
+	if cfg != nil {
+		delete(cfg.Data, "_example")
+	}
+
+	r.metricsConfig = &metrics.ExporterOptions{
+		Domain:    metrics.Domain(),
+		Component: component,
+		ConfigMap: cfg.Data,
+	}
+	logging.FromContext(r.loggingContext).Info("update from metrics ConfigMap", zap.Any("ConfigMap", cfg))
 }

@@ -128,9 +128,8 @@ func (a *vAdapter) Start(ctx context.Context) error {
 func (a *vAdapter) run(ctx context.Context) error {
 	var cp checkpoint
 	if err := a.KVStore.Get(ctx, checkpointKey, &cp); err != nil {
-		logging.FromContext(ctx).Warn("get last checkpoint: ", err)
+		logging.FromContext(ctx).Warnw("could not retrieve checkpoint configuration", zap.Error(err))
 	}
-
 	// begin of event stream defaults to current vCenter time (UTC)
 	vcTime, err := methods.GetCurrentTime(ctx, a.VClient)
 	if err != nil {
@@ -178,7 +177,12 @@ func (a *vAdapter) readEvents(ctx context.Context, c *event.HistoryCollector) er
 			// avoid unnecessary K8s API calls
 			skip := lastEvent == nil || lastCheckpointEventKey == lastEvent.GetEvent().Key
 			if !skip {
-				logger.Debug("creating checkpoint")
+				var current checkpoint
+				if err := a.KVStore.Get(ctx, checkpointKey, &current); err != nil {
+					return fmt.Errorf("retrieve current checkpoint: %w", err)
+				}
+
+				logger.Debugw("creating checkpoint", zap.Any("checkpoint", current))
 				if err := a.KVStore.Save(ctx); err != nil {
 					return fmt.Errorf("save checkpoint: %w", err)
 				}
@@ -261,6 +265,12 @@ func (a *vAdapter) sendEvents(ctx context.Context, baseEvents []types.BaseEvent)
 		}
 
 		// TODO: better partial batch failure handling here?
+		logging.FromContext(ctx).Debugw("sending event",
+			zap.String("ID", ev.ID()),
+			zap.String("type", ev.Type()),
+			zap.Any("data", be),
+		)
+
 		result := a.CEClient.Send(ctx, ev)
 		if !cloudevents.IsACK(result) {
 			logging.FromContext(ctx).Errorw("failed to send cloudevent", zap.Error(result))
