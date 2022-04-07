@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	pkgreconciler "knative.dev/pkg/reconciler"
 )
 
