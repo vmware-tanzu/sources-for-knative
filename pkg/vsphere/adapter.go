@@ -200,7 +200,7 @@ func (a *vAdapter) readEvents(ctx context.Context, c *event.HistoryCollector) er
 
 			if len(events) == 0 {
 				delay := bOff.Duration()
-				logger.Debugw("no new events, backing off", zap.String("delaySeconds", delay.String()))
+				logger.Debugw("backing off retrieving events: no new events received", zap.Duration("backoffSeconds", delay))
 				time.Sleep(delay)
 				continue
 			}

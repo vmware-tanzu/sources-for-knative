@@ -1,0 +1,63 @@
+# Copyright 2020 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: defaulting.webhook.horizon.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+  - admissionReviewVersions: ["v1", "v1beta1"]
+    clientConfig:
+      service:
+        name: horizon-source-webhook
+        namespace: vmware-sources
+    sideEffects: None
+    failurePolicy: Fail
+    name: defaulting.webhook.horizon.sources.tanzu.vmware.com
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validation.webhook.horizon.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+  - admissionReviewVersions: ["v1", "v1beta1"]
+    clientConfig:
+      service:
+        name: horizon-source-webhook
+        namespace: vmware-sources
+    sideEffects: None
+    failurePolicy: Fail
+    name: validation.webhook.horizon.sources.tanzu.vmware.com
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: config.webhook.horizon.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+  - admissionReviewVersions: ["v1", "v1beta1"]
+    clientConfig:
+      service:
+        name: horizon-source-webhook
+        namespace: vmware-sources
+    sideEffects: None
+    failurePolicy: Fail
+    name: config.webhook.horizon.sources.tanzu.vmware.com
+    namespaceSelector:
+      matchExpressions:
+        - key: sources.knative.dev/release
+          operator: Exists
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: webhook-certs
+  namespace: vmware-sources
+  labels:
+    sources.tanzu.vmware.com/release: devel
+# The data is populated at install time.

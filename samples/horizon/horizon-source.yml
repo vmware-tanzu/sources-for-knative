@@ -1,0 +1,16 @@
+apiVersion: sources.tanzu.vmware.com/v1alpha1
+kind: HorizonSource
+metadata:
+  name: horizon-jarvis
+spec:
+  sink:
+    ref:
+      apiVersion: eventing.knative.dev/v1
+      kind: Broker
+      name: example-broker
+      namespace: default
+  address: https://10.197.79.54 # horizon.jarvis.tanzu
+  skipTLSVerify: true
+  secretRef:
+    name: horizon-credentials
+  serviceAccountName: horizon-source-sa

@@ -27,7 +27,7 @@ func TestNames(t *testing.T) {
 			},
 		},
 		f:    Deployment,
-		want: "ffffffffffffffffffff105d7597f637e83cc711605ac3ea4957-deployment",
+		want: "fffffffffffffffffffffff105d7597f637e83cc711605ac3ea4957-adapter",
 	}, {
 		name: "Deployment long enough",
 		vss: &v1alpha1.VSphereSource{
@@ -36,7 +36,7 @@ func TestNames(t *testing.T) {
 			},
 		},
 		f:    Deployment,
-		want: strings.Repeat("f", 52) + "-deployment",
+		want: strings.Repeat("f", 52) + "-adapter",
 	}, {
 		name: "Deployment",
 		vss: &v1alpha1.VSphereSource{
@@ -45,7 +45,7 @@ func TestNames(t *testing.T) {
 			},
 		},
 		f:    Deployment,
-		want: "foo-deployment",
+		want: "foo-adapter",
 	}, {
 		name: "vspherebinding",
 		vss: &v1alpha1.VSphereSource{

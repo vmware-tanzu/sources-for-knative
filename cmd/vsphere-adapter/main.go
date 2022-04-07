@@ -24,5 +24,5 @@ func main() {
 	ctx := signals.NewContext()
 	kc := kubernetes.NewForConfigOrDie(injection.ParseAndGetRESTConfigOrDie())
 	ctx = context.WithValue(ctx, kubeclient.Key{}, kc)
-	adapter.MainWithContext(ctx, "vspheresource", vsphere.NewEnvConfig, vsphere.NewAdapter)
+	adapter.MainWithContext(ctx, "vsphere-source-adapter", vsphere.NewEnvConfig, vsphere.NewAdapter)
 }

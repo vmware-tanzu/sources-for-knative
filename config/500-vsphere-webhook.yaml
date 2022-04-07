@@ -31,7 +31,6 @@ spec:
                   app: vsphere-source-webhook
               topologyKey: kubernetes.io/hostname
             weight: 100
-
       serviceAccountName: vsphere-controller
       containers:
       - name: vsphere-source-webhook
@@ -39,11 +38,6 @@ spec:
         # and substituted here.
         image: ko://github.com/vmware-tanzu/sources-for-knative/cmd/vsphere-controller
         resources:
-          # Request 2x what we saw running e2e
-          requests:
-            cpu: 20m
-            memory: 20Mi
-          # Limit to 10x the request (20x the observed peak during e2e)
           limits:
             cpu: 200m
             memory: 200Mi
@@ -60,7 +54,6 @@ spec:
           value: tanzu.vmware.com/sources
         - name: WEBHOOK_NAME
           value: vsphere-source-webhook
-
         readinessProbe: &probe
           # Increasing the failure threshold and adding an initial delay
           # avoids the situation where failing probes cause the vsphere-source-webhook to restart before it can

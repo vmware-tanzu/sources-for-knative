@@ -4,25 +4,31 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: vspheresources.sources.tanzu.vmware.com
+  name: horizonsources.sources.tanzu.vmware.com
   labels:
     sources.tanzu.vmware.com/release: devel
     knative.dev/crd-install: "true"
     duck.knative.dev/source: "true"
     eventing.knative.dev/source: "true"
+  annotations:
+    registry.knative.dev/eventTypes: |
+      [
+        { "type": "com.vmware.tanzu.sources" }
+      ]
 spec:
   group: sources.tanzu.vmware.com
   names:
-    kind: VSphereSource
-    plural: vspheresources
-    singular: vspheresource
+    kind: HorizonSource
+    plural: horizonsources
+    singular: horizonsource
     categories:
     - all
     - knative
-    - vsphere
+    - eventing
+    - horizon
     - sources
     shortNames:
-    - vss
+    - hs
   scope: Namespaced
   versions:
   - name: v1alpha1

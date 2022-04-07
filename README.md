@@ -587,8 +587,8 @@ kubectl get vspheresource
 NAME                SOURCE                     SINK                                                                              READY   REASON
 example-vc-source   https://my-vc.corp.local   http://broker-ingress.knative-eventing.svc.cluster.local/default/example-broker   True
 
-kubectl rollout restart deployment/example-vc-source-deployment
-deployment.apps/example-vc-source-deployment restarted
+kubectl rollout restart deployment/example-vc-source-adapter
+deployment.apps/example-vc-source-adapter restarted
 ```
 
 ⚠️ **Note:** To avoid losing events due to this (brief) downtime, consider

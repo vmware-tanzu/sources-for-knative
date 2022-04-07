@@ -35,6 +35,6 @@ data:
 
   # Log level overrides
   # For all components changes are be picked up immediately.
-  loglevel.controller: "info"
-  loglevel.webhook: "info"
   loglevel.vsphere-source-webhook: "info"
+  loglevel.horizon-source-webhook: "info"
+  loglevel.horizon-source-controller: "info"

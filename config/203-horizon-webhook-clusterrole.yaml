@@ -1,0 +1,111 @@
+# Copyright 2020 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: horizon-source-webhook
+  labels:
+    sources.tanzu.vmware.com/release: devel
+rules:
+  # Sources admin
+  - apiGroups:
+      - sources.knative.dev
+    resources:
+      - horizonsources
+    verbs: &everything
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+  # Sources finalizer
+  - apiGroups:
+      - sources.knative.dev
+    resources:
+      - horizonsources/finalizers
+    verbs: *everything
+
+  # Source statuses update
+  - apiGroups:
+      - sources.knative.dev
+    resources:
+      - horizonsources/status
+    verbs:
+      - get
+      - update
+      - patch
+
+  # Deployments admin
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs: *everything
+
+  # Secrets read
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+
+  # Namespace labelling for webhook
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+
+  # Events admin
+  - apiGroups:
+      - ""
+    resources:
+      - events
+      - configmaps
+    verbs: *everything
+
+  # EventTypes admin
+  - apiGroups:
+      - eventing.knative.dev
+    resources:
+      - eventtypes
+    verbs: *everything
+
+  # For manipulating certs into secrets.
+  - apiGroups:
+      - ""
+    resources:
+      - "secrets"
+    verbs:
+      - "get"
+      - "create"
+      - "update"
+      - "list"
+      - "watch"
+
+  # For actually registering our webhook.
+  - apiGroups:
+      - "admissionregistration.k8s.io"
+    resources:
+      - "mutatingwebhookconfigurations"
+      - "validatingwebhookconfigurations"
+    verbs: *everything
+
+  # For Leader Election
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs: *everything

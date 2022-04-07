@@ -1,0 +1,18 @@
+# Copyright 2020 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    sources.tanzu.vmware.com/release: devel
+    role: horizon-source-webhook
+  name: horizon-source-webhook
+  namespace: vmware-sources
+spec:
+  ports:
+    - name: https-webhook
+      port: 443
+      targetPort: 8443
+  selector:
+    role: horizon-source-webhook

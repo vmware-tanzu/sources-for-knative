@@ -60,6 +60,7 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args Adapt
 			Name:            names.Deployment(vms),
 			Namespace:       vms.Namespace,
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(vms)},
+			Labels: labels,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: ptr.Int32(1),
