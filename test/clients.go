@@ -29,9 +29,9 @@ const (
 	Namespace = "default"
 
 	// PollInterval is how frequently e2e tests will poll for updates.
-	PollInterval = 1 * time.Second
+	PollInterval = 5 * time.Second
 	// PollTimeout is how long e2e tests will wait for resource updates when polling.
-	PollTimeout = 1 * time.Minute
+	PollTimeout = 5 * time.Minute
 )
 
 type Clients struct {
