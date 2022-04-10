@@ -111,6 +111,15 @@ of:
 These are both idempotent, and we expect that running these at `HEAD` to have no
 diffs.
 
+### Boilerplate
+
+All `*.go` and `*.sh` files, excluding `vendor` and `third_party`, must have the
+required boilerplate headers, e.g. copyrights.
+
+Contributors can use the `add-boilerplate.sh` script in
+[`hack/boilerplate`](./hack/boilerplate/) to update newly added files
+accordingly.
+
 ### Running the adapter on your local machine
 
 Sometimes you might want to develop against a VMware vSphere environment that is
