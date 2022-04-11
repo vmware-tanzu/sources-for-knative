@@ -66,6 +66,7 @@ jobs:
         # Build Knative plugin
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
 
+        # webhook readiness probe can take some time to enter ready state
         kubectl -n vmware-sources wait --timeout=1m --for=condition=Available deploy/vsphere-source-webhook
 
     - name: Build vcsim image
