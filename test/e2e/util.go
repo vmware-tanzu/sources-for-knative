@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+
 	"github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/root"
 
 	"github.com/davecgh/go-spew/spew"
@@ -242,6 +243,21 @@ func RunJobListener(t *testing.T, clients *test.Clients, eventType, eventCount s
 			t.Errorf("Error cleaning up pods for Job %s", job.Name)
 		}
 	}
+
+	// Wait for the Job to start
+	readyErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
+		js, err := clients.KubeClient.BatchV1().Jobs(test.Namespace).Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return true, err
+		}
+
+		// Check for successful completions.
+		return js.Status.Active > 0, nil
+	})
+	if readyErr != nil {
+		t.Fatalf("Error waiting for Job to start successfully: %v", readyErr)
+	}
+
 	waiter := func() {
 		// Wait for the Job to report a successful execution.
 		waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
@@ -320,7 +336,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 	ctx := context.Background()
 	t.Helper()
 
-	//Set a checkpoint in the past in case test creates events before vsphere source is ready
+	// Set a checkpoint in the past in case test creates events before vsphere source is ready
 	checkpointTime := time.Now().Add(time.Minute * -9)
 	checkpointConfigmap, err := clients.KubeClient.CoreV1().ConfigMaps(ns).Create(
 		ctx,
@@ -330,7 +346,6 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		},
 		metav1.CreateOptions{},
 	)
-
 	if err != nil {
 		t.Fatalf("Error creating Configmap: %v", err)
 	}
@@ -429,6 +444,23 @@ func CreateSimulator(t *testing.T, clients *test.Clients) context.CancelFunc {
 		if err != nil {
 			t.Errorf("Error cleaning up Secret %s", secret.Name)
 		}
+
+		waitErr := wait.PollImmediate(test.PollInterval, time.Minute, func() (bool, error) {
+			_, err = clients.KubeClient.AppsV1().Deployments(ns).Get(ctx, simDeployment.Name, metav1.GetOptions{})
+			if err != nil {
+				if apierrs.IsNotFound(err) {
+					return true, nil
+				}
+				return false, err
+			}
+			return true, nil
+		})
+
+		if waitErr != nil {
+			t.Fatalf("Error waiting for VCSIM deployment to be deleted: %v", waitErr)
+		}
+
+		t.Log("vcsim deleted")
 	}
 
 	waitErr := wait.PollImmediate(test.PollInterval, test.PollTimeout, func() (bool, error) {
@@ -462,7 +494,7 @@ func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service)
 	}
 	args := []string{"-l", ":8989"}
 	if image == defaultVcsimImage {
-		//vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
+		// vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
 		args = append([]string{"vcsim"}, args...)
 	}
 
