@@ -66,12 +66,8 @@ jobs:
         # Build Knative plugin
         go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
 
-        kubectl -n vmware-sources wait --timeout=10s --for=condition=Available deploy/vsphere-source-webhook
-
-        # For debugging.
-        kubectl get pods --all-namespaces
-        kubectl -n vmware-sources describe pods
-        kubectl -n vmware-sources get events
+        # webhook readiness probe can take some time to enter ready state
+        kubectl -n vmware-sources wait --timeout=1m --for=condition=Available deploy/vsphere-source-webhook
 
     - name: Build vcsim image
       working-directory: ./src/github.com/${{ github.repository }}
@@ -87,5 +83,11 @@ jobs:
         # For logstream to work.
         export SYSTEM_NAMESPACE=vmware-sources
         # Run the tests tagged as e2e on the KinD cluster.
-        go test -v -race -timeout=3m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
+        go test -v -race -timeout=10m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
 
+    - name: Debug
+      if: ${{ always() }}
+      run: |
+        kubectl get pods --all-namespaces
+        kubectl -n vmware-sources describe pods
+        kubectl -n vmware-sources get events
