@@ -93,6 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       KO_DOCKER_REPO: kind.local
+      KIND_CLUSTER_NAME: plugins
     timeout-minutes: 10
 
     steps:
@@ -110,7 +111,6 @@ jobs:
     - name: Setup KinD Cluster
       env:
         KIND_VERSION: v0.11.1
-        KIND_CLUSTER_NAME: plugins
       run: |
         set -x
 
@@ -124,6 +124,8 @@ jobs:
     - name: Deploy vcsim
       run: |
         ko apply -PRf test/config
+        kubectl wait --timeout=1m --for=condition=Available deploy/vcsim
+        kubectl port-forward deploy/vcsim 8989:8989 &
 
     - name: Build plugins
       run: |
@@ -131,5 +133,5 @@ jobs:
 
     - name: Test plugin
       run: |
-        ./kn-vsphere auth create --name vsphere-credentials --username user --password pass
+        ./kn-vsphere auth create --name vsphere-credentials --username user --password pass --verify-url 127.0.0.1:8989 --verify-insecure=true
         kubectl get secret vsphere-credentials # assert exists
