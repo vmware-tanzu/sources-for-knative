@@ -62,8 +62,6 @@ jobs:
         export GOFLAGS=-mod=vendor
         ko apply -PRf config/
 
-        go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
-
         # webhook readiness probe can take some time to enter ready state
         kubectl -n vmware-sources wait --timeout=3m --for=condition=Available deploy/vsphere-source-webhook
 
