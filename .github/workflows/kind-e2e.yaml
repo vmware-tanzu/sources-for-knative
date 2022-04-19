@@ -112,6 +112,7 @@ jobs:
     - name: Setup KinD Cluster
       env:
         KIND_VERSION: v0.11.1
+        KIND_CLUSTER_NAME: plugins
       run: |
         set -x
 
@@ -119,17 +120,8 @@ jobs:
         chmod +x ./kind
         sudo mv kind /usr/local/bin
 
-        # KinD configuration.
-        cat > kind.yaml <<EOF
-        apiVersion: kind.x-k8s.io/v1alpha4
-        kind: Cluster
-        nodes:
-        - role: control-plane
-        - role: worker
-        EOF
-
-        # Create a cluster!
-        kind create cluster --config kind.yaml
+        # Create cluster with defaults
+        kind create cluster
 
     - name: Deploy vcsim
       run: |
