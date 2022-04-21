@@ -23,7 +23,7 @@ on:
 
 jobs:
   releasability:
-    uses: knative/actions/.github/workflows/releasability.yaml@main
+    uses: embano1/actions/.github/workflows/releasability.yaml@main
     with:
       releaseFamily: ${{ github.event.inputs.releaseFamily || 'v1.4' }}
       moduleReleaseFamily: ${{ github.event.inputs.moduleReleaseFamily || 'v0.31' }}
