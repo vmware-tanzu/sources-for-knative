@@ -33,6 +33,9 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+
     - name: Setup ko
       uses: imjasonh/setup-ko@v0.4
 
