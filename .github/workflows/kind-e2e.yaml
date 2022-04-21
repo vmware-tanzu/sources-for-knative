@@ -88,6 +88,15 @@ jobs:
         kubectl -n vmware-sources describe pods
         kubectl -n vmware-sources get events
 
+    - name: Collect diagnostics
+      uses: chainguard-dev/actions/kind-diag@main
+      # Only upload logs on failure.
+      if: ${{ failure() }}
+      with:
+        cluster-resources: nodes
+        namespace-resources: pods,svc
+        artifact-name: logs
+
   plugins:
     name: kn plugins
     runs-on: ubuntu-latest
