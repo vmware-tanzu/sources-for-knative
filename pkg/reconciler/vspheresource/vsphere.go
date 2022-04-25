@@ -87,6 +87,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, vms *sourcesv1alpha1.VSp
 	if err = r.reconcileDeployment(ctx, vms); err != nil {
 		return err
 	}
+	logging.FromContext(ctx).Infof("Reconciled vspheresource %q", vms.Name)
 
 	return nil
 }
@@ -227,6 +228,7 @@ func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alph
 		if err != nil {
 			return fmt.Errorf("failed to create deployment %q: %w", deploymentName, err)
 		}
+		logging.FromContext(ctx).Infof("Updated deployment %q", deploymentName)
 	}
 
 	// Reflect the state of the Adapter Deployment in the VSphereSource
