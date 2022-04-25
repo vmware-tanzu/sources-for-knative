@@ -1,0 +1,53 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: horizon-source-controller-rolebinding
+  labels:
+    sources.tanzu.vmware.com/release: devel
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: horizon-source-controller
+subjects:
+- kind: ServiceAccount
+  name: horizon-source-controller
+  namespace: vmware-sources
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: horizon-source-webhook-rolebinding
+  labels:
+    sources.tanzu.vmware.com/release: devel
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: horizon-source-webhook
+subjects:
+  - kind: ServiceAccount
+    name: horizon-source-webhook
+    namespace: vmware-sources
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: horizon-source-controller-addressable-resolver
+  labels:
+    sources.tanzu.vmware.com/release: devel
+subjects:
+- kind: ServiceAccount
+  name: horizon-source-controller
+  namespace: vmware-sources
+# An aggregated ClusterRole for all Addressable CRDs.
+# Ref: https://knative.dev/eventing/blob/master/config/200-addressable-resolvers-clusterrole.yaml
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: addressable-resolver

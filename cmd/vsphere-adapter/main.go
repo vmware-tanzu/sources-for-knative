@@ -20,9 +20,13 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/pkg/vsphere"
 )
 
+const (
+	adapterName = "vsphere-source-adapter"
+)
+
 func main() {
 	ctx := signals.NewContext()
 	kc := kubernetes.NewForConfigOrDie(injection.ParseAndGetRESTConfigOrDie())
 	ctx = context.WithValue(ctx, kubeclient.Key{}, kc)
-	adapter.MainWithContext(ctx, "vspheresource", vsphere.NewEnvConfig, vsphere.NewAdapter)
+	adapter.MainWithContext(ctx, adapterName, vsphere.NewEnvConfig, vsphere.NewAdapter)
 }

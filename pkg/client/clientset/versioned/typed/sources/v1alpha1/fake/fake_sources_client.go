@@ -17,6 +17,10 @@ type FakeSourcesV1alpha1 struct {
 	*testing.Fake
 }
 
+func (c *FakeSourcesV1alpha1) HorizonSources(namespace string) v1alpha1.HorizonSourceInterface {
+	return &FakeHorizonSources{c, namespace}
+}
+
 func (c *FakeSourcesV1alpha1) VSphereBindings(namespace string) v1alpha1.VSphereBindingInterface {
 	return &FakeVSphereBindings{c, namespace}
 }

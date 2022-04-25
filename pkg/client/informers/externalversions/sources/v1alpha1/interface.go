@@ -13,6 +13,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// HorizonSources returns a HorizonSourceInformer.
+	HorizonSources() HorizonSourceInformer
 	// VSphereBindings returns a VSphereBindingInformer.
 	VSphereBindings() VSphereBindingInformer
 	// VSphereSources returns a VSphereSourceInformer.
@@ -28,6 +30,11 @@ type version struct {
 // New returns a new Interface.
 func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakListOptions internalinterfaces.TweakListOptionsFunc) Interface {
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
+}
+
+// HorizonSources returns a HorizonSourceInformer.
+func (v *version) HorizonSources() HorizonSourceInformer {
+	return &horizonSourceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // VSphereBindings returns a VSphereBindingInformer.

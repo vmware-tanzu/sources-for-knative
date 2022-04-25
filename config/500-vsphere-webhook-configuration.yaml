@@ -1,0 +1,83 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: defaulting.webhook.vsphere.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+- admissionReviewVersions: ["v1", "v1beta1"]
+  clientConfig:
+    service:
+      name: vsphere-source-webhook
+      namespace: vmware-sources
+  failurePolicy: Fail
+  name: defaulting.webhook.vsphere.sources.tanzu.vmware.com
+  sideEffects: None
+  timeoutSeconds: 2
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validation.webhook.vsphere.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+- admissionReviewVersions: ["v1", "v1beta1"]
+  clientConfig:
+    service:
+      name: vsphere-source-webhook
+      namespace: vmware-sources
+  failurePolicy: Fail
+  name: validation.webhook.vsphere.sources.tanzu.vmware.com
+  sideEffects: None
+  timeoutSeconds: 2
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: config.webhook.vsphere.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+- admissionReviewVersions: ["v1", "v1beta1"]
+  clientConfig:
+    service:
+      name: vsphere-source-webhook
+      namespace: vmware-sources
+  failurePolicy: Fail
+  name: config.webhook.vsphere.sources.tanzu.vmware.com
+  namespaceSelector:
+    matchExpressions:
+    - key: sources.tanzu.vmware.com/release
+      operator: Exists
+  sideEffects: None
+  timeoutSeconds: 2
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vsphere-webhook-certs
+  namespace: vmware-sources
+  labels:
+    sources.tanzu.vmware.com/release: devel
+# The data is populated at install time.
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: vspherebindings.webhook.vsphere.sources.tanzu.vmware.com
+  labels:
+    sources.tanzu.vmware.com/release: devel
+webhooks:
+- admissionReviewVersions: ["v1", "v1beta1"]
+  clientConfig:
+    service:
+      name: vsphere-source-webhook
+      namespace: vmware-sources
+  failurePolicy: Fail
+  sideEffects: None
+  name: vspherebindings.webhook.vsphere.sources.tanzu.vmware.com
+  timeoutSeconds: 2

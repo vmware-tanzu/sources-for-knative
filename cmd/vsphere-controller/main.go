@@ -36,7 +36,9 @@ var types = map[schema.GroupVersionKind]resourcesemantics.GenericCRD{
 	v1alpha1.SchemeGroupVersion.WithKind("VSphereBinding"): &v1alpha1.VSphereBinding{},
 }
 
-const admissionWebhookName = "vsphere-source-webhook"
+const (
+	admissionWebhookName = "vsphere-source-webhook"
+)
 
 func NewDefaultingAdmissionController(ctx context.Context, cmw configmap.Watcher) *controller.Impl {
 	return defaulting.NewAdmissionController(ctx,

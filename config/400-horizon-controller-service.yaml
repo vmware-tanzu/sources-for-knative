@@ -1,0 +1,16 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    sources.tanzu.vmware.com/release: devel
+    control-plane: horizon-source-controller-manager
+  name: horizon-source-controller-manager
+  namespace: vmware-sources
+spec:
+  selector:
+    control-plane: horizon-source-controller-manager
+  ports:
+  - port: 443

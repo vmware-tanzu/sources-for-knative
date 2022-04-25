@@ -1,0 +1,68 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: horizon-source-webhook
+  namespace: vmware-sources
+  labels:
+    sources.tanzu.vmware.com/release: devel
+spec:
+  replicas: 1
+  selector:
+    matchLabels: &labels
+      app: horizon-source-webhook
+      role: horizon-source-webhook
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      # To avoid node becoming SPOF, spread our replicas to different nodes.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: horizon-source-webhook
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+
+      serviceAccountName: horizon-source-webhook
+      containers:
+        - name: horizon-source-webhook
+          terminationMessagePolicy: FallbackToLogsOnError
+          image: ko://github.com/vmware-tanzu/sources-for-knative/cmd/horizon-webhook
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          env:
+          - name: SYSTEM_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CONFIG_LOGGING_NAME
+            value: config-logging
+          - name: METRICS_DOMAIN
+            value: knative.dev/eventing
+          - name: WEBHOOK_NAME
+            value: horizon-source-webhook
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          ports:
+          - containerPort: 9090
+            name: metrics
+          readinessProbe: &probe
+            periodSeconds: 1
+            httpGet:
+              scheme: HTTPS
+              port: 8443
+              httpHeaders:
+              - name: k-kubelet-probe
+                value: "webhook"
+          livenessProbe: *probe
+
