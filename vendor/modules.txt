@@ -1240,7 +1240,7 @@ k8s.io/utils/lru
 k8s.io/utils/net
 k8s.io/utils/pointer
 k8s.io/utils/trace
-# knative.dev/client v0.31.1-0.20220524201303-4df601027bea
+# knative.dev/client v0.31.1-0.20220526110605-2a56f07c18ea
 ## explicit; go 1.17
 knative.dev/client/pkg/config
 knative.dev/client/pkg/dynamic
