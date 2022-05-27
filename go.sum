@@ -1451,6 +1451,8 @@ knative.dev/client v0.31.1-0.20220512014238-00b78866ca1c h1:Apk7Lga//MwUfZtoUcQ3
 knative.dev/client v0.31.1-0.20220512014238-00b78866ca1c/go.mod h1:vy42VQ/QVo/YvLS4Rhbl4afcm1QvoogOvHvfEqONzj0=
 knative.dev/client v0.31.1-0.20220524201303-4df601027bea h1:27DSkC1VbyQ3TcbOBw9V8jbEmahuu2Y7iCI/SAKPfDY=
 knative.dev/client v0.31.1-0.20220524201303-4df601027bea/go.mod h1:GV605jzj5YIvUojeGAFZnr0Mj3UDm0bLqec7qKTPqrQ=
+knative.dev/client v0.31.1-0.20220526110605-2a56f07c18ea h1:8kmIFREvnwZ8IGVItOW/XurZ2EZp4Jce0qwzSdgGR7Q=
+knative.dev/client v0.31.1-0.20220526110605-2a56f07c18ea/go.mod h1:GV605jzj5YIvUojeGAFZnr0Mj3UDm0bLqec7qKTPqrQ=
 knative.dev/eventing v0.31.1-0.20220427080352-3abb43601181 h1:Ml72zK3GsZU/P3WrK9keC28pmLBSZZFOeaBYFmnAsPw=
 knative.dev/eventing v0.31.1-0.20220427080352-3abb43601181/go.mod h1:XgJY27IxyBjmu/mz53cVlz+oMPPzzRaVXlPmWKCqEd8=
 knative.dev/eventing v0.31.1-0.20220428204853-01f56122bf2a h1:WLiDXHa9k97/lDmwBqgPuzI/6zQL4agrTH+jYjw1vFM=

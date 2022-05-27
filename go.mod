@@ -38,7 +38,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gotest.tools/v3 v3.1.0
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
-	knative.dev/client v0.31.1-0.20220524201303-4df601027bea
+	knative.dev/client v0.31.1-0.20220526110605-2a56f07c18ea
 )
 
 require (
