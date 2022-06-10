@@ -495,7 +495,7 @@ func newSimulator(namespace, image string) (*appsv1.Deployment, *corev1.Service)
 	args := []string{"-l", ":8989"}
 	if image == defaultVcsimImage {
 		// vmware/vcsim image is built differently, it does not use ko. Therefore, the entrypoint is different.
-		args = append([]string{"vcsim"}, args...)
+		args = append([]string{"/vcsim"}, args...)
 	}
 
 	sim := appsv1.Deployment{
