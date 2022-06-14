@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.8.0
+	github.com/cloudevents/sdk-go/v2 v2.10.1
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
@@ -20,14 +20,14 @@ require (
 	github.com/yudai/gotty v1.0.1
 	github.com/yudai/hcl v0.0.0-20151013225006-5fa2393b3552 // indirect
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.21.0
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	k8s.io/api v0.23.5
 	k8s.io/apimachinery v0.23.5
 	k8s.io/client-go v0.23.5
 	k8s.io/code-generator v0.23.5
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf
-	knative.dev/eventing v0.32.1-0.20220610013825-f488f4670727
+	knative.dev/eventing v0.32.1-0.20220614135415-c1b0ea692715
 	knative.dev/hack v0.0.0-20220610014127-dc6c287516dc
 	knative.dev/pkg v0.0.0-20220610014025-7d607d643ee2
 )
@@ -37,7 +37,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	gotest.tools/v3 v3.1.0
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
-	knative.dev/client v0.32.1-0.20220609132331-95f6a55628d3
+	knative.dev/client v0.32.1-0.20220613105318-56e146231ae5
 )
 
 require (
@@ -48,6 +48,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211221011931-643d94fcab96 // indirect
+	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/blendle/zapdriver v1.3.1 // indirect
@@ -123,7 +124,7 @@ require (
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/automaxprocs v1.4.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
@@ -146,8 +147,8 @@ require (
 	k8s.io/cli-runtime v0.23.4 // indirect
 	k8s.io/gengo v0.0.0-20220307231824-4627b89bbf1b // indirect
 	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
-	knative.dev/networking v0.0.0-20220524205304-22d1b933cf73 // indirect
-	knative.dev/serving v0.32.0 // indirect
+	knative.dev/networking v0.0.0-20220610013825-3103f3a72792 // indirect
+	knative.dev/serving v0.32.1-0.20220610185625-2f7b6dbeaf25 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kustomize/api v0.10.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.0 // indirect
