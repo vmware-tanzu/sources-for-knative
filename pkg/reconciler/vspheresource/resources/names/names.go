@@ -12,7 +12,7 @@ import (
 )
 
 func Deployment(vms *v1alpha1.VSphereSource) string {
-	return kmeta.ChildName(vms.Name, "-deployment")
+	return kmeta.ChildName(vms.Name, "-adapter")
 }
 
 func VSphereBinding(vms *v1alpha1.VSphereSource) string {

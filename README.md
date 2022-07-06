@@ -22,8 +22,9 @@ vSphere API from Kubernetes objects, e.g. a `Job`.
 
 - `VSphereSource` to create VMware vSphere (vCenter) event sources
 - `VSphereBinding` to inject VMware vSphere (vCenter) credentials
+- `HorizonSource` to create VMware Horizon event sources
 
-## Install Tanzu Sources for Knative
+## Install Tanzu Sources CRDs for Knative
 
 ### Install via Release (`latest`)
 
@@ -38,15 +39,15 @@ Install the CRD providing the control / dataplane for the various `Sources` and
 
 ```shell
 # define environment variables accordingly, e.g. when using kind
-# export KIND_CLUSTER_NAME=horizon
-# export KO_DOCKER_REPO=kind.local
+export KIND_CLUSTER_NAME=vmware
+export KO_DOCKER_REPO=kind.local
 
 ko apply -BRf config
 ```
 
 ## Examples
 
-To see examples of the Source and Binding in action, check out our
+To see examples of the `Sources` and `Bindings` in action, check out our
 [samples](./samples/README.md) directory.
 
 ## Basic `VSphereSource` Example
@@ -587,8 +588,8 @@ kubectl get vspheresource
 NAME                SOURCE                     SINK                                                                              READY   REASON
 example-vc-source   https://my-vc.corp.local   http://broker-ingress.knative-eventing.svc.cluster.local/default/example-broker   True
 
-kubectl rollout restart deployment/example-vc-source-deployment
-deployment.apps/example-vc-source-deployment restarted
+kubectl rollout restart deployment/example-vc-source-adapter
+deployment.apps/example-vc-source-adapter restarted
 ```
 
 ⚠️ **Note:** To avoid losing events due to this (brief) downtime, consider

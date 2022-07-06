@@ -17,6 +17,7 @@ import (
 
 type SourcesV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	HorizonSourcesGetter
 	VSphereBindingsGetter
 	VSphereSourcesGetter
 }
@@ -24,6 +25,10 @@ type SourcesV1alpha1Interface interface {
 // SourcesV1alpha1Client is used to interact with features provided by the sources.tanzu.vmware.com group.
 type SourcesV1alpha1Client struct {
 	restClient rest.Interface
+}
+
+func (c *SourcesV1alpha1Client) HorizonSources(namespace string) HorizonSourceInterface {
+	return newHorizonSources(c, namespace)
 }
 
 func (c *SourcesV1alpha1Client) VSphereBindings(namespace string) VSphereBindingInterface {

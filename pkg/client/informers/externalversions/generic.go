@@ -42,6 +42,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=sources.tanzu.vmware.com, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("horizonsources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Sources().V1alpha1().HorizonSources().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("vspherebindings"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Sources().V1alpha1().VSphereBindings().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("vspheresources"):

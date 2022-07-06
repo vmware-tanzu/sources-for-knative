@@ -1,0 +1,96 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: horizon-source-controller
+  labels:
+    sources.tanzu.vmware.com/release: devel
+rules:
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs: &everything
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterroles
+  verbs:
+  - list
+
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs: *everything
+
+- apiGroups:
+  - sources.tanzu.vmware.com
+  resources:
+  - horizonsources
+  verbs: *everything
+
+- apiGroups:
+  - sources.tanzu.vmware.com
+  resources:
+  - horizonsources/status
+  - horizonsources/finalizers
+  verbs:
+  - get
+  - update
+  - patch
+
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+
+# manage adapter SAs
+- apiGroups:
+  - ""
+  resources:
+  - serviceaccounts
+  verbs: *everything
+
+
+# For Leader Election
+- apiGroups:
+    - coordination.k8s.io
+  resources:
+    - leases
+  verbs: *everything
+
+---
+# The role is needed for the aggregated role source-observer in knative-eventing to provide readonly access to "Sources".
+# See https://github.com/knative/eventing/blob/master/config/200-source-observer-clusterrole.yaml.
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: horizon-source-observer
+  labels:
+    sources.tanzu.vmware.com/release: devel
+    duck.knative.dev/source: "true"
+rules:
+  - apiGroups:
+      - "sources.eventing.knative.dev"
+    resources:
+      - "horizonsources"
+    verbs:
+      - get
+      - list
+      - watch

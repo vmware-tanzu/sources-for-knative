@@ -7,6 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 
 package v1alpha1
 
+// HorizonSourceListerExpansion allows custom methods to be added to
+// HorizonSourceLister.
+type HorizonSourceListerExpansion interface{}
+
+// HorizonSourceNamespaceListerExpansion allows custom methods to be added to
+// HorizonSourceNamespaceLister.
+type HorizonSourceNamespaceListerExpansion interface{}
+
 // VSphereBindingListerExpansion allows custom methods to be added to
 // VSphereBindingLister.
 type VSphereBindingListerExpansion interface{}

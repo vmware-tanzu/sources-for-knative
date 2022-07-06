@@ -1,0 +1,63 @@
+# Copyright 2022 VMware, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: horizon-source-controller
+  namespace: vmware-sources
+  labels:
+    sources.tanzu.vmware.com/release: devel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: horizon-source-controller
+  template:
+    metadata:
+      labels:
+        app: horizon-source-controller
+        sources.tanzu.vmware.com/release: devel
+        control-plane: horizon-source-controller-manager
+    spec:
+      # To avoid node becoming SPOF, spread our replicas to different nodes.
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: horizon-source-controller
+              topologyKey: kubernetes.io/hostname
+            weight: 100
+      serviceAccountName: horizon-source-controller
+      containers:
+      - name: horizon-source-controller
+        terminationMessagePolicy: FallbackToLogsOnError
+        image: ko://github.com/vmware-tanzu/sources-for-knative/cmd/horizon-controller
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        env:
+          - name: SYSTEM_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: CONFIG_LOGGING_NAME
+            value: config-logging
+          - name: CONFIG_OBSERVABILITY_NAME
+            value: config-observability
+          - name: METRICS_DOMAIN
+            value: knative.dev/sources
+          - name: HORIZON_SOURCE_RA_IMAGE
+            value: ko://github.com/vmware-tanzu/sources-for-knative/cmd/horizon-adapter
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+        securityContext:
+          allowPrivilegeEscalation: false
+        ports:
+          - name: metrics
+            containerPort: 9090

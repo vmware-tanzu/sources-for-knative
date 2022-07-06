@@ -38,6 +38,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&VSphereSourceList{},
 		&VSphereBinding{},
 		&VSphereBindingList{},
+		&HorizonSource{},
+		&HorizonSourceList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
