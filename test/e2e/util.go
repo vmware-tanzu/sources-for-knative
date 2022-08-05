@@ -192,7 +192,7 @@ func RunJobListener(t *testing.T, clients *test.Clients) (string, context.Cancel
 							Value: "8080",
 						}},
 						ReadinessProbe: &corev1.Probe{
-							Handler: corev1.Handler{
+							ProbeHandler: corev1.ProbeHandler{
 								TCPSocket: &corev1.TCPSocketAction{
 									Port: intstr.FromInt(8080),
 								},
