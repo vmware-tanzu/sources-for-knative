@@ -37,3 +37,7 @@ issues:
       text: "ST1016:"
       linters:
         - stylecheck
+
+    - path: create\.go
+      linters:
+        - unconvert

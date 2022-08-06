@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/sources-for-knative
 
-go 1.17
+go 1.18
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
@@ -22,14 +22,14 @@ require (
 	github.com/yudai/umutex v0.0.0-20150817080136-18216d265c6b // indirect
 	go.uber.org/zap v1.21.0
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
-	k8s.io/api v0.23.8
-	k8s.io/apimachinery v0.23.8
-	k8s.io/client-go v0.23.8
-	k8s.io/code-generator v0.23.8
+	k8s.io/api v0.23.9
+	k8s.io/apimachinery v0.23.9
+	k8s.io/client-go v0.23.9
+	k8s.io/code-generator v0.23.9
 	k8s.io/kube-openapi v0.0.0-20220124234850-424119656bbf
-	knative.dev/eventing v0.33.0
-	knative.dev/hack v0.0.0-20220701014203-65c463ac8c98
-	knative.dev/pkg v0.0.0-20220705130606-e60d250dc637
+	knative.dev/eventing v0.33.1-0.20220804172421-f7e8eef9fe19
+	knative.dev/hack v0.0.0-20220728013938-9dabf7cf62e3
+	knative.dev/pkg v0.0.0-20220805012121-7b8b06028e4f
 )
 
 require (
@@ -38,10 +38,10 @@ require (
 	github.com/hashicorp/hcl v1.0.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 	gotest.tools/v3 v3.1.0
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9
-	knative.dev/client v0.33.0
+	knative.dev/client v0.33.1-0.20220805055722-e918cd278cd8
 )
 
 require (
@@ -144,12 +144,12 @@ require (
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/apiextensions-apiserver v0.23.8 // indirect
+	k8s.io/apiextensions-apiserver v0.23.9 // indirect
 	k8s.io/cli-runtime v0.23.4 // indirect
-	k8s.io/gengo v0.0.0-20220307231824-4627b89bbf1b // indirect
-	k8s.io/klog/v2 v2.60.1-0.20220317184644-43cc75f9ae89 // indirect
-	knative.dev/networking v0.0.0-20220705142707-f087178076e4 // indirect
-	knative.dev/serving v0.33.0 // indirect
+	k8s.io/gengo v0.0.0-20220613173612-397b4ae3bce7 // indirect
+	k8s.io/klog/v2 v2.70.2-0.20220707122935-0990e81f1a8f // indirect
+	knative.dev/networking v0.0.0-20220803115018-d2c739da1c1b // indirect
+	knative.dev/serving v0.33.1-0.20220803152329-bfa381a72c6b // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/kustomize/api v0.10.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.0 // indirect
