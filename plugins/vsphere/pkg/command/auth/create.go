@@ -130,9 +130,9 @@ func readPassword(cmd *cobra.Command, options *Options) (string, error) {
 	if !options.PasswordStdIn {
 		return options.Password, nil
 	}
-	if term.IsTerminal(syscall.STD_INPUT_HANDLE) {
+	if term.IsTerminal(int(syscall.Stdin)) {
 		cmd.Println("Password:")
-		password, err := term.ReadPassword(syscall.STD_INPUT_HANDLE)
+		password, err := term.ReadPassword(int(syscall.Stdin))
 		cmd.Println()
 		return string(password), err
 	}
