@@ -31,7 +31,7 @@ jobs:
       uses: imjasonh/setup-ko@v0.4
 
     - name: Check out code onto GOPATH
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         path: ./src/github.com/${{ github.repository }}
 
