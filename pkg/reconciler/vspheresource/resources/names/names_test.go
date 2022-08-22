@@ -93,3 +93,44 @@ func TestNames(t *testing.T) {
 		})
 	}
 }
+
+func TestServicaAccountName(t *testing.T) {
+	tests := []struct {
+		name   string
+		vss    *v1alpha1.VSphereSource
+		f      func(*v1alpha1.VSphereSource) (string, bool)
+		want   string
+		custom bool
+	}{{
+		name: "serviceaccount",
+		vss: &v1alpha1.VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "baz",
+			},
+		},
+		f:      ServiceAccountName,
+		want:   "baz-serviceaccount",
+		custom: false,
+	}, {
+		name: "custon serviceaccount",
+		vss: &v1alpha1.VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "baz",
+			}, Spec: v1alpha1.VSphereSourceSpec{
+				ServiceAccountName: "test-svcacc",
+			},
+		},
+		f:      ServiceAccountName,
+		want:   "test-svcacc",
+		custom: true,
+	}}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got, customSvcAcc := test.f(test.vss)
+			if got != test.want || customSvcAcc != test.custom {
+				t.Errorf("%s() = %v %v, wanted %v %v", test.name, got, customSvcAcc, test.want, test.custom)
+			}
+		})
+	}
+}

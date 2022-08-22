@@ -146,23 +146,17 @@ func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha
 
 func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	customServiceAcc := true
-	name := vms.Spec.ServiceAccountName
-	if name == "" {
-		customServiceAcc = false
-		name = resourcenames.ServiceAccount(vms)
-	}
-
-	_, err := r.saLister.ServiceAccounts(ns).Get(name)
-	if apierrs.IsNotFound(err) && !customServiceAcc {
+	serviceAccountName, customServiceAccount := resourcenames.ServiceAccountName(vms)
+	_, err := r.saLister.ServiceAccounts(ns).Get(serviceAccountName)
+	if apierrs.IsNotFound(err) && !customServiceAccount {
 		sa := resources.MakeServiceAccount(ctx, vms)
 		_, err := r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
 		if err != nil {
-			return fmt.Errorf("failed to create serviceaccount %q: %w", name, err)
+			return fmt.Errorf("failed to create serviceaccount %q: %w", serviceAccountName, err)
 		}
-		logging.FromContext(ctx).Infof("Created serviceaccount %q", name)
+		logging.FromContext(ctx).Infof("Created serviceaccount %q", serviceAccountName)
 	} else if err != nil {
-		return fmt.Errorf("failed to get serviceaccount %q: %w", name, err)
+		return fmt.Errorf("failed to get serviceaccount %q: %w", serviceAccountName, err)
 	}
 
 	return nil

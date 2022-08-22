@@ -30,3 +30,10 @@ func RoleBinding(vms *v1alpha1.VSphereSource) string {
 func ServiceAccount(vms *v1alpha1.VSphereSource) string {
 	return kmeta.ChildName(vms.Name, "-serviceaccount")
 }
+
+func ServiceAccountName(vms *v1alpha1.VSphereSource) (string, bool) {
+	if vms.Spec.ServiceAccountName == "" {
+		return ServiceAccount(vms), false
+	}
+	return vms.Spec.ServiceAccountName, true
+}
