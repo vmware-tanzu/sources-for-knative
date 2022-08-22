@@ -331,7 +331,7 @@ func RunJobListener(t *testing.T, clients *test.Clients, eventType, eventCount s
 	}
 }
 
-func CreateSource(t *testing.T, clients *test.Clients, name string) context.CancelFunc {
+func CreateSource(t *testing.T, clients *test.Clients, name, serviceAccountName string) context.CancelFunc {
 	ctx := context.Background()
 	t.Helper()
 
@@ -362,6 +362,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--sink-kind", "Service",
 		"--sink-name", name,
 		"--checkpoint-age", "10m",
+		"--service-account-name", serviceAccountName,
 	})
 
 	pkgtest.CleanupOnInterrupt(func() {

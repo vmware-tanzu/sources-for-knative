@@ -101,6 +101,7 @@ kn vsphere source create --namespace ns --name vc-01-source --vc-address https:/
 	flags.StringVar(&opts.SinkAPIVersion, "sink-api-version", "", "sink API version")
 	flags.StringVar(&opts.SinkKind, "sink-kind", "", "sink kind")
 	flags.StringVar(&opts.SinkName, "sink-name", "", "sink name")
+	flags.StringVar(&opts.ServiceAccountName, "service-account-name", "", "service account name")
 	flags.StringVar(&opts.PayloadEncoding, "encoding", "xml", "CloudEvent data encoding scheme (xml or json)")
 	flags.DurationVar(&opts.CheckpointMaxAge, "checkpoint-age", vsphere.CheckpointDefaultAge,
 		"maximum allowed age for replaying events determined by last successful event in checkpoint")
@@ -115,6 +116,10 @@ kn vsphere source create --namespace ns --name vc-01-source --vc-address https:/
 }
 
 func newSource(namespace string, sinkDestination *duckv1.Destination, address *url.URL, options Options) *v1alpha1.VSphereSource {
+	serviceAccountName := ""
+	if options.ServiceAccountName != "" {
+		serviceAccountName = options.ServiceAccountName
+	}
 	return &v1alpha1.VSphereSource{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: namespace,
@@ -136,7 +141,8 @@ func newSource(namespace string, sinkDestination *duckv1.Destination, address *u
 				MaxAgeSeconds: int64(options.CheckpointMaxAge.Seconds()),
 				PeriodSeconds: int64(options.CheckpointPeriod.Seconds()),
 			},
-			PayloadEncoding: fmt.Sprintf("application/%s", strings.ToLower(options.PayloadEncoding)),
+			PayloadEncoding:    fmt.Sprintf("application/%s", strings.ToLower(options.PayloadEncoding)),
+			ServiceAccountName: serviceAccountName,
 		},
 	}
 }

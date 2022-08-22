@@ -17,8 +17,26 @@ import (
 	"github.com/vmware-tanzu/sources-for-knative/test"
 )
 
-// TestSource creates a Job that completes after receiving events, and a Source targeting that job.
 func TestSource(t *testing.T) {
+	tests := []struct {
+		name, serviceAccountName string
+	}{{
+		name:               "default service account",
+		serviceAccountName: "",
+	}, {
+		name:               "custom service account",
+		serviceAccountName: "test-svc-name",
+	}}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			SourceTestHelper(t, test.serviceAccountName)
+		})
+	}
+}
+
+// TestSource creates a Job that completes after receiving events, and a Source targeting that job.
+func SourceTestHelper(t *testing.T, serviceAccountName string) {
 	// t.Parallel()
 	clients := test.Setup(t)
 
@@ -37,7 +55,7 @@ func TestSource(t *testing.T) {
 
 	// Create a source that emits events from the vcsim.
 	t.Log("creating event source")
-	cancelSource := CreateSource(t, clients, name)
+	cancelSource := CreateSource(t, clients, name, serviceAccountName)
 	defer cancelSource()
 
 	t.Log("creating source binding")

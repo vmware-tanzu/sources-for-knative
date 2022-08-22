@@ -23,10 +23,11 @@ type Options struct {
 	SkipTLSVerify bool
 	SecretRef     string
 
-	SinkURI        string
-	SinkAPIVersion string
-	SinkKind       string
-	SinkName       string
+	SinkURI            string
+	SinkAPIVersion     string
+	SinkKind           string
+	SinkName           string
+	ServiceAccountName string
 
 	CheckpointMaxAge time.Duration
 	CheckpointPeriod time.Duration

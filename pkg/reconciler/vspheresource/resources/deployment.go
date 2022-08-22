@@ -55,7 +55,6 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args Adapt
 		return nil, fmt.Errorf("marshal checkpoint config: %w", err)
 	}
 
-	serviceAccountName, _ := names.ServiceAccountName(vms)
 	return &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            names.Deployment(vms),
@@ -73,7 +72,7 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args Adapt
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: serviceAccountName,
+					ServiceAccountName: names.ServiceAccount(vms),
 					Containers: []corev1.Container{{
 						Name:  "adapter",
 						Image: args.Image,
