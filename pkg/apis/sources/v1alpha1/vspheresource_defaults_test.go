@@ -146,6 +146,33 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
+	}, {
+		name: "custom serviceAccountName",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec:         validSourceSpec,
+				VAuthSpec:          validVAuthSpec,
+				ServiceAccountName: "test-svcacc",
+			},
+		},
+		want: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec: validSourceSpec,
+				VAuthSpec:  validVAuthSpec,
+				CheckpointConfig: VCheckpointSpec{
+					MaxAgeSeconds: 0,
+					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
+				},
+				PayloadEncoding:    cloudevents.ApplicationXML,
+				ServiceAccountName: "test-svcacc",
+			},
+		},
 	}}
 
 	for _, test := range tests {

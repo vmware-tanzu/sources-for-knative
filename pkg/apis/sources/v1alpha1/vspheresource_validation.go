@@ -20,16 +20,16 @@ func (vs *VSphereSource) Validate(ctx context.Context) *apis.FieldError {
 
 // Validate implements apis.Validatable
 func (vsss *VSphereSourceSpec) Validate(ctx context.Context) *apis.FieldError {
-	err := vsss.Sink.Validate(ctx).ViaField("sink").
+	errs := vsss.Sink.Validate(ctx).ViaField("sink").
 		Also(vsss.VAuthSpec.Validate(ctx)).
 		Also(vsss.CheckpointConfig.
 			Validate(ctx))
 
 	encoding := strings.ToLower(vsss.PayloadEncoding)
 	if (encoding != cloudevents.ApplicationJSON) && (encoding != cloudevents.ApplicationXML) {
-		err = err.Also(apis.ErrInvalidValue(encoding, "payloadEncoding"))
+		errs = errs.Also(apis.ErrInvalidValue(encoding, "payloadEncoding"))
 	}
-	return err
+	return errs
 }
 
 func (vcs VCheckpointSpec) Validate(ctx context.Context) (err *apis.FieldError) {

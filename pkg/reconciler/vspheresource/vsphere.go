@@ -146,10 +146,15 @@ func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha
 
 func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	name := resourcenames.ServiceAccount(vms)
+	customServiceAcc := true
+	name := vms.Spec.ServiceAccountName
+	if name == "" {
+		customServiceAcc = false
+		name = resourcenames.ServiceAccount(vms)
+	}
 
 	_, err := r.saLister.ServiceAccounts(ns).Get(name)
-	if apierrs.IsNotFound(err) {
+	if apierrs.IsNotFound(err) && !customServiceAcc {
 		sa := resources.MakeServiceAccount(ctx, vms)
 		_, err := r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
 		if err != nil {

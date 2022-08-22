@@ -19,6 +19,10 @@ import (
 // service account 'sa' in the Namespace 'ns'. This is necessary for
 // the receive adapter to be able to store state in configmaps.
 func MakeRoleBinding(ctx context.Context, vms *v1alpha1.VSphereSource) *rbacv1.RoleBinding {
+	serviceAccountName := vms.Spec.ServiceAccountName
+	if serviceAccountName == "" {
+		serviceAccountName = names.ServiceAccount(vms)
+	}
 	return &rbacv1.RoleBinding{
 		ObjectMeta: metav1.ObjectMeta{
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(vms)},
@@ -28,12 +32,12 @@ func MakeRoleBinding(ctx context.Context, vms *v1alpha1.VSphereSource) *rbacv1.R
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     "vsphere-receive-adapter-cm",
+			Name:     "",
 		},
 		Subjects: []rbacv1.Subject{{
 			Kind:      "ServiceAccount",
 			Namespace: vms.Namespace,
-			Name:      names.ServiceAccount(vms),
+			Name:      serviceAccountName,
 		}},
 	}
 }
