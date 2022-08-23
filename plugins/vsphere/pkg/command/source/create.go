@@ -116,7 +116,7 @@ kn vsphere source create --namespace ns --name vc-01-source --vc-address https:/
 }
 
 func newSource(namespace string, sinkDestination *duckv1.Destination, address *url.URL, options Options) *v1alpha1.VSphereSource {
-	serviceAccountName := ""
+	serviceAccountName := "default"
 	if options.ServiceAccountName != "" {
 		serviceAccountName = options.ServiceAccountName
 	}

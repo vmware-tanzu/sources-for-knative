@@ -349,6 +349,12 @@ func CreateSource(t *testing.T, clients *test.Clients, name, serviceAccountName 
 		t.Fatalf("Error creating Configmap: %v", err)
 	}
 
+	if serviceAccountName != "default" {
+		clients.KubeClient.CoreV1().ServiceAccounts(ns).Create(ctx, &corev1.ServiceAccount{
+			ObjectMeta: metav1.ObjectMeta{Name: serviceAccountName},
+		}, metav1.CreateOptions{})
+	}
+
 	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"source",
