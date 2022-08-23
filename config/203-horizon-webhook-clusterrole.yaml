@@ -68,6 +68,13 @@ rules:
       - watch
       - patch
 
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces/finalizers
+    verbs:
+      - update
+
   # Events admin
   - apiGroups:
       - ""
