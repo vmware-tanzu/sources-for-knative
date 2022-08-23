@@ -148,17 +148,9 @@ func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1
 	ns := vms.Namespace
 	serviceAccountName := vms.Spec.ServiceAccountName
 	_, err := r.saLister.ServiceAccounts(ns).Get(serviceAccountName)
-	if apierrs.IsNotFound(err) && serviceAccountName == "default" {
-		sa := resources.MakeServiceAccount(ctx, vms)
-		_, err := r.kubeclient.CoreV1().ServiceAccounts(ns).Create(ctx, sa, metav1.CreateOptions{})
-		if err != nil {
-			return fmt.Errorf("failed to create serviceaccount %q: %w", serviceAccountName, err)
-		}
-		logging.FromContext(ctx).Infof("Created serviceaccount %q", serviceAccountName)
-	} else if err != nil {
+	if err != nil {
 		return fmt.Errorf("failed to get serviceaccount %q: %w", serviceAccountName, err)
 	}
-
 	return nil
 }
 
