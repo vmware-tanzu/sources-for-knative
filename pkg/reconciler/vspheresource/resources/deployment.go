@@ -72,7 +72,7 @@ func MakeDeployment(ctx context.Context, vms *v1alpha1.VSphereSource, args Adapt
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: names.ServiceAccount(vms),
+					ServiceAccountName: vms.Spec.ServiceAccountName,
 					Containers: []corev1.Container{{
 						Name:  "adapter",
 						Image: args.Image,

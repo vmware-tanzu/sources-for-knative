@@ -201,7 +201,7 @@ instructions](https://knative.dev/docs/install/).
 ⚠️ **Note:** If you are using a private registry for development you will need
 to pre create a ServiceAccount that have the required info and set the `Spec.ServiceAccountName` parameter.
 
-You can also grant the normal ServiceAccount access to your private repository. For GKE you would
+You can also grant the `default` ServiceAccount access to your private repository. For GKE you would
 do it like so:
 
 ```shell
