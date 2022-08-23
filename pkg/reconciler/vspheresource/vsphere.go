@@ -29,7 +29,6 @@ import (
 	v1alpha1lister "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
-	resourcenames "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 )
 
 const (
@@ -95,7 +94,7 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, vms *sourcesv1alpha1.VSp
 
 func (r *Reconciler) reconcileVSphereBinding(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	vspherebindingName := resourcenames.VSphereBinding(vms)
+	vspherebindingName := names.VSphereBinding(vms)
 
 	vspherebinding, err := r.vspherebindingLister.VSphereBindings(ns).Get(vspherebindingName)
 	if apierrs.IsNotFound(err) {
@@ -126,7 +125,7 @@ func (r *Reconciler) reconcileVSphereBinding(ctx context.Context, vms *sourcesv1
 
 func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	name := resourcenames.ConfigMap(vms)
+	name := names.ConfigMap(vms)
 
 	_, err := r.cmLister.ConfigMaps(ns).Get(name)
 	// Note that we only create the configmap if it does not exist so that we get the
@@ -157,7 +156,7 @@ func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1
 
 func (r *Reconciler) reconcileRoleBinding(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	name := resourcenames.RoleBinding(vms)
+	name := names.RoleBinding(vms)
 	_, err := r.rbacLister.RoleBindings(ns).Get(name)
 	if apierrs.IsNotFound(err) {
 		roleBinding := resources.MakeRoleBinding(ctx, vms)
@@ -175,7 +174,7 @@ func (r *Reconciler) reconcileRoleBinding(ctx context.Context, vms *sourcesv1alp
 
 func (r *Reconciler) reconcileDeployment(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	deploymentName := resourcenames.Deployment(vms)
+	deploymentName := names.Deployment(vms)
 
 	loggingConfig, err := logging.ConfigToJSON(r.loggingConfig)
 	if err != nil {
