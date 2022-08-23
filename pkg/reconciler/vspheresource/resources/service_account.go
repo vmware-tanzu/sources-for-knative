@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"knative.dev/pkg/kmeta"
@@ -20,7 +21,7 @@ func MakeServiceAccount(ctx context.Context, vms *v1alpha1.VSphereSource) *corev
 		ObjectMeta: metav1.ObjectMeta{
 			OwnerReferences: []metav1.OwnerReference{*kmeta.NewControllerRef(vms)},
 			Namespace:       vms.Namespace,
-			Name:            vms.Spec.ServiceAccountName,
+			Name:            names.ServiceAccount(vms),
 		},
 	}
 }
