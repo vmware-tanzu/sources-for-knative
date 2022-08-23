@@ -32,8 +32,4 @@ func (vs *VSphereSource) SetDefaults(ctx context.Context) {
 	} else {
 		vs.Spec.PayloadEncoding = strings.ToLower(vs.Spec.PayloadEncoding)
 	}
-
-	if vs != nil && vs.Spec.ServiceAccountName == "" {
-		vs.Spec.ServiceAccountName = "default"
-	}
 }

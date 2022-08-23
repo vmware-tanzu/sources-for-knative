@@ -44,8 +44,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 0,
 					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
 				},
-				PayloadEncoding:    cloudevents.ApplicationXML,
-				ServiceAccountName: "default",
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 	}, {
@@ -71,8 +70,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 0,
 					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
 				},
-				PayloadEncoding:    cloudevents.ApplicationJSON,
-				ServiceAccountName: "default",
+				PayloadEncoding: cloudevents.ApplicationJSON,
 			},
 		},
 	}, {
@@ -116,8 +114,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					MaxAgeSeconds: 0,
 					PeriodSeconds: int64(vsphere.CheckpointDefaultPeriod.Seconds()),
 				},
-				PayloadEncoding:    cloudevents.ApplicationXML,
-				ServiceAccountName: "default",
+				PayloadEncoding: cloudevents.ApplicationXML,
 			},
 		},
 	}, {
@@ -147,7 +144,7 @@ func TestVSphereSourceDefaulting(t *testing.T) {
 					PeriodSeconds: 60,
 				},
 				PayloadEncoding:    cloudevents.ApplicationXML,
-				ServiceAccountName: "default",
+				ServiceAccountName: "",
 			},
 		},
 	}, {

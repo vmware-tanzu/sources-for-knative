@@ -28,6 +28,7 @@ import (
 	vspherereconciler "github.com/vmware-tanzu/sources-for-knative/pkg/client/injection/reconciler/sources/v1alpha1/vspheresource"
 	v1alpha1lister "github.com/vmware-tanzu/sources-for-knative/pkg/client/listers/sources/v1alpha1"
 	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources"
+	"github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 	resourcenames "github.com/vmware-tanzu/sources-for-knative/pkg/reconciler/vspheresource/resources/names"
 )
 
@@ -146,7 +147,7 @@ func (r *Reconciler) reconcileConfigMap(ctx context.Context, vms *sourcesv1alpha
 
 func (r *Reconciler) reconcileServiceAccount(ctx context.Context, vms *sourcesv1alpha1.VSphereSource) error {
 	ns := vms.Namespace
-	serviceAccountName := vms.Spec.ServiceAccountName
+	serviceAccountName := names.ServiceAccount(vms)
 	_, err := r.saLister.ServiceAccounts(ns).Get(serviceAccountName)
 	if err != nil {
 		return fmt.Errorf("failed to get serviceaccount %q: %w", serviceAccountName, err)

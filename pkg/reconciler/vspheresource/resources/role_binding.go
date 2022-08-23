@@ -33,7 +33,7 @@ func MakeRoleBinding(ctx context.Context, vms *v1alpha1.VSphereSource) *rbacv1.R
 		Subjects: []rbacv1.Subject{{
 			Kind:      "ServiceAccount",
 			Namespace: vms.Namespace,
-			Name:      vms.Spec.ServiceAccountName,
+			Name:      names.ServiceAccount(vms),
 		}},
 	}
 }
