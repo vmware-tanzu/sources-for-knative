@@ -74,16 +74,26 @@ func TestNames(t *testing.T) {
 		f:    RoleBinding,
 		want: "baz-rolebinding",
 	}, {
-		name: "serviceaccount",
+		name: "empty service account",
 		vss: &v1alpha1.VSphereSource{
 			ObjectMeta: metav1.ObjectMeta{
 				Name: "baz",
 			},
+			Spec: v1alpha1.VSphereSourceSpec{},
 		},
 		f:    ServiceAccount,
-		want: "baz-serviceaccount",
+		want: "default",
+	}, {
+		name: "custom service account name",
+		vss: &v1alpha1.VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "baz",
+			},
+			Spec: v1alpha1.VSphereSourceSpec{ServiceAccountName: "test-svc-acc"},
+		},
+		f:    ServiceAccount,
+		want: "test-svc-acc",
 	}}
-
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got := test.f(test.vss)

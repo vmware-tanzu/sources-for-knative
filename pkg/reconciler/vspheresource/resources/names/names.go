@@ -28,5 +28,8 @@ func RoleBinding(vms *v1alpha1.VSphereSource) string {
 }
 
 func ServiceAccount(vms *v1alpha1.VSphereSource) string {
-	return kmeta.ChildName(vms.Name, "-serviceaccount")
+	if vms.Spec.ServiceAccountName == "" {
+		return "default"
+	}
+	return vms.Spec.ServiceAccountName
 }

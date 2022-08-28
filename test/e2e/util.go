@@ -331,7 +331,7 @@ func RunJobListener(t *testing.T, clients *test.Clients, eventType, eventCount s
 	}
 }
 
-func CreateSource(t *testing.T, clients *test.Clients, name string) context.CancelFunc {
+func CreateSource(t *testing.T, clients *test.Clients, name, serviceAccountName string) context.CancelFunc {
 	ctx := context.Background()
 	t.Helper()
 
@@ -349,6 +349,12 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		t.Fatalf("Error creating Configmap: %v", err)
 	}
 
+	if serviceAccountName != "" && serviceAccountName != "default" {
+		clients.KubeClient.CoreV1().ServiceAccounts(ns).Create(ctx, &corev1.ServiceAccount{
+			ObjectMeta: metav1.ObjectMeta{Name: serviceAccountName},
+		}, metav1.CreateOptions{})
+	}
+
 	knativePlugin := root.NewRootCommand(clients.AsPluginClients())
 	knativePlugin.SetArgs([]string{
 		"source",
@@ -362,6 +368,7 @@ func CreateSource(t *testing.T, clients *test.Clients, name string) context.Canc
 		"--sink-kind", "Service",
 		"--sink-name", name,
 		"--checkpoint-age", "10m",
+		"--service-account-name", serviceAccountName,
 	})
 
 	pkgtest.CleanupOnInterrupt(func() {

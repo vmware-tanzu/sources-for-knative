@@ -47,6 +47,20 @@ func TestVSphereSourceValidation(t *testing.T) {
 		},
 		want: nil,
 	}, {
+		name: "valid custom serviceAccountName",
+		c: &VSphereSource{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "valid",
+			},
+			Spec: VSphereSourceSpec{
+				SourceSpec:         validSourceSpec,
+				VAuthSpec:          validVAuthSpec,
+				PayloadEncoding:    cloudevents.ApplicationXML,
+				ServiceAccountName: "test-svcacc",
+			},
+		},
+		want: nil,
+	}, {
 		name: "valid with JSON payloadEncoding",
 		c: &VSphereSource{
 			ObjectMeta: metav1.ObjectMeta{

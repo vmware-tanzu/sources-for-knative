@@ -44,6 +44,12 @@ type VSphereSourceSpec struct {
 	VAuthSpec        `json:",inline"`
 	CheckpointConfig VCheckpointSpec `json:"checkpointConfig"`
 	PayloadEncoding  string          `json:"payloadEncoding"`
+	// ServiceAccountName holds the name of the Kubernetes service account
+	// as which the underlying K8s resources should be run. If unspecified
+	// this will default to the "default" service account for the namespace
+	// in which the HorizonSource exists.
+	// +optional
+	ServiceAccountName string `json:"serviceAccountName,omitempty"`
 }
 
 type VCheckpointSpec struct {
