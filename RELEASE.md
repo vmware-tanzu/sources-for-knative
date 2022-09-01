@@ -63,11 +63,29 @@ git push origin v0.27.0
 git push origin knative-v1.0.0
 ```
 
-**Notes:**
-- To trigger the release workflow you cannot push more than 2 tags at a time.
-
 ## Release Notes
 
 Release notes can be generated via the corresponding Github Actions
 [workflow](.github/workflows/knative-release-notes.yaml). The workflow can be
 triggered via manual invocation (`workflow_dispatch`) [here](https://github.com/vmware-tanzu/sources-for-knative/actions/workflows/knative-release-notes.yaml).
+
+## Patch Release
+
+To create a `PATCH` Release, go to the release target branch/branches and do a `git cherry-pick` of the desired commits:
+
+```shel
+# the patch release is done on the same release branch, no PATCH versions needed in the branch
+git checkout release-1.0
+git cherry-pick commit1 commit2 ...
+
+# here the PATCH version is required and it must not exist already
+git tag -a v0.27.1 -m "Release v0.27.1"
+
+git tag -a knative-v1.0.1 -m "Release knative-v1.0.1"
+
+git push origin v0.27.1
+git push origin knative-v1.0.1
+```
+
+**Notes:**
+- To trigger the release workflow you cannot push more than 2 tags at a time.
