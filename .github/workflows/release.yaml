@@ -44,7 +44,7 @@ jobs:
     # will install latest ko version and default login/configure
     # KO_DOCKER_REPO to ghcr.io
     - name: Setup ko for ghcr.io
-      uses: imjasonh/setup-ko@v0.4
+      uses: imjasonh/setup-ko@v0.6
     
     - name: Checkout
       uses: actions/checkout@v3
