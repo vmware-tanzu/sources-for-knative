@@ -129,7 +129,7 @@ In order to connect to the vSphere event stream, the controller uses vSphere cre
 .Example create login credentials in the default namespace
 ====
 ----
-$ kn vsphere auth create --username jane-doe --password s3cr3t --secret-name vsphere-credentials
+$ kn vsphere auth create --username jane-doe --password s3cr3t --name vsphere-credentials
 ----
 ====
 
@@ -139,7 +139,7 @@ or a `VSphereBinding`.
 .Example create login credentials in the default namespace, verify the credentials and skip TLS errors, before creating the secret
 ====
 ----
-$ kn vsphere auth create --username jane-doe --password s3cr3t --secret-name vsphere-credentials --verify-url https://myvc.corp.local --verify-insecure
+$ kn vsphere auth create --username jane-doe --password s3cr3t --name vsphere-credentials --verify-url https://myvc.corp.local --verify-insecure
 ----
 ====
 
