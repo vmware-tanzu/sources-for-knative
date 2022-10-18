@@ -78,7 +78,7 @@ func (s *uniqueStringArg) Type() string {
 
 func (s *uniqueStringArg) String() string { return string(*s) }
 
-//AddUpdateFlags will add PodSpec flags related to environment variable to FlagSet of update command
+// AddUpdateFlags will add PodSpec flags related to environment variable to FlagSet of update command
 func (p *PodSpecFlags) AddUpdateFlags(flagset *pflag.FlagSet) []string {
 	flagNames := []string{}
 	flagset.StringArrayVarP(&p.Env, "env", "e", []string{},
@@ -104,7 +104,7 @@ func (p *PodSpecFlags) AddUpdateFlags(flagset *pflag.FlagSet) []string {
 	return flagNames
 }
 
-//AddCreateFlags will add PodSpec flags related to environment variable to FlagSet of create command
+// AddCreateFlags will add PodSpec flags related to environment variable to FlagSet of create command
 func (p *PodSpecFlags) AddCreateFlags(flagset *pflag.FlagSet) []string {
 	flagNames := []string{}
 	flagset.StringArrayVarP(&p.Env, "env", "e", []string{},
@@ -127,7 +127,7 @@ func (p *PodSpecFlags) AddCreateFlags(flagset *pflag.FlagSet) []string {
 	return flagNames
 }
 
-//AddFlags will add PodSpec related flags to FlagSet
+// AddFlags will add PodSpec related flags to FlagSet
 func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 
 	flagNames := []string{}
@@ -146,7 +146,9 @@ func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 			"a PersistentVolumeClaim (prefix pvc: or persistentVolumeClaim) or an existing Volume (without any prefix) on the specified directory. "+
 			"Example: --mount /mydir=cm:myconfigmap, --mount /mydir=secret:mysecret, --mount /mydir=emptyDir:myvol "+
 			"or --mount /mydir=myvolume. When a configmap or a secret is specified, a corresponding volume is "+
-			"automatically generated. You can specify a volume subpath by following the volume name with slash separated path. "+
+			"automatically generated. You can mount a volume with readOnly config (true | false) also. "+
+			"Example: --mount /mydir=ed:ed1:readOnly=true. "+
+			"You can specify a volume subpath by following the volume name with slash separated path. "+
 			"Example: --mount /mydir=cm:myconfigmap/subpath/to/be/mounted. "+
 			"You can use this flag multiple times. "+
 			"For unmounting a directory, append \"-\", e.g. --mount /mydir-, which also removes any auto-generated volume.")
