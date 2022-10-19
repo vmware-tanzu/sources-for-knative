@@ -91,16 +91,11 @@ func (l *LexerATNSimulator) Match(input CharStream, mode int) int {
 
 	dfa := l.decisionToDFA[mode]
 
-	var s0 *DFAState
-	l.atn.stateMu.RLock()
-	s0 = dfa.getS0()
-	l.atn.stateMu.RUnlock()
-
-	if s0 == nil {
+	if dfa.getS0() == nil {
 		return l.MatchATN(input)
 	}
 
-	return l.execATN(input, s0)
+	return l.execATN(input, dfa.getS0())
 }
 
 func (l *LexerATNSimulator) reset() {
@@ -122,7 +117,11 @@ func (l *LexerATNSimulator) MatchATN(input CharStream) int {
 	suppressEdge := s0Closure.hasSemanticContext
 	s0Closure.hasSemanticContext = false
 
-	next := l.addDFAState(s0Closure, suppressEdge)
+	next := l.addDFAState(s0Closure)
+
+	if !suppressEdge {
+		l.decisionToDFA[l.mode].setS0(next)
+	}
 
 	predict := l.execATN(input, next)
 
@@ -204,15 +203,10 @@ func (l *LexerATNSimulator) execATN(input CharStream, ds0 *DFAState) int {
 // {@code t}, or {@code nil} if the target state for l edge is not
 // already cached
 func (l *LexerATNSimulator) getExistingTargetState(s *DFAState, t int) *DFAState {
-	if t < LexerATNSimulatorMinDFAEdge || t > LexerATNSimulatorMaxDFAEdge {
+	if s.getEdges() == nil || t < LexerATNSimulatorMinDFAEdge || t > LexerATNSimulatorMaxDFAEdge {
 		return nil
 	}
 
-	l.atn.edgeMu.RLock()
-	defer l.atn.edgeMu.RUnlock()
-	if s.getEdges() == nil {
-		return nil
-	}
 	target := s.getIthEdge(t - LexerATNSimulatorMinDFAEdge)
 	if LexerATNSimulatorDebug && target != nil {
 		fmt.Println("reuse state " + strconv.Itoa(s.stateNumber) + " edge to " + strconv.Itoa(target.stateNumber))
@@ -543,7 +537,7 @@ func (l *LexerATNSimulator) addDFAEdge(from *DFAState, tk int, to *DFAState, cfg
 		suppressEdge := cfgs.HasSemanticContext()
 		cfgs.SetHasSemanticContext(false)
 
-		to = l.addDFAState(cfgs, true)
+		to = l.addDFAState(cfgs)
 
 		if suppressEdge {
 			return to
@@ -557,8 +551,6 @@ func (l *LexerATNSimulator) addDFAEdge(from *DFAState, tk int, to *DFAState, cfg
 	if LexerATNSimulatorDebug {
 		fmt.Println("EDGE " + from.String() + " -> " + to.String() + " upon " + strconv.Itoa(tk))
 	}
-	l.atn.edgeMu.Lock()
-	defer l.atn.edgeMu.Unlock()
 	if from.getEdges() == nil {
 		// make room for tokens 1..n and -1 masquerading as index 0
 		from.setEdges(make([]*DFAState, LexerATNSimulatorMaxDFAEdge-LexerATNSimulatorMinDFAEdge+1))
@@ -572,7 +564,7 @@ func (l *LexerATNSimulator) addDFAEdge(from *DFAState, tk int, to *DFAState, cfg
 // configurations already. This method also detects the first
 // configuration containing an ATN rule stop state. Later, when
 // traversing the DFA, we will know which rule to accept.
-func (l *LexerATNSimulator) addDFAState(configs ATNConfigSet, suppressEdge bool) *DFAState {
+func (l *LexerATNSimulator) addDFAState(configs ATNConfigSet) *DFAState {
 
 	proposed := NewDFAState(-1, configs)
 	var firstConfigWithRuleStopState ATNConfig
@@ -593,22 +585,16 @@ func (l *LexerATNSimulator) addDFAState(configs ATNConfigSet, suppressEdge bool)
 	}
 	hash := proposed.hash()
 	dfa := l.decisionToDFA[l.mode]
-
-	l.atn.stateMu.Lock()
-	defer l.atn.stateMu.Unlock()
 	existing, ok := dfa.getState(hash)
 	if ok {
-		proposed = existing
-	} else {
-		proposed.stateNumber = dfa.numStates()
-		configs.SetReadOnly(true)
-		proposed.configs = configs
-		dfa.setState(hash, proposed)
+		return existing
 	}
-	if !suppressEdge {
-		dfa.setS0(proposed)
-	}
-	return proposed
+	newState := proposed
+	newState.stateNumber = dfa.numStates()
+	configs.SetReadOnly(true)
+	newState.configs = configs
+	dfa.setState(hash, newState)
+	return newState
 }
 
 func (l *LexerATNSimulator) getDFA(mode int) *DFA {

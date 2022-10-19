@@ -121,18 +121,13 @@ func (b *BitSet) clear(index int) {
 }
 
 func (b *BitSet) or(set *BitSet) {
-	// Get min size necessary to represent the bits in both sets.
-	bLen := b.minLen()
-	setLen := set.minLen()
-	maxLen := intMax(bLen, setLen)
-	if maxLen > len(b.data) {
-		// Increase the size of len(b.data) to repesent the bits in both sets.
-		data := make([]uint64, maxLen)
+	size := intMax(b.minLen(), set.minLen())
+	if size > len(b.data) {
+		data := make([]uint64, size)
 		copy(data, b.data)
 		b.data = data
 	}
-	// len(b.data) is at least setLen.
-	for i := 0; i < setLen; i++ {
+	for i := 0; i < size; i++ {
 		b.data[i] |= set.data[i]
 	}
 }
@@ -169,18 +164,12 @@ func (b *BitSet) equals(other interface{}) bool {
 		return true
 	}
 
-	// We only compare set bits, so we cannot rely on the two slices having the same size. Its
-	// possible for two BitSets to have different slice lengths but the same set bits. So we only
-	// compare the relavent words and ignore the trailing zeros.
-	bLen := b.minLen()
-	otherLen := otherBitSet.minLen()
-
-	if bLen != otherLen {
+	if len(b.data) != len(otherBitSet.data) {
 		return false
 	}
 
-	for i := 0; i < bLen; i++ {
-		if b.data[i] != otherBitSet.data[i] {
+	for k := range b.data {
+		if b.data[k] != otherBitSet.data[k] {
 			return false
 		}
 	}
