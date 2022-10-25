@@ -27,9 +27,9 @@ require (
 	k8s.io/client-go v0.25.2
 	k8s.io/code-generator v0.25.2
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1
-	knative.dev/eventing v0.35.1-0.20221024013819-47c263530303
-	knative.dev/hack v0.0.0-20221024013916-9d2ae47c16b2
-	knative.dev/pkg v0.0.0-20221024013716-9823d960ed40
+	knative.dev/eventing v0.35.0
+	knative.dev/hack v0.0.0-20221010154335-3fdc50b9c24a
+	knative.dev/pkg v0.0.0-20221011175852-714b7630a836
 )
 
 require (
@@ -41,7 +41,7 @@ require (
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gotest.tools/v3 v3.3.0
 	k8s.io/utils v0.0.0-20220728103510-ee6ede2d64ed
-	knative.dev/client v0.34.1-0.20221024014916-4a545d07fb1f
+	knative.dev/client v0.35.1
 )
 
 require (
