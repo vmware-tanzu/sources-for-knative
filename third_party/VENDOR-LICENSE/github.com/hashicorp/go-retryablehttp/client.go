@@ -27,6 +27,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -203,7 +204,7 @@ func getBodyReaderAndContentLength(rawBody interface{}) (ReaderFunc, int64, erro
 	// deal with it seeking so want it to match here instead of the
 	// io.ReadSeeker case.
 	case *bytes.Reader:
-		buf, err := io.ReadAll(body)
+		buf, err := ioutil.ReadAll(body)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -217,7 +218,7 @@ func getBodyReaderAndContentLength(rawBody interface{}) (ReaderFunc, int64, erro
 		raw := body
 		bodyReader = func() (io.Reader, error) {
 			_, err := raw.Seek(0, 0)
-			return io.NopCloser(raw), err
+			return ioutil.NopCloser(raw), err
 		}
 		if lr, ok := raw.(LenReader); ok {
 			contentLength = int64(lr.Len())
@@ -225,7 +226,7 @@ func getBodyReaderAndContentLength(rawBody interface{}) (ReaderFunc, int64, erro
 
 	// Read all in so we can reset
 	case io.Reader:
-		buf, err := io.ReadAll(body)
+		buf, err := ioutil.ReadAll(body)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -595,7 +596,7 @@ func (c *Client) Do(req *Request) (*http.Response, error) {
 			if c, ok := body.(io.ReadCloser); ok {
 				req.Body = c
 			} else {
-				req.Body = io.NopCloser(body)
+				req.Body = ioutil.NopCloser(body)
 			}
 		}
 
@@ -720,7 +721,7 @@ func (c *Client) Do(req *Request) (*http.Response, error) {
 // Try to read the response body so we can reuse this connection.
 func (c *Client) drainBody(body io.ReadCloser) {
 	defer body.Close()
-	_, err := io.Copy(io.Discard, io.LimitReader(body, respReadLimit))
+	_, err := io.Copy(ioutil.Discard, io.LimitReader(body, respReadLimit))
 	if err != nil {
 		if c.logger() != nil {
 			switch v := c.logger().(type) {
