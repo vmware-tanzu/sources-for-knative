@@ -1,6 +1,6 @@
 module github.com/vmware-tanzu/sources-for-knative
 
-go 1.19
+go 1.18
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
