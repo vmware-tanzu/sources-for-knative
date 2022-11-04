@@ -20,7 +20,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
 
       - name: GoReleaser
         uses: goreleaser/goreleaser-action@v3
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up Go 1.18.x
+    - name: Set up Go 1.19.x
       uses: actions/setup-go@v3
       with:
-        go-version: 1.18.x
+        go-version: 1.19.x
 
     # will install latest ko version and default login/configure
     # KO_DOCKER_REPO to ghcr.io
