@@ -161,7 +161,6 @@ require (
 )
 
 replace (
-	github.com/antlr/antlr4/runtime/Go/antlr => github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20211221011931-643d94fcab96
 	github.com/codegangsta/cli => github.com/urfave/cli v1.19.1
 	github.com/kr/pretty => github.com/dougm/pretty v0.0.0-20171025230240-2ee9d7453c02
 )
