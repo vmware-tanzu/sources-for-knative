@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.12.0
+	github.com/cloudevents/sdk-go/v2 v2.13.0
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
@@ -27,9 +27,9 @@ require (
 	k8s.io/client-go v0.25.4
 	k8s.io/code-generator v0.25.4
 	k8s.io/kube-openapi v0.0.0-20220803162953-67bda5d908f1
-	knative.dev/eventing v0.35.1-0.20221222110658-271c9bb53a52
-	knative.dev/hack v0.0.0-20221209013717-b9801b4f5a4d
-	knative.dev/pkg v0.0.0-20221221230956-4fd6eb8652b7
+	knative.dev/eventing v0.35.1-0.20230111115149-049f0049f8f0
+	knative.dev/hack v0.0.0-20230110013548-af8745e34e08
+	knative.dev/pkg v0.0.0-20230110144649-ecf386394194
 )
 
 require (
@@ -41,7 +41,7 @@ require (
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gotest.tools/v3 v3.3.0
 	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2
-	knative.dev/client v0.34.1-0.20221209015217-d72eb5490b9b
+	knative.dev/client v0.34.1-0.20230110014447-2593aa6dbcab
 )
 
 require (
@@ -63,8 +63,8 @@ require (
 	github.com/blendle/zapdriver v1.3.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect; indirect'
-	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.12.0 // indirect
-	github.com/cloudevents/sdk-go/sql/v2 v2.12.0 // indirect
+	github.com/cloudevents/sdk-go/observability/opencensus/v2 v2.13.0 // indirect
+	github.com/cloudevents/sdk-go/sql/v2 v2.13.0 // indirect
 	github.com/creack/pty v1.1.11 // indirect
 	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
