@@ -6,13 +6,9 @@ import (
 	"reflect"
 	"strconv"
 	"text/tabwriter"
-	"time"
 
 	"github.com/kr/text"
-)
-
-var (
-	timeType = reflect.TypeOf(time.Time{})
+	"github.com/rogpeppe/go-internal/fmtsort"
 )
 
 type formatter struct {
@@ -42,7 +38,7 @@ func (fo formatter) passThrough(f fmt.State, c rune) {
 	s := "%"
 	for i := 0; i < 128; i++ {
 		if f.Flag(i) {
-			s += string(i)
+			s += string(rune(i))
 		}
 	}
 	if w, ok := f.Width(); ok {
@@ -102,6 +98,14 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 		return
 	}
 
+	if v.IsValid() && v.CanInterface() {
+		i := v.Interface()
+		if goStringer, ok := i.(fmt.GoStringer); ok {
+			io.WriteString(p, goStringer.GoString())
+			return
+		}
+	}
+
 	switch v.Kind() {
 	case reflect.Bool:
 		p.printInline(v, v.Bool(), showType)
@@ -128,17 +132,16 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 				writeByte(p, '\n')
 				pp = p.indent()
 			}
-			keys := v.MapKeys()
+			sm := fmtsort.Sort(v)
 			for i := 0; i < v.Len(); i++ {
-				showTypeInStruct := true
-				k := keys[i]
-				mv := v.MapIndex(k)
+				k := sm.Key[i]
+				mv := sm.Value[i]
 				pp.printValue(k, false, true)
 				writeByte(pp, ':')
 				if expand {
 					writeByte(pp, '\t')
 				}
-				showTypeInStruct = t.Elem().Kind() == reflect.Interface
+				showTypeInStruct := t.Elem().Kind() == reflect.Interface
 				pp.printValue(mv, showTypeInStruct, true)
 				if expand {
 					io.WriteString(pp, ",\n")
@@ -153,11 +156,6 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 		writeByte(p, '}')
 	case reflect.Struct:
 		t := v.Type()
-		if t == timeType {
-			io.WriteString(p, "time.Now()")
-			break
-		}
-
 		if v.CanAddr() {
 			addr := v.UnsafeAddr()
 			vis := visit{addr, t}
@@ -182,9 +180,6 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 			for i := 0; i < v.NumField(); i++ {
 				showTypeInStruct := true
 				if f := t.Field(i); f.Name != "" {
-					if f.Name == "DynamicData" {
-						continue
-					}
 					io.WriteString(pp, f.Name)
 					writeByte(pp, ':')
 					if expand {
@@ -229,10 +224,6 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 			io.WriteString(p, "nil")
 			break
 		}
-		if !showType {
-			// we always want the type for slices
-			io.WriteString(p, t.String())
-		}
 		writeByte(p, '{')
 		expand := !canInline(v.Type())
 		pp := p
@@ -260,23 +251,10 @@ func (p *printer) printValue(v reflect.Value, showType, quote bool) {
 			io.WriteString(p, v.Type().String())
 			io.WriteString(p, ")(nil)")
 		} else {
-			switch e.Kind() {
-			case reflect.Bool:
-				io.WriteString(p, fmt.Sprintf("types.NewBool(%v)", e.Bool()))
-			case reflect.Int32:
-				io.WriteString(p, fmt.Sprintf("types.NewInt32(%v)", e.Int()))
-			case reflect.Int64:
-				io.WriteString(p, fmt.Sprintf("types.NewInt64(%v)", e.Int()))
-			default:
-				if e.Kind() == reflect.Struct && e.Type() == timeType {
-					io.WriteString(p, "types.NewTime(time.Now())")
-				} else {
-					pp := *p
-					pp.depth++
-					writeByte(pp, '&')
-					pp.printValue(e, true, true)
-				}
-			}
+			pp := *p
+			pp.depth++
+			writeByte(pp, '&')
+			pp.printValue(e, true, true)
 		}
 	case reflect.Chan:
 		x := v.Pointer()
