@@ -41,7 +41,7 @@ require (
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gotest.tools/v3 v3.3.0
 	k8s.io/utils v0.0.0-20221108210102-8e77b1f39fe2
-	knative.dev/client v0.34.1-0.20230124051738-2a124bdc26fa
+	knative.dev/client v0.36.0
 )
 
 require (
@@ -155,7 +155,7 @@ require (
 	k8s.io/gengo v0.0.0-20221011193443-fad74ee6edd9 // indirect
 	k8s.io/klog/v2 v2.80.2-0.20221028030830-9ae4992afb54 // indirect
 	knative.dev/networking v0.0.0-20230123233838-db2bcbea2560 // indirect
-	knative.dev/serving v0.35.1-0.20230123204038-897b61aaa91a // indirect
+	knative.dev/serving v0.36.0 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 	sigs.k8s.io/kustomize/api v0.12.1 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.13.9 // indirect
