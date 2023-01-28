@@ -1289,7 +1289,7 @@ k8s.io/utils/net
 k8s.io/utils/pointer
 k8s.io/utils/strings/slices
 k8s.io/utils/trace
-# knative.dev/client v0.34.1-0.20230124051738-2a124bdc26fa
+# knative.dev/client v0.36.0
 ## explicit; go 1.18
 knative.dev/client/pkg/config
 knative.dev/client/pkg/dynamic
@@ -1430,7 +1430,7 @@ knative.dev/pkg/webhook/psbinding
 knative.dev/pkg/webhook/resourcesemantics
 knative.dev/pkg/webhook/resourcesemantics/defaulting
 knative.dev/pkg/webhook/resourcesemantics/validation
-# knative.dev/serving v0.35.1-0.20230123204038-897b61aaa91a
+# knative.dev/serving v0.36.0
 ## explicit; go 1.18
 knative.dev/serving/pkg/apis/autoscaling
 knative.dev/serving/pkg/apis/autoscaling/v1alpha1
