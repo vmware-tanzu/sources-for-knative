@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package auth_test
 
 import (
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -45,7 +45,7 @@ func authTestCommand(clientConfig clientcmd.ClientConfig, objects ...runtime.Obj
 		ClientSet:    client,
 		ClientConfig: clientConfig,
 	})
-	cmd.SetErr(ioutil.Discard)
-	cmd.SetOut(ioutil.Discard)
+	cmd.SetErr(io.Discard)
+	cmd.SetOut(io.Discard)
 	return cmd, client
 }
