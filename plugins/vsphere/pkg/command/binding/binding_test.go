@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package binding_test
 
 import (
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -47,7 +47,7 @@ func bindingTestCommand(clientConfig clientcmd.ClientConfig, objects ...runtime.
 		ClientConfig:     clientConfig,
 		VSphereClientSet: vSphereSourcesClient,
 	})
-	cmd.SetErr(ioutil.Discard)
-	cmd.SetOut(ioutil.Discard)
+	cmd.SetErr(io.Discard)
+	cmd.SetOut(io.Discard)
 	return cmd, vSphereSourcesClient
 }
