@@ -8,9 +8,9 @@ package vsphere
 import (
 	"context"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -51,7 +51,7 @@ func ReadKey(key string) (string, error) {
 		mountPath = env.SecretPath
 	}
 
-	data, err := ioutil.ReadFile(filepath.Join(mountPath, key))
+	data, err := os.ReadFile(filepath.Join(mountPath, key))
 	if err != nil {
 		return "", err
 	}
