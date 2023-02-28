@@ -41,6 +41,7 @@ type Callback struct {
 	function func(ctx context.Context, unstructured *unstructured.Unstructured) error
 
 	// supportedVerbs are the verbs supported for the callback.
+	// The function will only be called on these actions.
 	supportedVerbs map[webhook.Operation]struct{}
 }
 
