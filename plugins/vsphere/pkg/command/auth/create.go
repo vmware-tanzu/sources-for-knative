@@ -8,6 +8,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/url"
 	"syscall"
 
@@ -135,6 +136,6 @@ func readPassword(cmd *cobra.Command, options *Options) (string, error) {
 		cmd.Println()
 		return string(password), err
 	}
-	password, err := os.ReadAll(cmd.InOrStdin())
+	password, err := io.ReadAll(cmd.InOrStdin())
 	return string(password), err
 }
