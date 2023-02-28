@@ -10,8 +10,8 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -74,7 +74,7 @@ func readSecretKey(key string) (string, error) {
 		mountPath = env.SecretPath
 	}
 
-	data, err := ioutil.ReadFile(filepath.Join(mountPath, key))
+	data, err := os.ReadFile(filepath.Join(mountPath, key))
 	if err != nil {
 		return "", err
 	}
