@@ -235,7 +235,7 @@ func TestNewCreateCommand(t *testing.T) {
 			})
 
 			err := cmd.Execute()
-			assert.ErrorContains(t, err, fmt.Sprintf(`failed to authenticate with vCenter: Post %q: x509: certificate signed by unknown authority`, vc.URL().String()))
+			assert.ErrorContains(t, err, fmt.Sprintf(`failed to authenticate with vCenter: Post %q: tls: failed to verify certificate: x509: certificate signed by unknown authority`, vc.URL().String()))
 			return nil
 		})
 	})
