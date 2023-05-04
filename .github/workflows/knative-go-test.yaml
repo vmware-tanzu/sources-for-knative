@@ -7,11 +7,11 @@ name: Test
 
 on:
   push:
-    branches: [ 'main', 'release-*' ]
+    branches: ['main', 'release-*']
 
   pull_request:
-    branches: [ 'main', 'release-*' ]
+    branches: ['main', 'release-*']
 
 jobs:
   test:
-    uses: knative/actions/.github/workflows/go-test.yaml@main
+    uses: knative/actions/.github/workflows/reusable-go-test.yaml@main

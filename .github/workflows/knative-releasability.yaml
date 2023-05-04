@@ -9,7 +9,7 @@ on:
   schedule:
     - cron: '0 1 * * 1-5' # 6am Pacific, weekdays.
 
-  workflow_dispatch:      # Manual trigger.
+  workflow_dispatch: # Manual trigger.
     inputs:
       releaseFamily:
         description: 'Release? (vX.Y)'
@@ -23,7 +23,7 @@ on:
 
 jobs:
   releasability:
-    uses: knative/actions/.github/workflows/releasability.yaml@main
+    uses: knative/actions/.github/workflows/reusable-releasability.yaml@main
     with:
       releaseFamily: ${{ github.event.inputs.releaseFamily || 'v1.9' }}
       moduleReleaseFamily: ${{ github.event.inputs.moduleReleaseFamily || 'v0.36' }}
