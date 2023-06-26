@@ -73,7 +73,7 @@ func NewAdapter(ctx context.Context, processed adapter.EnvConfigAccessor, ceClie
 		logger.Fatalf("unable to create vSphere client: %v", err)
 	}
 
-	source := vClient.URL().Host
+	source := vClient.URL().String()
 	if source == "" {
 		logger.Fatal("unable to determine vSphere client source: empty host")
 	}
