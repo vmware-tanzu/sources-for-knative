@@ -37,7 +37,7 @@ type Logger interface {
 // binLogger is the global binary logger for the binary. One of this should be
 // built at init time from the configuration (environment variable or flags).
 //
-// It is used to get a methodLogger for each individual method.
+// It is used to get a MethodLogger for each individual method.
 var binLogger Logger
 
 var grpclogLogger = grpclog.Component("binarylog")
@@ -49,11 +49,22 @@ func SetLogger(l Logger) {
 	binLogger = l
 }
 
+<<<<<<< HEAD
 // GetMethodLogger returns the methodLogger for the given methodName.
+=======
+// GetLogger gets the binary logger.
+//
+// Only call this at init time.
+func GetLogger() Logger {
+	return binLogger
+}
+
+// GetMethodLogger returns the MethodLogger for the given methodName.
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 //
 // methodName should be in the format of "/service/method".
 //
-// Each methodLogger returned by this method is a new instance. This is to
+// Each MethodLogger returned by this method is a new instance. This is to
 // generate sequence id within the call.
 func GetMethodLogger(methodName string) *MethodLogger {
 	if binLogger == nil {
@@ -98,9 +109,15 @@ func (l *logger) setDefaultMethodLogger(ml *methodLoggerConfig) error {
 
 // Set method logger for "service/*".
 //
+<<<<<<< HEAD
 // New methodLogger with same service overrides the old one.
 func (l *logger) setServiceMethodLogger(service string, ml *methodLoggerConfig) error {
 	if _, ok := l.services[service]; ok {
+=======
+// New MethodLogger with same service overrides the old one.
+func (l *logger) setServiceMethodLogger(service string, ml *MethodLoggerConfig) error {
+	if _, ok := l.config.Services[service]; ok {
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		return fmt.Errorf("conflicting service rules for service %v found", service)
 	}
 	if l.services == nil {
@@ -112,9 +129,15 @@ func (l *logger) setServiceMethodLogger(service string, ml *methodLoggerConfig) 
 
 // Set method logger for "service/method".
 //
+<<<<<<< HEAD
 // New methodLogger with same method overrides the old one.
 func (l *logger) setMethodMethodLogger(method string, ml *methodLoggerConfig) error {
 	if _, ok := l.blacklist[method]; ok {
+=======
+// New MethodLogger with same method overrides the old one.
+func (l *logger) setMethodMethodLogger(method string, ml *MethodLoggerConfig) error {
+	if _, ok := l.config.Blacklist[method]; ok {
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		return fmt.Errorf("conflicting blacklist rules for method %v found", method)
 	}
 	if _, ok := l.methods[method]; ok {
@@ -142,11 +165,11 @@ func (l *logger) setBlacklist(method string) error {
 	return nil
 }
 
-// getMethodLogger returns the methodLogger for the given methodName.
+// getMethodLogger returns the MethodLogger for the given methodName.
 //
 // methodName should be in the format of "/service/method".
 //
-// Each methodLogger returned by this method is a new instance. This is to
+// Each MethodLogger returned by this method is a new instance. This is to
 // generate sequence id within the call.
 func (l *logger) getMethodLogger(methodName string) *MethodLogger {
 	s, m, err := grpcutil.ParseMethod(methodName)
@@ -154,17 +177,31 @@ func (l *logger) getMethodLogger(methodName string) *MethodLogger {
 		grpclogLogger.Infof("binarylogging: failed to parse %q: %v", methodName, err)
 		return nil
 	}
+<<<<<<< HEAD
 	if ml, ok := l.methods[s+"/"+m]; ok {
 		return newMethodLogger(ml.hdr, ml.msg)
+=======
+	if ml, ok := l.config.Methods[s+"/"+m]; ok {
+		return NewTruncatingMethodLogger(ml.Header, ml.Message)
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	}
 	if _, ok := l.blacklist[s+"/"+m]; ok {
 		return nil
 	}
+<<<<<<< HEAD
 	if ml, ok := l.services[s]; ok {
 		return newMethodLogger(ml.hdr, ml.msg)
+=======
+	if ml, ok := l.config.Services[s]; ok {
+		return NewTruncatingMethodLogger(ml.Header, ml.Message)
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	}
 	if l.all == nil {
 		return nil
 	}
+<<<<<<< HEAD
 	return newMethodLogger(l.all.hdr, l.all.msg)
+=======
+	return NewTruncatingMethodLogger(l.config.All.Header, l.config.All.Message)
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 }

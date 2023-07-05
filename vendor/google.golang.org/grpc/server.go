@@ -73,6 +73,17 @@ func init() {
 	internal.DrainServerTransports = func(srv *Server, addr string) {
 		srv.drainServerTransports(addr)
 	}
+<<<<<<< HEAD
+=======
+	internal.AddGlobalServerOptions = func(opt ...ServerOption) {
+		extraServerOptions = append(extraServerOptions, opt...)
+	}
+	internal.ClearGlobalServerOptions = func() {
+		extraServerOptions = nil
+	}
+	internal.BinaryLogger = binaryLogger
+	internal.JoinServerOptions = newJoinServerOption
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 }
 
 var statusOK = status.New(codes.OK, "")
@@ -149,6 +160,7 @@ type serverOptions struct {
 	streamInt             StreamServerInterceptor
 	chainUnaryInts        []UnaryServerInterceptor
 	chainStreamInts       []StreamServerInterceptor
+	binaryLogger          binarylog.Logger
 	inTapHandle           tap.ServerInHandle
 	statsHandler          stats.Handler
 	maxConcurrentStreams  uint32
@@ -207,10 +219,27 @@ func newFuncServerOption(f func(*serverOptions)) *funcServerOption {
 	}
 }
 
-// WriteBufferSize determines how much data can be batched before doing a write on the wire.
-// The corresponding memory allocation for this buffer will be twice the size to keep syscalls low.
-// The default value for this buffer is 32KB.
-// Zero will disable the write buffer such that each write will be on underlying connection.
+// joinServerOption provides a way to combine arbitrary number of server
+// options into one.
+type joinServerOption struct {
+	opts []ServerOption
+}
+
+func (mdo *joinServerOption) apply(do *serverOptions) {
+	for _, opt := range mdo.opts {
+		opt.apply(do)
+	}
+}
+
+func newJoinServerOption(opts ...ServerOption) ServerOption {
+	return &joinServerOption{opts: opts}
+}
+
+// WriteBufferSize determines how much data can be batched before doing a write
+// on the wire. The corresponding memory allocation for this buffer will be
+// twice the size to keep syscalls low. The default value for this buffer is
+// 32KB. Zero or negative values will disable the write buffer such that each
+// write will be on underlying connection.
 // Note: A Send call may not directly translate to a write.
 func WriteBufferSize(s int) ServerOption {
 	return newFuncServerOption(func(o *serverOptions) {
@@ -218,11 +247,10 @@ func WriteBufferSize(s int) ServerOption {
 	})
 }
 
-// ReadBufferSize lets you set the size of read buffer, this determines how much data can be read at most
-// for one read syscall.
-// The default value for this buffer is 32KB.
-// Zero will disable read buffer for a connection so data framer can access the underlying
-// conn directly.
+// ReadBufferSize lets you set the size of read buffer, this determines how much
+// data can be read at most for one read syscall. The default value for this
+// buffer is 32KB. Zero or negative values will disable read buffer for a
+// connection so data framer can access the underlying conn directly.
 func ReadBufferSize(s int) ServerOption {
 	return newFuncServerOption(func(o *serverOptions) {
 		o.readBufferSize = s
@@ -436,6 +464,14 @@ func InTapHandle(h tap.ServerInHandle) ServerOption {
 func StatsHandler(h stats.Handler) ServerOption {
 	return newFuncServerOption(func(o *serverOptions) {
 		o.statsHandler = h
+	})
+}
+
+// binaryLogger returns a ServerOption that can set the binary logger for the
+// server.
+func binaryLogger(bl binarylog.Logger) ServerOption {
+	return newFuncServerOption(func(o *serverOptions) {
+		o.binaryLogger = bl
 	})
 }
 
@@ -898,7 +934,7 @@ func (s *Server) newHTTP2Transport(c net.Conn) transport.ServerTransport {
 }
 
 func (s *Server) serveStreams(st transport.ServerTransport) {
-	defer st.Close()
+	defer st.Close(errors.New("finished serving streams for the server transport"))
 	var wg sync.WaitGroup
 
 	var roundRobinCounter uint32
@@ -964,7 +1000,8 @@ var _ http.Handler = (*Server)(nil)
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	st, err := transport.NewServerHandlerTransport(w, r, s.opts.statsHandler)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// Errors returned from transport.NewServerHandlerTransport have
+		// already been written to w.
 		return
 	}
 	if !s.addConn(listenerAddressForServeHTTP, st) {
@@ -1002,7 +1039,7 @@ func (s *Server) addConn(addr string, st transport.ServerTransport) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.conns == nil {
-		st.Close()
+		st.Close(errors.New("Server.addConn called when server has already been stopped"))
 		return false
 	}
 	if s.drain {
@@ -1104,21 +1141,16 @@ func chainUnaryServerInterceptors(s *Server) {
 
 func chainUnaryInterceptors(interceptors []UnaryServerInterceptor) UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (interface{}, error) {
-		// the struct ensures the variables are allocated together, rather than separately, since we
-		// know they should be garbage collected together. This saves 1 allocation and decreases
-		// time/call by about 10% on the microbenchmark.
-		var state struct {
-			i    int
-			next UnaryHandler
-		}
-		state.next = func(ctx context.Context, req interface{}) (interface{}, error) {
-			if state.i == len(interceptors)-1 {
-				return interceptors[state.i](ctx, req, info, handler)
-			}
-			state.i++
-			return interceptors[state.i-1](ctx, req, info, state.next)
-		}
-		return state.next(ctx, req)
+		return interceptors[0](ctx, req, info, getChainUnaryHandler(interceptors, 0, info, handler))
+	}
+}
+
+func getChainUnaryHandler(interceptors []UnaryServerInterceptor, curr int, info *UnaryServerInfo, finalHandler UnaryHandler) UnaryHandler {
+	if curr == len(interceptors)-1 {
+		return finalHandler
+	}
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		return interceptors[curr+1](ctx, req, info, getChainUnaryHandler(interceptors, curr+1, info, finalHandler))
 	}
 }
 
@@ -1180,9 +1212,16 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 			}
 		}()
 	}
-
-	binlog := binarylog.GetMethodLogger(stream.Method())
-	if binlog != nil {
+	var binlogs []binarylog.MethodLogger
+	if ml := binarylog.GetMethodLogger(stream.Method()); ml != nil {
+		binlogs = append(binlogs, ml)
+	}
+	if s.opts.binaryLogger != nil {
+		if ml := s.opts.binaryLogger.GetMethodLogger(stream.Method()); ml != nil {
+			binlogs = append(binlogs, ml)
+		}
+	}
+	if len(binlogs) != 0 {
 		ctx := stream.Context()
 		md, _ := metadata.FromIncomingContext(ctx)
 		logEntry := &binarylog.ClientHeader{
@@ -1202,7 +1241,9 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 		if peer, ok := peer.FromContext(ctx); ok {
 			logEntry.PeerAddr = peer.Addr
 		}
-		binlog.Log(logEntry)
+		for _, binlog := range binlogs {
+			binlog.Log(logEntry)
+		}
 	}
 
 	// comp and cp are used for compression.  decomp and dc are used for
@@ -1242,13 +1283,17 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 	}
 
 	var payInfo *payloadInfo
+<<<<<<< HEAD
 	if sh != nil || binlog != nil {
+=======
+	if len(shs) != 0 || len(binlogs) != 0 {
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		payInfo = &payloadInfo{}
 	}
 	d, err := recvAndDecompress(&parser{r: stream}, stream, dc, s.opts.maxReceiveMessageSize, payInfo, decomp)
 	if err != nil {
 		if e := t.WriteStatus(stream, status.Convert(err)); e != nil {
-			channelz.Warningf(logger, s.channelzID, "grpc: Server.processUnaryRPC failed to write status %v", e)
+			channelz.Warningf(logger, s.channelzID, "grpc: Server.processUnaryRPC failed to write status: %v", e)
 		}
 		return err
 	}
@@ -1268,10 +1313,13 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 				Length:     len(d),
 			})
 		}
-		if binlog != nil {
-			binlog.Log(&binarylog.ClientMessage{
+		if len(binlogs) != 0 {
+			cm := &binarylog.ClientMessage{
 				Message: d,
-			})
+			}
+			for _, binlog := range binlogs {
+				binlog.Log(cm)
+			}
 		}
 		if trInfo != nil {
 			trInfo.tr.LazyLog(&payload{sent: false, msg: v}, true)
@@ -1294,18 +1342,24 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 		if e := t.WriteStatus(stream, appStatus); e != nil {
 			channelz.Warningf(logger, s.channelzID, "grpc: Server.processUnaryRPC failed to write status: %v", e)
 		}
-		if binlog != nil {
+		if len(binlogs) != 0 {
 			if h, _ := stream.Header(); h.Len() > 0 {
 				// Only log serverHeader if there was header. Otherwise it can
 				// be trailer only.
-				binlog.Log(&binarylog.ServerHeader{
+				sh := &binarylog.ServerHeader{
 					Header: h,
-				})
+				}
+				for _, binlog := range binlogs {
+					binlog.Log(sh)
+				}
 			}
-			binlog.Log(&binarylog.ServerTrailer{
+			st := &binarylog.ServerTrailer{
 				Trailer: stream.Trailer(),
 				Err:     appErr,
-			})
+			}
+			for _, binlog := range binlogs {
+				binlog.Log(st)
+			}
 		}
 		return appErr
 	}
@@ -1331,26 +1385,34 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 				panic(fmt.Sprintf("grpc: Unexpected error (%T) from sendResponse: %v", st, st))
 			}
 		}
-		if binlog != nil {
+		if len(binlogs) != 0 {
 			h, _ := stream.Header()
-			binlog.Log(&binarylog.ServerHeader{
+			sh := &binarylog.ServerHeader{
 				Header: h,
-			})
-			binlog.Log(&binarylog.ServerTrailer{
+			}
+			st := &binarylog.ServerTrailer{
 				Trailer: stream.Trailer(),
 				Err:     appErr,
-			})
+			}
+			for _, binlog := range binlogs {
+				binlog.Log(sh)
+				binlog.Log(st)
+			}
 		}
 		return err
 	}
-	if binlog != nil {
+	if len(binlogs) != 0 {
 		h, _ := stream.Header()
-		binlog.Log(&binarylog.ServerHeader{
+		sh := &binarylog.ServerHeader{
 			Header: h,
-		})
-		binlog.Log(&binarylog.ServerMessage{
+		}
+		sm := &binarylog.ServerMessage{
 			Message: reply,
-		})
+		}
+		for _, binlog := range binlogs {
+			binlog.Log(sh)
+			binlog.Log(sm)
+		}
 	}
 	if channelz.IsOn() {
 		t.IncrMsgSent()
@@ -1362,11 +1424,14 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 	// Should the logging be in WriteStatus?  Should we ignore the WriteStatus
 	// error or allow the stats handler to see it?
 	err = t.WriteStatus(stream, statusOK)
-	if binlog != nil {
-		binlog.Log(&binarylog.ServerTrailer{
+	if len(binlogs) != 0 {
+		st := &binarylog.ServerTrailer{
 			Trailer: stream.Trailer(),
 			Err:     appErr,
-		})
+		}
+		for _, binlog := range binlogs {
+			binlog.Log(st)
+		}
 	}
 	return err
 }
@@ -1394,21 +1459,16 @@ func chainStreamServerInterceptors(s *Server) {
 
 func chainStreamInterceptors(interceptors []StreamServerInterceptor) StreamServerInterceptor {
 	return func(srv interface{}, ss ServerStream, info *StreamServerInfo, handler StreamHandler) error {
-		// the struct ensures the variables are allocated together, rather than separately, since we
-		// know they should be garbage collected together. This saves 1 allocation and decreases
-		// time/call by about 10% on the microbenchmark.
-		var state struct {
-			i    int
-			next StreamHandler
-		}
-		state.next = func(srv interface{}, ss ServerStream) error {
-			if state.i == len(interceptors)-1 {
-				return interceptors[state.i](srv, ss, info, handler)
-			}
-			state.i++
-			return interceptors[state.i-1](srv, ss, info, state.next)
-		}
-		return state.next(srv, ss)
+		return interceptors[0](srv, ss, info, getChainStreamHandler(interceptors, 0, info, handler))
+	}
+}
+
+func getChainStreamHandler(interceptors []StreamServerInterceptor, curr int, info *StreamServerInfo, finalHandler StreamHandler) StreamHandler {
+	if curr == len(interceptors)-1 {
+		return finalHandler
+	}
+	return func(srv interface{}, stream ServerStream) error {
+		return interceptors[curr+1](srv, stream, info, getChainStreamHandler(interceptors, curr+1, info, finalHandler))
 	}
 }
 
@@ -1475,8 +1535,15 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 		}()
 	}
 
-	ss.binlog = binarylog.GetMethodLogger(stream.Method())
-	if ss.binlog != nil {
+	if ml := binarylog.GetMethodLogger(stream.Method()); ml != nil {
+		ss.binlogs = append(ss.binlogs, ml)
+	}
+	if s.opts.binaryLogger != nil {
+		if ml := s.opts.binaryLogger.GetMethodLogger(stream.Method()); ml != nil {
+			ss.binlogs = append(ss.binlogs, ml)
+		}
+	}
+	if len(ss.binlogs) != 0 {
 		md, _ := metadata.FromIncomingContext(ctx)
 		logEntry := &binarylog.ClientHeader{
 			Header:     md,
@@ -1495,7 +1562,9 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 		if peer, ok := peer.FromContext(ss.Context()); ok {
 			logEntry.PeerAddr = peer.Addr
 		}
-		ss.binlog.Log(logEntry)
+		for _, binlog := range ss.binlogs {
+			binlog.Log(logEntry)
+		}
 	}
 
 	// If dc is set and matches the stream's compression, use it.  Otherwise, try
@@ -1559,11 +1628,14 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 			ss.mu.Unlock()
 		}
 		t.WriteStatus(ss.s, appStatus)
-		if ss.binlog != nil {
-			ss.binlog.Log(&binarylog.ServerTrailer{
+		if len(ss.binlogs) != 0 {
+			st := &binarylog.ServerTrailer{
 				Trailer: ss.s.Trailer(),
 				Err:     appErr,
-			})
+			}
+			for _, binlog := range ss.binlogs {
+				binlog.Log(st)
+			}
 		}
 		// TODO: Should we log an error from WriteStatus here and below?
 		return appErr
@@ -1574,11 +1646,14 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 		ss.mu.Unlock()
 	}
 	err = t.WriteStatus(ss.s, statusOK)
-	if ss.binlog != nil {
-		ss.binlog.Log(&binarylog.ServerTrailer{
+	if len(ss.binlogs) != 0 {
+		st := &binarylog.ServerTrailer{
 			Trailer: ss.s.Trailer(),
 			Err:     appErr,
-		})
+		}
+		for _, binlog := range ss.binlogs {
+			binlog.Log(st)
+		}
 	}
 	return err
 }
@@ -1726,7 +1801,7 @@ func (s *Server) Stop() {
 	}
 	for _, cs := range conns {
 		for st := range cs {
-			st.Close()
+			st.Close(errors.New("Server.Stop called"))
 		}
 	}
 	if s.opts.numServerWorkers > 0 {

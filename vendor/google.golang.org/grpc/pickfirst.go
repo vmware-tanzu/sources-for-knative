@@ -58,7 +58,7 @@ func (b *pickfirstBalancer) ResolverError(err error) {
 		})
 	}
 	if logger.V(2) {
-		logger.Infof("pickfirstBalancer: ResolverError called with error %v", err)
+		logger.Infof("pickfirstBalancer: ResolverError called with error: %v", err)
 	}
 }
 
@@ -87,6 +87,16 @@ func (b *pickfirstBalancer) UpdateClientConnState(cs balancer.ClientConnState) e
 		b.cc.UpdateAddresses(b.sc, cs.ResolverState.Addresses)
 		b.sc.Connect()
 	}
+<<<<<<< HEAD
+=======
+	b.subConn = subConn
+	b.state = connectivity.Idle
+	b.cc.UpdateState(balancer.State{
+		ConnectivityState: connectivity.Connecting,
+		Picker:            &picker{err: balancer.ErrNoSubConnAvailable},
+	})
+	b.subConn.Connect()
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	return nil
 }
 

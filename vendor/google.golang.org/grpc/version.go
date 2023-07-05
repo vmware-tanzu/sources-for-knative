@@ -19,4 +19,8 @@
 package grpc
 
 // Version is the current grpc version.
+<<<<<<< HEAD
 const Version = "1.44.1-dev"
+=======
+const Version = "1.53.0"
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)

@@ -192,7 +192,20 @@ func (c *Config) parse(ctx context.Context) (baseCredentialSource, error) {
 				CredVerificationURL:         c.CredentialSource.URL,
 				TargetResource:              c.Audience,
 				ctx:                         ctx,
+<<<<<<< HEAD
 			}, nil
+=======
+			}
+			if c.CredentialSource.IMDSv2SessionTokenURL != "" {
+				awsCredSource.IMDSv2SessionTokenURL = c.CredentialSource.IMDSv2SessionTokenURL
+			}
+
+			if err := awsCredSource.validateMetadataServers(); err != nil {
+				return nil, err
+			}
+
+			return awsCredSource, nil
+>>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		}
 	} else if c.CredentialSource.File != "" {
 		return fileCredentialSource{File: c.CredentialSource.File, Format: c.CredentialSource.Format}, nil

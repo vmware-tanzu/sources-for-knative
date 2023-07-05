@@ -5,39 +5,39 @@ before:
     # you may remove this if you don't need go generate
     - go generate ./...
 builds:
-- id: "kn-vsphere-build"
-  binary: kn-vsphere
-  main: ./plugins/vsphere/cmd/vsphere/main.go
-  env:
-  - CGO_ENABLED=0
-  flags:
-    - -mod=vendor
-  ldflags:
-    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.BuildDate={{.Date}}'
-    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.Version={{.Version}}'
-    - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.GitRevision={{.Commit}}'
+  - id: "kn-vsphere-build"
+    binary: kn-vsphere
+    main: ./plugins/vsphere/cmd/vsphere/main.go
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -mod=vendor
+    ldflags:
+      - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.BuildDate={{.Date}}'
+      - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.Version={{.Version}}'
+      - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.GitRevision={{.Commit}}'
 archives:
-- replacements:
-    darwin: Darwin
-    linux: Linux
-    windows: Windows
-    386: i386
-    amd64: x86_64
-  name_template: "kn-vsphere_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-  files:
-    - LICENSE
-    - ./plugins/vsphere/README.adoc
-  wrap_in_directory: true
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+    name_template: "kn-vsphere_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - ./plugins/vsphere/README.adoc
+    wrap_in_directory: true
 checksum:
-  name_template: 'checksums.txt'
+  name_template: "checksums.txt"
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
-    - '^docs:'
-    - '^test:'
+      - "^docs:"
+      - "^test:"
 release:
   draft: false
   prerelease: false
