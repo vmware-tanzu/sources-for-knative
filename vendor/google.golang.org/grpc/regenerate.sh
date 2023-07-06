@@ -131,4 +131,4 @@ mv ${WORKDIR}/out/grpc/service_config/service_config.pb.go internal/proto/grpc_s
 rm "${WORKDIR}"/out/google.golang.org/grpc/reflection/grpc_testing_not_regenerate/*.pb.go
 >>>>>>> cb113d10 (Update vendor/google.golang.org/grpc/regenerate.sh)
 
-cp -R ${WORKDIR}/out/google.golang.org/grpc/* .
+cp -R "${WORKDIR}"/out/google.golang.org/grpc/* .
