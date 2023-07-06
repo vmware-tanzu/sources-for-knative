@@ -128,7 +128,11 @@ mv ${WORKDIR}/out/grpc/service_config/service_config.pb.go internal/proto/grpc_s
 =======
 # grpc_testing_not_regenerate/*.pb.go are not re-generated,
 # see grpc_testing_not_regenerate/README.md for details.
+<<<<<<< HEAD
 rm "${WORKDIR}"/out/google.golang.org/grpc/reflection/grpc_testing_not_regenerate/*.pb.go
 >>>>>>> cb113d10 (Update vendor/google.golang.org/grpc/regenerate.sh)
+=======
+rm ${WORKDIR}/out/google.golang.org/grpc/reflection/grpc_testing_not_regenerate/*.pb.go
+>>>>>>> c9fe2d54 (ran update codegen)
 
-cp -R "${WORKDIR}"/out/google.golang.org/grpc/* .
+cp -R ${WORKDIR}/out/google.golang.org/grpc/* .
