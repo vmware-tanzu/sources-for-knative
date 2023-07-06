@@ -17,13 +17,13 @@ builds:
       - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.Version={{.Version}}'
       - -X 'github.com/vmware-tanzu/sources-for-knative/plugins/vsphere/pkg/command/version.GitRevision={{.Commit}}'
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-    name_template: "kn-vsphere_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  - id: foo
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
     files:
       - LICENSE
       - ./plugins/vsphere/README.adoc
