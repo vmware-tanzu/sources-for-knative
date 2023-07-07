@@ -84,6 +84,7 @@ type http2Client struct {
 	framer *framer
 	// controlBuf delivers all the control related tasks (e.g., window
 	// updates, reset streams, and various settings) to the controller.
+	// Do not access controlBuf with mu held.
 	controlBuf *controlBuffer
 	fc         *trInFlow
 	// The scheme used: https if TLS is on, http otherwise.
@@ -96,7 +97,7 @@ type http2Client struct {
 	kp               keepalive.ClientParameters
 	keepaliveEnabled bool
 
-	statsHandler stats.Handler
+	statsHandlers []stats.Handler
 
 	initialWindowSize int32
 
@@ -112,6 +113,7 @@ type http2Client struct {
 	nextID                uint32
 	registeredCompressors string
 
+	// Do not access controlBuf with mu held.
 	mu            sync.Mutex // guard the following variables
 	state         transportState
 	activeStreams map[uint32]*Stream
@@ -135,7 +137,7 @@ type http2Client struct {
 	kpDormant bool
 
 	// Fields below are for channelz metric collection.
-	channelzID int64 // channelz unique identification number
+	channelzID *channelz.Identifier
 	czData     *channelzData
 
 	onClose func(GoAwayReason)
@@ -333,7 +335,7 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 		isSecure:              isSecure,
 		perRPCCreds:           perRPCCreds,
 		kp:                    kp,
-		statsHandler:          opts.StatsHandler,
+		statsHandlers:         opts.StatsHandlers,
 		initialWindowSize:     initialWindowSize,
 		nextID:                1,
 		maxConcurrentStreams:  defaultMaxStreamsClient,
@@ -363,18 +365,19 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr resolver.Address, opts
 			updateFlowControl: t.updateFlowControl,
 		}
 	}
-	if t.statsHandler != nil {
-		t.ctx = t.statsHandler.TagConn(t.ctx, &stats.ConnTagInfo{
+	for _, sh := range t.statsHandlers {
+		t.ctx = sh.TagConn(t.ctx, &stats.ConnTagInfo{
 			RemoteAddr: t.remoteAddr,
 			LocalAddr:  t.localAddr,
 		})
 		connBegin := &stats.ConnBegin{
 			Client: true,
 		}
-		t.statsHandler.HandleConn(t.ctx, connBegin)
+		sh.HandleConn(t.ctx, connBegin)
 	}
-	if channelz.IsOn() {
-		t.channelzID = channelz.RegisterNormalSocket(t, opts.ChannelzParentID, fmt.Sprintf("%s -> %s", t.localAddr, t.remoteAddr))
+	t.channelzID, err = channelz.RegisterNormalSocket(t, opts.ChannelzParentID, fmt.Sprintf("%s -> %s", t.localAddr, t.remoteAddr))
+	if err != nil {
+		return nil, err
 	}
 	if t.keepaliveEnabled {
 		t.kpDormancyCond = sync.NewCond(&t.mu)
@@ -682,15 +685,6 @@ func (t *http2Client) getCallAuthData(ctx context.Context, audience string, call
 // NewStream errors result in transparent retry, as they mean nothing went onto
 // the wire.  However, there are two notable exceptions:
 //
-<<<<<<< HEAD
-// 1. If the stream headers violate the max header list size allowed by the
-//    server.  In this case there is no reason to retry at all, as it is
-//    assumed the RPC would continue to fail on subsequent attempts.
-// 2. If the credentials errored when requesting their headers.  In this case,
-//    it's possible a retry can fix the problem, but indefinitely transparently
-//    retrying is not appropriate as it is likely the credentials, if they can
-//    eventually succeed, would need I/O to do so.
-=======
 //  1. If the stream headers violate the max header list size allowed by the
 //     server.  It's possible this could succeed on another transport, even if
 //     it's unlikely, but do not transparently retry.
@@ -698,12 +692,10 @@ func (t *http2Client) getCallAuthData(ctx context.Context, audience string, call
 //     it's possible a retry can fix the problem, but indefinitely transparently
 //     retrying is not appropriate as it is likely the credentials, if they can
 //     eventually succeed, would need I/O to do so.
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 type NewStreamError struct {
 	Err error
 
-	DoNotRetry            bool
-	DoNotTransparentRetry bool
+	AllowTransparentRetry bool
 }
 
 func (e NewStreamError) Error() string {
@@ -712,7 +704,7 @@ func (e NewStreamError) Error() string {
 
 // NewStream creates a stream and registers it into the transport as "active"
 // streams.  All non-nil errors returned will be *NewStreamError.
-func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Stream, err error) {
+func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (*Stream, error) {
 	ctx = peer.NewContext(ctx, t.getPeer())
 
 	// ServerName field of the resolver returned address takes precedence over
@@ -728,7 +720,7 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 
 	headerFields, err := t.createHeaderFields(ctx, callHdr)
 	if err != nil {
-		return nil, &NewStreamError{Err: err, DoNotTransparentRetry: true}
+		return nil, &NewStreamError{Err: err, AllowTransparentRetry: false}
 	}
 	s := t.newStream(ctx, callHdr)
 	cleanup := func(err error) {
@@ -757,7 +749,6 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 				cleanup(ErrConnClosing)
 				return ErrConnClosing
 			}
-			t.activeStreams[id] = s
 			if channelz.IsOn() {
 				atomic.AddInt64(&t.czData.streamsStarted, 1)
 				atomic.StoreInt64(&t.czData.lastStreamCreatedTime, time.Now().UnixNano())
@@ -797,6 +788,13 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 
 		s.id = h.streamID
 		s.fc = &inFlow{limit: uint32(t.initialWindowSize)}
+		t.mu.Lock()
+		if t.activeStreams == nil { // Can be niled from Close().
+			t.mu.Unlock()
+			return false // Don't create a stream if the transport is already closed.
+		}
+		t.activeStreams[s.id] = s
+		t.mu.Unlock()
 		if t.streamQuota > 0 && t.waitingStreams > 0 {
 			select {
 			case t.streamsQuotaAvailable <- struct{}{}:
@@ -822,22 +820,17 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	}
 	for {
 		success, err := t.controlBuf.executeAndPut(func(it interface{}) bool {
-			if !checkForStreamQuota(it) {
-				return false
-			}
-			if !checkForHeaderListSize(it) {
-				return false
-			}
-			return true
+			return checkForHeaderListSize(it) && checkForStreamQuota(it)
 		}, hdr)
 		if err != nil {
-			return nil, &NewStreamError{Err: err}
+			// Connection closed.
+			return nil, &NewStreamError{Err: err, AllowTransparentRetry: true}
 		}
 		if success {
 			break
 		}
 		if hdrListSizeErr != nil {
-			return nil, &NewStreamError{Err: hdrListSizeErr, DoNotRetry: true}
+			return nil, &NewStreamError{Err: hdrListSizeErr}
 		}
 		firstTry = false
 		select {
@@ -845,29 +838,32 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 		case <-ctx.Done():
 			return nil, &NewStreamError{Err: ContextErr(ctx.Err())}
 		case <-t.goAway:
-			return nil, &NewStreamError{Err: errStreamDrain}
+			return nil, &NewStreamError{Err: errStreamDrain, AllowTransparentRetry: true}
 		case <-t.ctx.Done():
-			return nil, &NewStreamError{Err: ErrConnClosing}
+			return nil, &NewStreamError{Err: ErrConnClosing, AllowTransparentRetry: true}
 		}
 	}
-	if t.statsHandler != nil {
+	if len(t.statsHandlers) != 0 {
 		header, ok := metadata.FromOutgoingContext(ctx)
 		if ok {
 			header.Set("user-agent", t.userAgent)
 		} else {
 			header = metadata.Pairs("user-agent", t.userAgent)
 		}
-		// Note: The header fields are compressed with hpack after this call returns.
-		// No WireLength field is set here.
-		outHeader := &stats.OutHeader{
-			Client:      true,
-			FullMethod:  callHdr.Method,
-			RemoteAddr:  t.remoteAddr,
-			LocalAddr:   t.localAddr,
-			Compression: callHdr.SendCompress,
-			Header:      header,
+		for _, sh := range t.statsHandlers {
+			// Note: The header fields are compressed with hpack after this call returns.
+			// No WireLength field is set here.
+			// Note: Creating a new stats object to prevent pollution.
+			outHeader := &stats.OutHeader{
+				Client:      true,
+				FullMethod:  callHdr.Method,
+				RemoteAddr:  t.remoteAddr,
+				LocalAddr:   t.localAddr,
+				Compression: callHdr.SendCompress,
+				Header:      header,
+			}
+			sh.HandleRPC(s.ctx, outHeader)
 		}
-		t.statsHandler.HandleRPC(s.ctx, outHeader)
 	}
 	if transportDrainRequired {
 		if logger.V(logLevel) {
@@ -983,9 +979,7 @@ func (t *http2Client) Close(err error) {
 	t.controlBuf.finish()
 	t.cancel()
 	t.conn.Close()
-	if channelz.IsOn() {
-		channelz.RemoveEntry(t.channelzID)
-	}
+	channelz.RemoveEntry(t.channelzID)
 	// Append info about previous goaways if there were any, since this may be important
 	// for understanding the root cause for this connection to be closed.
 	_, goAwayDebugMessage := t.GetGoAwayReason()
@@ -1002,11 +996,11 @@ func (t *http2Client) Close(err error) {
 	for _, s := range streams {
 		t.closeStream(s, err, false, http2.ErrCodeNo, st, nil, false)
 	}
-	if t.statsHandler != nil {
+	for _, sh := range t.statsHandlers {
 		connEnd := &stats.ConnEnd{
 			Client: true,
 		}
-		t.statsHandler.HandleConn(t.ctx, connEnd)
+		sh.HandleConn(t.ctx, connEnd)
 	}
 }
 
@@ -1090,13 +1084,13 @@ func (t *http2Client) updateWindow(s *Stream, n uint32) {
 // for the transport and the stream based on the current bdp
 // estimation.
 func (t *http2Client) updateFlowControl(n uint32) {
-	t.mu.Lock()
-	for _, s := range t.activeStreams {
-		s.fc.newLimit(n)
-	}
-	t.mu.Unlock()
 	updateIWS := func(interface{}) bool {
 		t.initialWindowSize = int32(n)
+		t.mu.Lock()
+		for _, s := range t.activeStreams {
+			s.fc.newLimit(n)
+		}
+		t.mu.Unlock()
 		return true
 	}
 	t.controlBuf.executeAndPut(updateIWS, &outgoingWindowUpdate{streamID: 0, increment: t.fc.newLimit(n)})
@@ -1302,7 +1296,7 @@ func (t *http2Client) handleGoAway(f *http2.GoAwayFrame) {
 	default:
 		t.setGoAwayReason(f)
 		close(t.goAway)
-		t.controlBuf.put(&incomingGoAway{})
+		defer t.controlBuf.put(&incomingGoAway{}) // Defer as t.mu is currently held.
 		// Notify the clientconn about the GOAWAY before we set the state to
 		// draining, to allow the client to stop attempting to create streams
 		// before disallowing new streams on this connection.
@@ -1535,7 +1529,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 		close(s.headerChan)
 	}
 
-	if t.statsHandler != nil {
+	for _, sh := range t.statsHandlers {
 		if isHeader {
 			inHeader := &stats.InHeader{
 				Client:      true,
@@ -1543,14 +1537,14 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 				Header:      metadata.MD(mdata).Copy(),
 				Compression: s.recvCompress,
 			}
-			t.statsHandler.HandleRPC(s.ctx, inHeader)
+			sh.HandleRPC(s.ctx, inHeader)
 		} else {
 			inTrailer := &stats.InTrailer{
 				Client:     true,
 				WireLength: int(frame.Header().Length),
 				Trailer:    metadata.MD(mdata).Copy(),
 			}
-			t.statsHandler.HandleRPC(s.ctx, inTrailer)
+			sh.HandleRPC(s.ctx, inTrailer)
 		}
 	}
 

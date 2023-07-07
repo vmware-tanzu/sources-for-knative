@@ -73,8 +73,6 @@ func init() {
 	internal.DrainServerTransports = func(srv *Server, addr string) {
 		srv.drainServerTransports(addr)
 	}
-<<<<<<< HEAD
-=======
 	internal.AddGlobalServerOptions = func(opt ...ServerOption) {
 		extraServerOptions = append(extraServerOptions, opt...)
 	}
@@ -83,7 +81,6 @@ func init() {
 	}
 	internal.BinaryLogger = binaryLogger
 	internal.JoinServerOptions = newJoinServerOption
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 }
 
 var statusOK = status.New(codes.OK, "")
@@ -145,7 +142,7 @@ type Server struct {
 	channelzRemoveOnce sync.Once
 	serveWG            sync.WaitGroup // counts active Serve goroutines for GracefulStop
 
-	channelzID int64 // channelz unique identification number
+	channelzID *channelz.Identifier
 	czData     *channelzData
 
 	serverWorkerChannels []chan *serverWorkerData
@@ -162,7 +159,7 @@ type serverOptions struct {
 	chainStreamInts       []StreamServerInterceptor
 	binaryLogger          binarylog.Logger
 	inTapHandle           tap.ServerInHandle
-	statsHandler          stats.Handler
+	statsHandlers         []stats.Handler
 	maxConcurrentStreams  uint32
 	maxReceiveMessageSize int
 	maxSendMessageSize    int
@@ -186,6 +183,7 @@ var defaultServerOptions = serverOptions{
 	writeBufferSize:       defaultWriteBufSize,
 	readBufferSize:        defaultReadBufSize,
 }
+var extraServerOptions []ServerOption
 
 // A ServerOption sets options such as credentials, codec and keepalive parameters, etc.
 type ServerOption interface {
@@ -195,7 +193,7 @@ type ServerOption interface {
 // EmptyServerOption does not alter the server configuration. It can be embedded
 // in another structure to build custom server options.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This type is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -326,7 +324,7 @@ func CustomCodec(codec Codec) ServerOption {
 // https://github.com/grpc/grpc-go/blob/master/Documentation/encoding.md#using-a-codec.
 // Will be supported throughout 1.x.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -447,7 +445,7 @@ func ChainStreamInterceptor(interceptors ...StreamServerInterceptor) ServerOptio
 // InTapHandle returns a ServerOption that sets the tap handle for all the server
 // transport to be created. Only one can be installed.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -463,7 +461,13 @@ func InTapHandle(h tap.ServerInHandle) ServerOption {
 // StatsHandler returns a ServerOption that sets the stats handler for the server.
 func StatsHandler(h stats.Handler) ServerOption {
 	return newFuncServerOption(func(o *serverOptions) {
-		o.statsHandler = h
+		if h == nil {
+			logger.Error("ignoring nil parameter in grpc.StatsHandler ServerOption")
+			// Do not allow a nil stats handler, which would otherwise cause
+			// panics.
+			return
+		}
+		o.statsHandlers = append(o.statsHandlers, h)
 	})
 }
 
@@ -498,7 +502,7 @@ func UnknownServiceHandler(streamHandler StreamHandler) ServerOption {
 // new connections.  If this is not set, the default is 120 seconds.  A zero or
 // negative value will result in an immediate timeout.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -519,7 +523,7 @@ func MaxHeaderListSize(s uint32) ServerOption {
 // HeaderTableSize returns a ServerOption that sets the size of dynamic
 // header table for stream.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -534,7 +538,7 @@ func HeaderTableSize(s uint32) ServerOption {
 // zero (default) will disable workers and spawn a new goroutine for each
 // stream.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -596,6 +600,9 @@ func (s *Server) stopServerWorkers() {
 // started to accept requests yet.
 func NewServer(opt ...ServerOption) *Server {
 	opts := defaultServerOptions
+	for _, o := range extraServerOptions {
+		o.apply(&opts)
+	}
 	for _, o := range opt {
 		o.apply(&opts)
 	}
@@ -620,9 +627,8 @@ func NewServer(opt ...ServerOption) *Server {
 		s.initServerWorkers()
 	}
 
-	if channelz.IsOn() {
-		s.channelzID = channelz.RegisterServer(&channelzServer{s}, "")
-	}
+	s.channelzID = channelz.RegisterServer(&channelzServer{s}, "")
+	channelz.Info(logger, s.channelzID, "Server created")
 	return s
 }
 
@@ -748,7 +754,7 @@ var ErrServerStopped = errors.New("grpc: the server has been stopped")
 
 type listenSocket struct {
 	net.Listener
-	channelzID int64
+	channelzID *channelz.Identifier
 }
 
 func (l *listenSocket) ChannelzMetric() *channelz.SocketInternalMetric {
@@ -760,9 +766,8 @@ func (l *listenSocket) ChannelzMetric() *channelz.SocketInternalMetric {
 
 func (l *listenSocket) Close() error {
 	err := l.Listener.Close()
-	if channelz.IsOn() {
-		channelz.RemoveEntry(l.channelzID)
-	}
+	channelz.RemoveEntry(l.channelzID)
+	channelz.Info(logger, l.channelzID, "ListenSocket deleted")
 	return err
 }
 
@@ -795,11 +800,6 @@ func (s *Server) Serve(lis net.Listener) error {
 	ls := &listenSocket{Listener: lis}
 	s.lis[ls] = true
 
-	if channelz.IsOn() {
-		ls.channelzID = channelz.RegisterListenSocket(ls, s.channelzID, lis.Addr().String())
-	}
-	s.mu.Unlock()
-
 	defer func() {
 		s.mu.Lock()
 		if s.lis != nil && s.lis[ls] {
@@ -809,8 +809,16 @@ func (s *Server) Serve(lis net.Listener) error {
 		s.mu.Unlock()
 	}()
 
-	var tempDelay time.Duration // how long to sleep on accept failure
+	var err error
+	ls.channelzID, err = channelz.RegisterListenSocket(ls, s.channelzID, lis.Addr().String())
+	if err != nil {
+		s.mu.Unlock()
+		return err
+	}
+	s.mu.Unlock()
+	channelz.Info(logger, ls.channelzID, "ListenSocket created")
 
+	var tempDelay time.Duration // how long to sleep on accept failure
 	for {
 		rawConn, err := lis.Accept()
 		if err != nil {
@@ -902,7 +910,7 @@ func (s *Server) newHTTP2Transport(c net.Conn) transport.ServerTransport {
 		ConnectionTimeout:     s.opts.connectionTimeout,
 		Credentials:           s.opts.creds,
 		InTapHandle:           s.opts.inTapHandle,
-		StatsHandler:          s.opts.statsHandler,
+		StatsHandlers:         s.opts.statsHandlers,
 		KeepaliveParams:       s.opts.keepaliveParams,
 		KeepalivePolicy:       s.opts.keepalivePolicy,
 		InitialWindowSize:     s.opts.initialWindowSize,
@@ -923,7 +931,7 @@ func (s *Server) newHTTP2Transport(c net.Conn) transport.ServerTransport {
 		if err != credentials.ErrConnDispatched {
 			// Don't log on ErrConnDispatched and io.EOF to prevent log spam.
 			if err != io.EOF {
-				channelz.Warning(logger, s.channelzID, "grpc: Server.Serve failed to create ServerTransport: ", err)
+				channelz.Info(logger, s.channelzID, "grpc: Server.Serve failed to create ServerTransport: ", err)
 			}
 			c.Close()
 		}
@@ -981,24 +989,24 @@ var _ http.Handler = (*Server)(nil)
 // To share one port (such as 443 for https) between gRPC and an
 // existing http.Handler, use a root http.Handler such as:
 //
-//   if r.ProtoMajor == 2 && strings.HasPrefix(
-//   	r.Header.Get("Content-Type"), "application/grpc") {
-//   	grpcServer.ServeHTTP(w, r)
-//   } else {
-//   	yourMux.ServeHTTP(w, r)
-//   }
+//	if r.ProtoMajor == 2 && strings.HasPrefix(
+//		r.Header.Get("Content-Type"), "application/grpc") {
+//		grpcServer.ServeHTTP(w, r)
+//	} else {
+//		yourMux.ServeHTTP(w, r)
+//	}
 //
 // Note that ServeHTTP uses Go's HTTP/2 server implementation which is totally
 // separate from grpc-go's HTTP/2 server. Performance and features may vary
 // between the two paths. ServeHTTP does not support some gRPC features
 // available through grpc-go's HTTP/2 server.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	st, err := transport.NewServerHandlerTransport(w, r, s.opts.statsHandler)
+	st, err := transport.NewServerHandlerTransport(w, r, s.opts.statsHandlers)
 	if err != nil {
 		// Errors returned from transport.NewServerHandlerTransport have
 		// already been written to w.
@@ -1112,8 +1120,10 @@ func (s *Server) sendResponse(t transport.ServerTransport, stream *transport.Str
 		return status.Errorf(codes.ResourceExhausted, "grpc: trying to send message larger than max (%d vs. %d)", len(payload), s.opts.maxSendMessageSize)
 	}
 	err = t.Write(stream, hdr, payload, opts)
-	if err == nil && s.opts.statsHandler != nil {
-		s.opts.statsHandler.HandleRPC(stream.Context(), outPayload(false, msg, data, payload, time.Now()))
+	if err == nil {
+		for _, sh := range s.opts.statsHandlers {
+			sh.HandleRPC(stream.Context(), outPayload(false, msg, data, payload, time.Now()))
+		}
 	}
 	return err
 }
@@ -1155,13 +1165,13 @@ func getChainUnaryHandler(interceptors []UnaryServerInterceptor, curr int, info 
 }
 
 func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.Stream, info *serviceInfo, md *MethodDesc, trInfo *traceInfo) (err error) {
-	sh := s.opts.statsHandler
-	if sh != nil || trInfo != nil || channelz.IsOn() {
+	shs := s.opts.statsHandlers
+	if len(shs) != 0 || trInfo != nil || channelz.IsOn() {
 		if channelz.IsOn() {
 			s.incrCallsStarted()
 		}
 		var statsBegin *stats.Begin
-		if sh != nil {
+		for _, sh := range shs {
 			beginTime := time.Now()
 			statsBegin = &stats.Begin{
 				BeginTime:      beginTime,
@@ -1192,7 +1202,7 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 				trInfo.tr.Finish()
 			}
 
-			if sh != nil {
+			for _, sh := range shs {
 				end := &stats.End{
 					BeginTime: statsBegin.BeginTime,
 					EndTime:   time.Now(),
@@ -1283,11 +1293,7 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 	}
 
 	var payInfo *payloadInfo
-<<<<<<< HEAD
-	if sh != nil || binlog != nil {
-=======
 	if len(shs) != 0 || len(binlogs) != 0 {
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		payInfo = &payloadInfo{}
 	}
 	d, err := recvAndDecompress(&parser{r: stream}, stream, dc, s.opts.maxReceiveMessageSize, payInfo, decomp)
@@ -1304,7 +1310,7 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 		if err := s.getCodec(stream.ContentSubtype()).Unmarshal(d, v); err != nil {
 			return status.Errorf(codes.Internal, "grpc: error unmarshalling request: %v", err)
 		}
-		if sh != nil {
+		for _, sh := range shs {
 			sh.HandleRPC(stream.Context(), &stats.InPayload{
 				RecvTime:   time.Now(),
 				Payload:    v,
@@ -1331,9 +1337,10 @@ func (s *Server) processUnaryRPC(t transport.ServerTransport, stream *transport.
 	if appErr != nil {
 		appStatus, ok := status.FromError(appErr)
 		if !ok {
-			// Convert appErr if it is not a grpc status error.
-			appErr = status.Error(codes.Unknown, appErr.Error())
-			appStatus, _ = status.FromError(appErr)
+			// Convert non-status application error to a status error with code
+			// Unknown, but handle context errors specifically.
+			appStatus = status.FromContextError(appErr)
+			appErr = appStatus.Err()
 		}
 		if trInfo != nil {
 			trInfo.tr.LazyLog(stringer(appStatus.Message()), true)
@@ -1476,16 +1483,18 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 	if channelz.IsOn() {
 		s.incrCallsStarted()
 	}
-	sh := s.opts.statsHandler
+	shs := s.opts.statsHandlers
 	var statsBegin *stats.Begin
-	if sh != nil {
+	if len(shs) != 0 {
 		beginTime := time.Now()
 		statsBegin = &stats.Begin{
 			BeginTime:      beginTime,
 			IsClientStream: sd.ClientStreams,
 			IsServerStream: sd.ServerStreams,
 		}
-		sh.HandleRPC(stream.Context(), statsBegin)
+		for _, sh := range shs {
+			sh.HandleRPC(stream.Context(), statsBegin)
+		}
 	}
 	ctx := NewContextWithServerTransportStream(stream.Context(), stream)
 	ss := &serverStream{
@@ -1497,10 +1506,10 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 		maxReceiveMessageSize: s.opts.maxReceiveMessageSize,
 		maxSendMessageSize:    s.opts.maxSendMessageSize,
 		trInfo:                trInfo,
-		statsHandler:          sh,
+		statsHandler:          shs,
 	}
 
-	if sh != nil || trInfo != nil || channelz.IsOn() {
+	if len(shs) != 0 || trInfo != nil || channelz.IsOn() {
 		// See comment in processUnaryRPC on defers.
 		defer func() {
 			if trInfo != nil {
@@ -1514,7 +1523,7 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 				ss.mu.Unlock()
 			}
 
-			if sh != nil {
+			if len(shs) != 0 {
 				end := &stats.End{
 					BeginTime: statsBegin.BeginTime,
 					EndTime:   time.Now(),
@@ -1522,7 +1531,9 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 				if err != nil && err != io.EOF {
 					end.Error = toRPCErr(err)
 				}
-				sh.HandleRPC(stream.Context(), end)
+				for _, sh := range shs {
+					sh.HandleRPC(stream.Context(), end)
+				}
 			}
 
 			if channelz.IsOn() {
@@ -1618,7 +1629,9 @@ func (s *Server) processStreamingRPC(t transport.ServerTransport, stream *transp
 	if appErr != nil {
 		appStatus, ok := status.FromError(appErr)
 		if !ok {
-			appStatus = status.New(codes.Unknown, appErr.Error())
+			// Convert non-status application error to a status error with code
+			// Unknown, but handle context errors specifically.
+			appStatus = status.FromContextError(appErr)
 			appErr = appStatus.Err()
 		}
 		if trInfo != nil {
@@ -1729,7 +1742,7 @@ type streamKey struct{}
 // NewContextWithServerTransportStream creates a new context from ctx and
 // attaches stream to it.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -1744,7 +1757,7 @@ func NewContextWithServerTransportStream(ctx context.Context, stream ServerTrans
 //
 // See also NewContextWithServerTransportStream.
 //
-// Experimental
+// # Experimental
 //
 // Notice: This type is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -1759,7 +1772,7 @@ type ServerTransportStream interface {
 // ctx. Returns nil if the given context has no stream associated with it
 // (which implies it is not an RPC invocation context).
 //
-// Experimental
+// # Experimental
 //
 // Notice: This API is EXPERIMENTAL and may be changed or removed in a
 // later release.
@@ -1781,11 +1794,7 @@ func (s *Server) Stop() {
 		s.done.Fire()
 	}()
 
-	s.channelzRemoveOnce.Do(func() {
-		if channelz.IsOn() {
-			channelz.RemoveEntry(s.channelzID)
-		}
-	})
+	s.channelzRemoveOnce.Do(func() { channelz.RemoveEntry(s.channelzID) })
 
 	s.mu.Lock()
 	listeners := s.lis
@@ -1823,11 +1832,7 @@ func (s *Server) GracefulStop() {
 	s.quit.Fire()
 	defer s.done.Fire()
 
-	s.channelzRemoveOnce.Do(func() {
-		if channelz.IsOn() {
-			channelz.RemoveEntry(s.channelzID)
-		}
-	})
+	s.channelzRemoveOnce.Do(func() { channelz.RemoveEntry(s.channelzID) })
 	s.mu.Lock()
 	if s.conns == nil {
 		s.mu.Unlock()
@@ -1880,12 +1885,26 @@ func (s *Server) getCodec(contentSubtype string) baseCodec {
 	return codec
 }
 
-// SetHeader sets the header metadata.
-// When called multiple times, all the provided metadata will be merged.
-// All the metadata will be sent out when one of the following happens:
-//  - grpc.SendHeader() is called;
-//  - The first response is sent out;
-//  - An RPC status is sent out (error or success).
+// SetHeader sets the header metadata to be sent from the server to the client.
+// The context provided must be the context passed to the server's handler.
+//
+// Streaming RPCs should prefer the SetHeader method of the ServerStream.
+//
+// When called multiple times, all the provided metadata will be merged.  All
+// the metadata will be sent out when one of the following happens:
+//
+//   - grpc.SendHeader is called, or for streaming handlers, stream.SendHeader.
+//   - The first response message is sent.  For unary handlers, this occurs when
+//     the handler returns; for streaming handlers, this can happen when stream's
+//     SendMsg method is called.
+//   - An RPC status is sent out (error or success).  This occurs when the handler
+//     returns.
+//
+// SetHeader will fail if called after any of the events above.
+//
+// The error returned is compatible with the status package.  However, the
+// status code will often not match the RPC status as seen by the client
+// application, and therefore, should not be relied upon for this purpose.
 func SetHeader(ctx context.Context, md metadata.MD) error {
 	if md.Len() == 0 {
 		return nil
@@ -1897,8 +1916,14 @@ func SetHeader(ctx context.Context, md metadata.MD) error {
 	return stream.SetHeader(md)
 }
 
-// SendHeader sends header metadata. It may be called at most once.
-// The provided md and headers set by SetHeader() will be sent.
+// SendHeader sends header metadata. It may be called at most once, and may not
+// be called after any event that causes headers to be sent (see SetHeader for
+// a complete list).  The provided md and headers set by SetHeader() will be
+// sent.
+//
+// The error returned is compatible with the status package.  However, the
+// status code will often not match the RPC status as seen by the client
+// application, and therefore, should not be relied upon for this purpose.
 func SendHeader(ctx context.Context, md metadata.MD) error {
 	stream := ServerTransportStreamFromContext(ctx)
 	if stream == nil {
@@ -1912,6 +1937,10 @@ func SendHeader(ctx context.Context, md metadata.MD) error {
 
 // SetTrailer sets the trailer metadata that will be sent when an RPC returns.
 // When called more than once, all the provided metadata will be merged.
+//
+// The error returned is compatible with the status package.  However, the
+// status code will often not match the RPC status as seen by the client
+// application, and therefore, should not be relied upon for this purpose.
 func SetTrailer(ctx context.Context, md metadata.MD) error {
 	if md.Len() == 0 {
 		return nil

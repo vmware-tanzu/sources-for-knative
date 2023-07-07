@@ -25,13 +25,13 @@ import (
 const (
 	// XDSBootstrapFileNameEnv is the env variable to set bootstrap file name.
 	// Do not use this and read from env directly. Its value is read and kept in
-	// variable BootstrapFileName.
+	// variable XDSBootstrapFileName.
 	//
 	// When both bootstrap FileName and FileContent are set, FileName is used.
 	XDSBootstrapFileNameEnv = "GRPC_XDS_BOOTSTRAP"
-	// XDSBootstrapFileContentEnv is the env variable to set bootstrapp file
+	// XDSBootstrapFileContentEnv is the env variable to set bootstrap file
 	// content. Do not use this and read from env directly. Its value is read
-	// and kept in variable BootstrapFileName.
+	// and kept in variable XDSBootstrapFileContent.
 	//
 	// When both bootstrap FileName and FileContent are set, FileName is used.
 	XDSBootstrapFileContentEnv = "GRPC_XDS_BOOTSTRAP_CONFIG"
@@ -66,21 +66,11 @@ var (
 	// environment variable
 	// "GRPC_XDS_EXPERIMENTAL_ENABLE_AGGREGATE_AND_LOGICAL_DNS_CLUSTER" to
 	// "true".
-<<<<<<< HEAD
-	XDSAggregateAndDNS = strings.EqualFold(os.Getenv(aggregateAndDNSSupportEnv), "true")
-=======
 	XDSAggregateAndDNS = boolFromEnv("GRPC_XDS_EXPERIMENTAL_ENABLE_AGGREGATE_AND_LOGICAL_DNS_CLUSTER", true)
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 
 	// XDSRBAC indicates whether xDS configured RBAC HTTP Filter is enabled,
 	// which can be disabled by setting the environment variable
 	// "GRPC_XDS_EXPERIMENTAL_RBAC" to "false".
-<<<<<<< HEAD
-	XDSRBAC = !strings.EqualFold(os.Getenv(rbacSupportEnv), "false")
-
-	// XDSFederation indicates whether federation support is enabled.
-	XDSFederation = strings.EqualFold(os.Getenv(federationEnv), "true")
-=======
 	XDSRBAC = boolFromEnv("GRPC_XDS_EXPERIMENTAL_RBAC", true)
 	// XDSOutlierDetection indicates whether outlier detection support is
 	// enabled, which can be disabled by setting the environment variable
@@ -90,7 +80,6 @@ var (
 	// be enabled by setting the environment variable
 	// "GRPC_EXPERIMENTAL_XDS_FEDERATION" to "true".
 	XDSFederation = boolFromEnv("GRPC_EXPERIMENTAL_XDS_FEDERATION", false)
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 
 	// XDSRLS indicates whether processing of Cluster Specifier plugins and
 	// support for the RLS CLuster Specifier is enabled, which can be enabled by

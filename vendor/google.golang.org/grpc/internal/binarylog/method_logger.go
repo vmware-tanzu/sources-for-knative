@@ -48,9 +48,6 @@ func (g *callIDGenerator) reset() {
 var idGen callIDGenerator
 
 // MethodLogger is the sub-logger for each method.
-<<<<<<< HEAD
-type MethodLogger struct {
-=======
 type MethodLogger interface {
 	Log(LogEntryConfig)
 }
@@ -58,7 +55,6 @@ type MethodLogger interface {
 // TruncatingMethodLogger is a method logger that truncates headers and messages
 // based on configured fields.
 type TruncatingMethodLogger struct {
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	headerMaxLen, messageMaxLen uint64
 
 	callID          uint64
@@ -67,14 +63,9 @@ type TruncatingMethodLogger struct {
 	sink Sink // TODO(blog): make this plugable.
 }
 
-<<<<<<< HEAD
-func newMethodLogger(h, m uint64) *MethodLogger {
-	return &MethodLogger{
-=======
 // NewTruncatingMethodLogger returns a new truncating method logger.
 func NewTruncatingMethodLogger(h, m uint64) *TruncatingMethodLogger {
 	return &TruncatingMethodLogger{
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 		headerMaxLen:  h,
 		messageMaxLen: m,
 
@@ -85,15 +76,10 @@ func NewTruncatingMethodLogger(h, m uint64) *TruncatingMethodLogger {
 	}
 }
 
-<<<<<<< HEAD
-// Log creates a proto binary log entry, and logs it to the sink.
-func (ml *MethodLogger) Log(c LogEntryConfig) {
-=======
 // Build is an internal only method for building the proto message out of the
 // input event. It's made public to enable other library to reuse as much logic
 // in TruncatingMethodLogger as possible.
 func (ml *TruncatingMethodLogger) Build(c LogEntryConfig) *binlogpb.GrpcLogEntry {
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	m := c.toProto()
 	timestamp, _ := ptypes.TimestampProto(time.Now())
 	m.Timestamp = timestamp
@@ -108,20 +94,15 @@ func (ml *TruncatingMethodLogger) Build(c LogEntryConfig) *binlogpb.GrpcLogEntry
 	case *binlogpb.GrpcLogEntry_Message:
 		m.PayloadTruncated = ml.truncateMessage(pay.Message)
 	}
-
-	ml.sink.Write(m)
+	return m
 }
 
-<<<<<<< HEAD
-func (ml *MethodLogger) truncateMetadata(mdPb *pb.Metadata) (truncated bool) {
-=======
 // Log creates a proto binary log entry, and logs it to the sink.
 func (ml *TruncatingMethodLogger) Log(c LogEntryConfig) {
 	ml.sink.Write(ml.Build(c))
 }
 
 func (ml *TruncatingMethodLogger) truncateMetadata(mdPb *binlogpb.Metadata) (truncated bool) {
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	if ml.headerMaxLen == maxUInt {
 		return false
 	}
@@ -151,11 +132,7 @@ func (ml *TruncatingMethodLogger) truncateMetadata(mdPb *binlogpb.Metadata) (tru
 	return truncated
 }
 
-<<<<<<< HEAD
-func (ml *MethodLogger) truncateMessage(msgPb *pb.Message) (truncated bool) {
-=======
 func (ml *TruncatingMethodLogger) truncateMessage(msgPb *binlogpb.Message) (truncated bool) {
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	if ml.messageMaxLen == maxUInt {
 		return false
 	}

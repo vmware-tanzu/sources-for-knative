@@ -113,7 +113,7 @@ for MOD_FILE in $(find . -name 'go.mod'); do
   go vet -all ./... | fail_on_output
   gofmt -s -d -l . 2>&1 | fail_on_output
   goimports -l . 2>&1 | not grep -vE "\.pb\.go"
-  golint ./... 2>&1 | not grep -vE "/testv3\.pb\.go:"
+  golint ./... 2>&1 | not grep -vE "/grpc_testing_not_regenerate/.*\.pb\.go:"
 
   go mod tidy -compat=1.17
   git status --porcelain 2>&1 | fail_on_output || \
@@ -154,7 +154,6 @@ grpc.NewGZIPDecompressor
 grpc.RPCCompressor
 grpc.RPCDecompressor
 grpc.ServiceConfig
-grpc.WithBalancerName
 grpc.WithCompressor
 grpc.WithDecompressor
 grpc.WithDialer

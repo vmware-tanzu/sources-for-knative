@@ -190,11 +190,7 @@ func FromIncomingContext(ctx context.Context) (MD, bool) {
 		// map, and there's no guarantee that the MD attached to the context is
 		// created using our helper functions.
 		key := strings.ToLower(k)
-<<<<<<< HEAD
-		out[key] = v
-=======
 		out[key] = copyOf(v)
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	}
 	return out, true
 }
@@ -271,11 +267,7 @@ func FromOutgoingContext(ctx context.Context) (MD, bool) {
 		// map, and there's no guarantee that the MD attached to the context is
 		// created using our helper functions.
 		key := strings.ToLower(k)
-<<<<<<< HEAD
-		out[key] = v
-=======
 		out[key] = copyOf(v)
->>>>>>> 957c1bad (Bump google.golang.org/grpc from 1.49.0 to 1.53.0)
 	}
 	for _, added := range raw.added {
 		if len(added)%2 == 1 {
