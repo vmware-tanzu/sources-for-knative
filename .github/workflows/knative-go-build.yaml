@@ -7,8 +7,8 @@ name: Build
 
 on:
   pull_request:
-    branches: [ 'main', 'release-*' ]
+    branches: ["main", "release-*"]
 
 jobs:
   build:
-    uses: knative/actions/.github/workflows/go-build.yaml@main
+    uses: knative/actions/.github/workflows/reusable-go-build.yaml@main
