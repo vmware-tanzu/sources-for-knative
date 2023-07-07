@@ -2,12 +2,11 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 name: Create Release
 
 jobs:
-
   cli:
     name: Release the CLI
     runs-on: ubuntu-latest
@@ -16,9 +15,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
           go-version: 1.17
 
@@ -26,7 +25,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           version: latest
-          args: release --rm-dist
+          args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -36,38 +35,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Set up Go 1.17.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.17.x
+      - name: Set up Go 1.17.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.17.x
 
-    # will install latest ko version and default login/configure
-    # KO_DOCKER_REPO to ghcr.io
-    - name: Setup ko for ghcr.io
-      uses: imjasonh/setup-ko@v0.4
-    
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 1
+      # will install latest ko version and default login/configure
+      # KO_DOCKER_REPO to ghcr.io
+      - name: Setup ko for ghcr.io
+        uses: imjasonh/setup-ko@v0.6
 
-    - name: Get Release URL
-      id: get_release_url
-      uses: bruceadams/get-release@v1.2.3
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
 
-    - name: Build and Publish images, Produce release artifact.
-      run: |
-        ko resolve --platform=all --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
+      - name: Get Release URL
+        id: get_release_url
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-    - name: Upload Release Asset
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.get_release_url.outputs.upload_url }}
-        asset_path: ./release.yaml
-        asset_name: release.yaml
-        asset_content_type: text/plain
+      - name: Build and Publish images, Produce release artifact.
+        run: |
+          ko resolve --platform=all --tags $(basename "${{ github.ref }}" ) -BRf config/ > release.yaml
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_release_url.outputs.upload_url }}
+          asset_path: ./release.yaml
+          asset_name: release.yaml
+          asset_content_type: text/plain
