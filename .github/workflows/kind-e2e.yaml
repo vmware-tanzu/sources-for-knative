@@ -2,16 +2,15 @@ name: KinD e2e tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: kind-e2e-tests-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-
   e2e:
     name: e2e tests
     runs-on: ubuntu-latest
@@ -22,84 +21,84 @@ jobs:
     timeout-minutes: 30
 
     steps:
-    - name: Set up Go 1.18.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18.x
+      - name: Set up Go 1.18.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
 
-    - name: Setup ko
-      uses: imjasonh/setup-ko@v0.4
+      - name: Setup ko
+        uses: imjasonh/setup-ko@v0.6
 
-    - name: Check out code onto GOPATH
-      uses: actions/checkout@v3
-      with:
-        path: ./src/github.com/${{ github.repository }}
+      - name: Check out code onto GOPATH
+        uses: actions/checkout@v3
+        with:
+          path: ./src/github.com/${{ github.repository }}
 
-    - name: Setup KinD Cluster with VMware sources.
-      working-directory: ./src/github.com/${{ github.repository }}
-      env:
-        KIND_VERSION: v0.12.0
-      run: |
-        set -x
+      - name: Setup KinD Cluster with VMware sources.
+        working-directory: ./src/github.com/${{ github.repository }}
+        env:
+          KIND_VERSION: v0.12.0
+        run: |
+          set -x
 
-        curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$(uname)-amd64
-        chmod +x ./kind
-        sudo mv kind /usr/local/bin
+          curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$(uname)-amd64
+          chmod +x ./kind
+          sudo mv kind /usr/local/bin
 
-        # KinD configuration.
-        cat > kind.yaml <<EOF
-        apiVersion: kind.x-k8s.io/v1alpha4
-        kind: Cluster
-        nodes:
-        - role: control-plane
-        - role: worker
-        EOF
+          # KinD configuration.
+          cat > kind.yaml <<EOF
+          apiVersion: kind.x-k8s.io/v1alpha4
+          kind: Cluster
+          nodes:
+          - role: control-plane
+          - role: worker
+          EOF
 
-        # Create a cluster!
-        kind create cluster --config kind.yaml
+          # Create a cluster!
+          kind create cluster --config kind.yaml
 
-        # Build and Publish our test images to the docker daemon.
-        ./test/upload-test-images.sh
+          # Build and Publish our test images to the docker daemon.
+          ./test/upload-test-images.sh
 
-        # Build and Publish our containers to the docker daemon (including test assets)
-        export GO111MODULE=on
-        export GOFLAGS=-mod=vendor
-        ko apply -PRf config/
+          # Build and Publish our containers to the docker daemon (including test assets)
+          export GO111MODULE=on
+          export GOFLAGS=-mod=vendor
+          ko apply -PRf config/
 
-        # webhook readiness probe can take some time to enter ready state
-        kubectl -n vmware-sources wait --timeout=3m --for=condition=Available deploy/vsphere-source-webhook
+          # webhook readiness probe can take some time to enter ready state
+          kubectl -n vmware-sources wait --timeout=3m --for=condition=Available deploy/vsphere-source-webhook
 
-    - name: Build vcsim image
-      working-directory: ./src/github.com/${{ github.repository }}
-      run: |
-        export GO111MODULE=on
-        echo "VCSIM_IMAGE=$(ko publish -B github.com/vmware/govmomi/vcsim)" >> $GITHUB_ENV
+      - name: Build vcsim image
+        working-directory: ./src/github.com/${{ github.repository }}
+        run: |
+          export GO111MODULE=on
+          echo "VCSIM_IMAGE=$(ko publish -B github.com/vmware/govmomi/vcsim)" >> $GITHUB_ENV
 
-    - name: Run E2E tests
-      working-directory: ./src/github.com/${{ github.repository }}
-      run: |
-        set -x
+      - name: Run E2E tests
+        working-directory: ./src/github.com/${{ github.repository }}
+        run: |
+          set -x
 
-        # For logstream to work.
-        export SYSTEM_NAMESPACE=vmware-sources
-        # Run the tests tagged as e2e on the KinD cluster.
-        go test -v -race -timeout=10m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
+          # For logstream to work.
+          export SYSTEM_NAMESPACE=vmware-sources
+          # Run the tests tagged as e2e on the KinD cluster.
+          go test -v -race -timeout=10m -tags=e2e github.com/${{ github.repository }}/test/e2e/...
 
-    - name: Debug
-      if: ${{ always() }}
-      run: |
-        kubectl get pods --all-namespaces
-        kubectl -n vmware-sources describe pods
-        kubectl -n vmware-sources get events
+      - name: Debug
+        if: ${{ always() }}
+        run: |
+          kubectl get pods --all-namespaces
+          kubectl -n vmware-sources describe pods
+          kubectl -n vmware-sources get events
 
-    - name: Collect diagnostics
-      uses: chainguard-dev/actions/kind-diag@main
-      # Only upload logs on failure.
-      if: ${{ failure() }}
-      with:
-        cluster-resources: nodes
-        namespace-resources: pods,svc
-        artifact-name: logs
+      - name: Collect diagnostics
+        uses: chainguard-dev/actions/kind-diag@main
+        # Only upload logs on failure.
+        if: ${{ failure() }}
+        with:
+          cluster-resources: nodes
+          namespace-resources: pods,svc
+          artifact-name: logs
 
   plugins:
     name: kn plugins
@@ -110,42 +109,41 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: Set up Go 1.18.x
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18.x
+      - name: Set up Go 1.18.x
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
 
-    - name: Setup ko
-      uses: imjasonh/setup-ko@v0.4
+      - name: Setup ko
+        uses: imjasonh/setup-ko@v0.6
 
-    - name: Check out code
-      uses: actions/checkout@v3
+      - name: Check out code
+        uses: actions/checkout@v3
 
-    - name: Setup KinD Cluster
-      env:
-        KIND_VERSION: v0.11.1
-      run: |
-        set -x
+      - name: Setup KinD Cluster
+        env:
+          KIND_VERSION: v0.11.1
+        run: |
+          set -x
 
-        curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$(uname)-amd64
-        chmod +x ./kind
-        sudo mv kind /usr/local/bin
+          curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND_VERSION}/kind-$(uname)-amd64
+          chmod +x ./kind
+          sudo mv kind /usr/local/bin
 
-        # Create cluster with defaults
-        kind create cluster
+          # Create cluster with defaults
+          kind create cluster
 
-    - name: Deploy vcsim
-      run: |
-        ko apply -PRf test/config
-        kubectl wait --timeout=1m --for=condition=Available deploy/vcsim
-        kubectl port-forward deploy/vcsim 8989:8989 &
+      - name: Deploy vcsim
+        run: |
+          ko apply -PRf test/config
+          kubectl wait --timeout=1m --for=condition=Available deploy/vcsim
+          kubectl port-forward deploy/vcsim 8989:8989 &
 
-    - name: Build plugins
-      run: |
-        go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
+      - name: Build plugins
+        run: |
+          go build -o kn-vsphere ./plugins/vsphere/cmd/vsphere
 
-    - name: Test plugin
-      run: |
-        ./kn-vsphere auth create --name vsphere-credentials --username user --password pass --verify-url 127.0.0.1:8989 --verify-insecure=true
-        kubectl get secret vsphere-credentials # assert exists
-        
+      - name: Test plugin
+        run: |
+          ./kn-vsphere auth create --name vsphere-credentials --username user --password pass --verify-url 127.0.0.1:8989 --verify-insecure=true
+          kubectl get secret vsphere-credentials # assert exists
