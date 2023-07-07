@@ -2,13 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # This file is automagically synced here from github.com/knative-sandbox/knobots
-name: 'Close stale'
+name: "Close stale"
 
 on:
   schedule:
-  - cron: '0 1 * * *'
+    - cron: "0 1 * * *"
 
 jobs:
-
   stale:
-    uses: knative/actions/.github/workflows/stale.yaml@main
+    uses: knative/actions/.github/workflows/reusable-stale.yaml@main
