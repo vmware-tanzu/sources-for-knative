@@ -27,8 +27,8 @@ require (
 	k8s.io/code-generator v0.26.5
 	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280
 	knative.dev/eventing v0.38.1
-	knative.dev/hack v0.0.0-20230818155117-9cc05a31e8c0
-	knative.dev/pkg v0.0.0-20230829134737-fcccb4e1a0a4
+	knative.dev/hack v0.0.0-20230712131415-ddae80293c43
+	knative.dev/pkg v0.0.0-20230718152110-aef227e72ead
 )
 
 require (
@@ -53,6 +53,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230807174057-1744710a1577 // indirect
 )

@@ -19,6 +19,8 @@
 
 source "$(dirname "${BASH_SOURCE[0]:-$0}")/infra-library.sh"
 
+readonly TEST_RESULT_FILE=/tmp/${REPO_NAME}-e2e-result
+
 # Tear down the test resources.
 function teardown_test_resources() {
   header "Tearing down test environment"
@@ -131,7 +133,6 @@ E2E_SCRIPT=""
 function initialize() {
   local run_tests=0
   local custom_flags=()
-  local extra_gcloud_flags=()
   local parse_script_flags=0
   E2E_SCRIPT="$(get_canonical_path "$0")"
   local e2e_script_command=( "${E2E_SCRIPT}" "--run-tests" )
@@ -176,12 +177,16 @@ function initialize() {
     shift
   done
 
+  if [[ "${CLOUD_PROVIDER}" == "gke" ]]; then
+      custom_flags+=("--addons=NodeLocalDNS")
+  fi
+
   readonly SKIP_DUMP_ON_FAILURE
   readonly TEARDOWN
   readonly CLOUD_PROVIDER
 
   if (( ! run_tests )); then
-    create_test_cluster "${CLOUD_PROVIDER}" custom_flags extra_gcloud_flags e2e_script_command
+    create_test_cluster "${CLOUD_PROVIDER}" custom_flags e2e_script_command
   else
     setup_test_cluster
   fi
