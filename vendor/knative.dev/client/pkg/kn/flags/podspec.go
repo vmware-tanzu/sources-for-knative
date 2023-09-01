@@ -52,6 +52,8 @@ type PodSpecFlags struct {
 	ServiceAccountName string
 	ImagePullSecrets   string
 	User               int64
+
+	SecurityContext string
 }
 
 type ResourceFlags struct {
@@ -234,6 +236,11 @@ func (p *PodSpecFlags) AddFlags(flagset *pflag.FlagSet) []string {
 	flagNames = append(flagNames, "pull-secret")
 	flagset.Int64VarP(&p.User, "user", "", 0, "The user ID to run the container (e.g., 1001).")
 	flagNames = append(flagNames, "user")
+
+	flagset.StringVar(&p.SecurityContext, "security-context", "none", "Predefined security context for the service. Accepted values: 'none' for no security context "+
+		"and 'strict' for dropping all capabilities, running as non-root, and no privilege escalation.")
+	flagNames = append(flagNames, "security-context")
+
 	return flagNames
 }
 
@@ -401,6 +408,12 @@ func (p *PodSpecFlags) ResolvePodSpec(podSpec *corev1.PodSpec, flags *pflag.Flag
 
 	if flags.Changed("probe-readiness-opts") {
 		if err := UpdateReadinessProbeOpts(podSpec, p.ReadinessProbeOpts); err != nil {
+			return err
+		}
+	}
+
+	if flags.Changed("security-context") {
+		if err := UpdateSecurityContext(podSpec, p.SecurityContext); err != nil {
 			return err
 		}
 	}

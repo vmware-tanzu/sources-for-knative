@@ -89,3 +89,17 @@ git push origin knative-v1.0.1
 
 **Notes:**
 - To trigger the release workflow you cannot push more than 2 tags at a time.
+
+## Update and Upgrade deps
+
+To update deps run:
+```
+./hack/update-deps.sh
+```
+
+To upgrade deps for a new release run:
+```
+./hack/update-deps.sh --upgrade --release v0.38.1
+```
+**Notes:**
+- Create a PR and fix the compatibility erros that may arrise
