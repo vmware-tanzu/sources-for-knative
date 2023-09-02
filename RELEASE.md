@@ -99,7 +99,7 @@ To update deps run:
 
 To upgrade deps for a new release run:
 ```
-./hack/update-deps.sh --upgrade --release v0.38.1
+./hack/update-deps.sh --upgrade --release v1.11 --module-release v0.38
 ```
 **Notes:**
 - Create a PR and fix the compatibility erros that may arrise

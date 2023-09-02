@@ -562,6 +562,9 @@ go.starlark.net/resolve
 go.starlark.net/starlark
 go.starlark.net/starlarkstruct
 go.starlark.net/syntax
+# go.uber.org/atomic v1.10.0
+## explicit; go 1.18
+go.uber.org/atomic
 # go.uber.org/automaxprocs v1.5.3
 ## explicit; go 1.18
 go.uber.org/automaxprocs/internal/cgroups
@@ -1345,7 +1348,7 @@ knative.dev/eventing/pkg/metrics
 knative.dev/eventing/pkg/metrics/source
 knative.dev/eventing/pkg/observability
 knative.dev/eventing/pkg/observability/client
-# knative.dev/hack v0.0.0-20230818155117-9cc05a31e8c0
+# knative.dev/hack v0.0.0-20230712131415-ddae80293c43
 ## explicit; go 1.18
 knative.dev/hack
 # knative.dev/networking v0.0.0-20230718160410-75dcd54d9510
@@ -1353,7 +1356,7 @@ knative.dev/hack
 knative.dev/networking/pkg/apis/networking
 knative.dev/networking/pkg/apis/networking/v1alpha1
 knative.dev/networking/pkg/config
-# knative.dev/pkg v0.0.0-20230829134737-fcccb4e1a0a4
+# knative.dev/pkg v0.0.0-20230718152110-aef227e72ead
 ## explicit; go 1.18
 knative.dev/pkg/apis
 knative.dev/pkg/apis/duck
