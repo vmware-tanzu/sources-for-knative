@@ -1,0 +1,21 @@
+apiVersion: sources.tanzu.vmware.com/v1alpha1
+kind: VSphereSource
+metadata:
+  name: vcsim
+spec:
+  # If you aren't using Sockeye, then replace this with
+  # where you want events sent.
+  sink:
+    ref:
+      apiVersion: serving.knative.dev/v1
+      kind: Service
+      name: sockeye
+
+  # This points to the Kubernetes service in front of vcsim
+  # configured above.
+  address: https://vcsim.default.svc.cluster.local
+  skipTLSVerify: true
+  # This points to the secret created above with the simple
+  # vcsim credentials.
+  secretRef:
+    name: vsphere-credentials
