@@ -13,7 +13,6 @@ import (
 	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -25,9 +24,9 @@ type FakeHorizonSources struct {
 	ns   string
 }
 
-var horizonsourcesResource = schema.GroupVersionResource{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Resource: "horizonsources"}
+var horizonsourcesResource = v1alpha1.SchemeGroupVersion.WithResource("horizonsources")
 
-var horizonsourcesKind = schema.GroupVersionKind{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Kind: "HorizonSource"}
+var horizonsourcesKind = v1alpha1.SchemeGroupVersion.WithKind("HorizonSource")
 
 // Get takes name of the horizonSource, and returns the corresponding horizonSource object, and an error if there is any.
 func (c *FakeHorizonSources) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.HorizonSource, err error) {
