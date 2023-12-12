@@ -22,13 +22,13 @@ jobs:
     timeout-minutes: 30
 
     steps:
-    - name: Set up Go 1.19.x
+    - name: Set up Go 1.21.x
       uses: actions/setup-go@v3
       with:
-        go-version: 1.19.x
+        go-version: 1.21.x
 
     - name: Setup ko
-      uses: imjasonh/setup-ko@v0.6
+      uses: ko-build/setup-ko@v0.6
 
     - name: Check out code onto GOPATH
       uses: actions/checkout@v3
@@ -38,7 +38,7 @@ jobs:
     - name: Setup KinD Cluster with VMware sources.
       working-directory: ./src/github.com/${{ github.repository }}
       env:
-        KIND_VERSION: v0.16.0
+        KIND_VERSION: v0.19.0
       run: |
         set -x
 
@@ -110,20 +110,20 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: Set up Go 1.19.x
+    - name: Set up Go 1.21.x
       uses: actions/setup-go@v3
       with:
-        go-version: 1.19.x
+        go-version: 1.21.x
 
     - name: Setup ko
-      uses: imjasonh/setup-ko@v0.6
+      uses: ko-build/setup-ko@v0.6
 
     - name: Check out code
       uses: actions/checkout@v3
 
     - name: Setup KinD Cluster
       env:
-        KIND_VERSION: v0.16.0
+        KIND_VERSION: v0.19.0
       run: |
         set -x
 

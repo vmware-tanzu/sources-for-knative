@@ -13,7 +13,6 @@ import (
 	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -25,9 +24,9 @@ type FakeVSphereBindings struct {
 	ns   string
 }
 
-var vspherebindingsResource = schema.GroupVersionResource{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Resource: "vspherebindings"}
+var vspherebindingsResource = v1alpha1.SchemeGroupVersion.WithResource("vspherebindings")
 
-var vspherebindingsKind = schema.GroupVersionKind{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Kind: "VSphereBinding"}
+var vspherebindingsKind = v1alpha1.SchemeGroupVersion.WithKind("VSphereBinding")
 
 // Get takes name of the vSphereBinding, and returns the corresponding vSphereBinding object, and an error if there is any.
 func (c *FakeVSphereBindings) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VSphereBinding, err error) {

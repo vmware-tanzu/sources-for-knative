@@ -13,7 +13,6 @@ import (
 	v1alpha1 "github.com/vmware-tanzu/sources-for-knative/pkg/apis/sources/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
-	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
@@ -25,9 +24,9 @@ type FakeVSphereSources struct {
 	ns   string
 }
 
-var vspheresourcesResource = schema.GroupVersionResource{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Resource: "vspheresources"}
+var vspheresourcesResource = v1alpha1.SchemeGroupVersion.WithResource("vspheresources")
 
-var vspheresourcesKind = schema.GroupVersionKind{Group: "sources.tanzu.vmware.com", Version: "v1alpha1", Kind: "VSphereSource"}
+var vspheresourcesKind = v1alpha1.SchemeGroupVersion.WithKind("VSphereSource")
 
 // Get takes name of the vSphereSource, and returns the corresponding vSphereSource object, and an error if there is any.
 func (c *FakeVSphereSources) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.VSphereSource, err error) {
