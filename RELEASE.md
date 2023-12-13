@@ -1,5 +1,11 @@
 # Creating a release for VMware Tanzu Sources for Knative
 
+## Create a `branch`
+
+Through the Github UI (or via git cli), create a new release branch, e.g. `release-1.10`. In the
+branch selection window, enter a release value following the example above and
+click `"create branch: <release-name>"`.
+
 ## Verification
 
 Before creating a release, verify its releasability with the corresponding
@@ -7,17 +13,11 @@ Github Action
 [workflow](https://github.com/vmware-tanzu/sources-for-knative/actions/workflows/knative-releasability.yaml).
 
 Enter the next
-- `Release? (vX.Y)` value (eg. "v1.2")
-- `Module Release? (vX.Y)` value (eg. "v0.29")
+- `Release? (vX.Y)` value (eg. "v1.12")
+- `Module Release? (vX.Y)` value (eg. "v0.39")
 - (optionally) a value for `Slack Channel? (release-#)` if you want to send the output to Slack.
 
 Only if the release status is `GREEN`, proceed with the next steps.
-
-## Create a `branch`
-
-Through the Github UI, create a new release branch, e.g. `release-1.0`. In the
-branch selection window, enter a release value following the example above and
-click `"create branch: <release-name>"`.
 
 ## Creating a `tag`
 
@@ -29,20 +29,20 @@ work. Here's one example workflow (assuming of course you have rights to
 directly push to the upstream repo).
 
 Despite Knative's external semantic version uses a MAJOR version like 1.0, the release tags in this repo are still versioned in the `v0.x.y` format and correspond to the Knative tags `knative-v1.a.y`.
-This starts from `v0.27.0` == `knative-v1.0.0` and each MINOR version addition of a `knative-v1.a.y` tag corresponds to the same addition of a `0.x.y` tag.
+This starts from `v0.37.0` == `knative-v1.10.0` and each MINOR version addition of a `knative-v1.a.y` tag corresponds to the same addition of a `0.x.y` tag.
 
 PATCH versions are ignored in the branch name. In case a release version MUST be patched, use the existing `release-MAJOR.MINOR` branch with a new tag pointing to the correct commit, i.e:
 
 | Branch      | Normal Tag  | Knative Tag      |
 |-------------|-------------|------------------|
-| release-1.0 | `v0.27.0`   | `knative-v1.0.0` |
-| release-1.1 | `v0.28.0`   | `knative-v1.1.0` |
-| release-1.1 | `v0.28.1`   | `knative-v1.1.1` |
-| release-1.2 | `v0.29.0`   | `knative-v1.2.0` |
-| release-1.3 | `v0.30.0`   | `knative-v1.3.0` |
+| release-1.10 | `v0.37.0`   | `knative-v1.10.0` |
+| release-1.11 | `v0.38.0`   | `knative-v1.11.0` |
+| release-1.11 | `v0.38.1`   | `knative-v1.11.1` |
+| release-1.12 | `v0.39.0`   | `knative-v1.12.0` |
+| release-1.13 | `v0.40.0`   | `knative-v1.40.0` |
 and so on...
 
-As a practical example, to create a release called `v0.27.0` you would run the following commands:
+As a practical example, to create a release for `v0.37.0` you would run the following commands:
 
 ```shell
 cd /tmp
@@ -53,14 +53,13 @@ cd sources-for-knative
 git checkout release-1.0
 
 # associate the tag with the branch
-git tag -a v0.27.0 -m "Release v0.27.0"
+git tag -a v0.37.0 -m "Release v0.37.0"
 
 # since knative version 1.0 we need to create an aditional tag that matches the
 # knative-v1.x.y tag format
-git tag -a knative-v1.0.0 -m "Release knative-v1.0.0"
+git tag -a knative-v1.10.0 -m "Release knative-v1.10.0"
 
-git push origin v0.27.0
-git push origin knative-v1.0.0
+git push origin v0.37.0 knative-v1.10.0
 ```
 
 ## Release Notes
@@ -79,12 +78,11 @@ git checkout release-1.0
 git cherry-pick commit1 commit2 ...
 
 # here the PATCH version is required and it must not exist already
-git tag -a v0.27.1 -m "Release v0.27.1"
+git tag -a v0.37.1 -m "Release v0.37.1"
 
-git tag -a knative-v1.0.1 -m "Release knative-v1.0.1"
+git tag -a knative-v1.10.1 -m "Release knative-v1.10.1"
 
-git push origin v0.27.1
-git push origin knative-v1.0.1
+git push origin v0.37.1 knative-v1.10.1
 ```
 
 **Notes:**
