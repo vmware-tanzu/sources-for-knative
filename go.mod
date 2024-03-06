@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/braintree/manners v0.0.0-20160418043613-82a8879fc5fd // indirect
-	github.com/cloudevents/sdk-go/v2 v2.13.0
+	github.com/cloudevents/sdk-go/v2 v2.15.2
 	github.com/codegangsta/cli v0.0.0-00010101000000-000000000000 // indirect
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elazarl/go-bindata-assetfs v1.0.0 // indirect
